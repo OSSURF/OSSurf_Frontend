@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowUpRight,
   Star,
@@ -185,5 +186,46 @@ export function GitHubRepoCard({
         )}
       </div>
     </a>
+  );
+}
+
+export function GitHubRepoCardSkeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      data-slot="github-repo-card-skeleton"
+      className={cn(
+        "flex h-full flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
+        className,
+      )}
+      {...props}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-12 w-12 rounded-none border border-border/60" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-4 w-40 rounded-none" />
+            <Skeleton className="h-3 w-56 rounded-none" />
+            <Skeleton className="h-3 w-44 rounded-none" />
+          </div>
+        </div>
+        <Skeleton className="h-5 w-5 rounded-none" />
+      </div>
+
+      <div className="flex h-5 w-full items-center gap-2">
+        <Skeleton className="h-5 w-16 rounded-none" />
+        <Skeleton className="h-5 w-20 rounded-none" />
+        <Skeleton className="h-5 w-14 rounded-none" />
+      </div>
+
+      <div className="flex items-center gap-4 text-xs mt-auto pt-2">
+        <Skeleton className="h-3 w-20 rounded-none" />
+        <Skeleton className="h-3 w-12 rounded-none" />
+        <Skeleton className="h-3 w-12 rounded-none" />
+        <Skeleton className="ml-auto h-3 w-28 rounded-none" />
+      </div>
+    </div>
   );
 }
