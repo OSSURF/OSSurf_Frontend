@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LandingPage } from "./pages/LandingPage";
 import DashboardLayout from "./dashboard/layout/DashboardLayout";
@@ -23,14 +23,18 @@ function App() {
 
           {/* Dashboard layout for authenticated pages */}
           <Route element={<DashboardLayout />}>
-            <Route path="/home" element={<YCPage />} />
             <Route path="/yc-oss" element={<YCPage />} />
             <Route path="/gsoc-orgs" element={<GsocPage />} />
+            <Route path="/discover" element={<Navigate to="/home" replace />} />
 
             {/* Repos with nested layout */}
             <Route element={<ReposLayout />}>
+              <Route path="/home" element={<DiscoverReposPage />} />
               <Route path="/trending-repos" element={<TrendingReposPage />} />
-              <Route path="/discover-repos" element={<DiscoverReposPage />} />
+              <Route
+                path="/discover-repos"
+                element={<Navigate to="/home" replace />}
+              />
             </Route>
 
             {/* Issues */}
