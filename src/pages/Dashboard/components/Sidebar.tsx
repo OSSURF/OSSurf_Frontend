@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cva } from "class-variance-authority";
-import type { IconProps } from "@tabler/icons-react";
+import { IconUserCircle, type IconProps } from "@tabler/icons-react";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "@/components/Logo";
 import { Separator } from "@/components/ui/separator";
@@ -36,16 +36,12 @@ const items: Item[] = [
   { type: "separator" },
   { icon: AnalyticsUpIcon, label: "Trending Repos", href: "/trending-repos" },
   {
-    icon: DashboardSquare03Icon,
-    label: "Discover Repos",
-    href: "/discover-repos",
-  },
-  {
     icon: AlertCircleStrokeRounded,
     label: "Find Issues",
     href: "/find-issues",
   },
   { type: "separator" },
+  { icon: IconUserCircle, label: "Profile", href: "/profile" },
   { icon: DashboardSquare03Icon, label: "Overview", href: "/overview" },
   { icon: GitPullRequestIcon, label: "Pull Requests", href: "/pull-requests" },
   { icon: Bug02Icon, label: "Issues", href: "/issues" },

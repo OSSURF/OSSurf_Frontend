@@ -140,16 +140,7 @@ export default function TrendingReposPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl tracking-tight font-serif-instrument">
-          Trending Repos
-        </h1>
-        <p className="text-muted-foreground">
-          See what the open source community is excited about.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-1 gap-2">
         {loading ? (
           Array.from({ length: 9 }).map((_, i) => (
             <div

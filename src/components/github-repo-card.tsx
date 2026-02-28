@@ -6,7 +6,6 @@ import {
   Star,
   GitFork,
   WarningCircle,
-  TrendUp,
   BookOpen,
 } from "@phosphor-icons/react";
 
@@ -84,7 +83,7 @@ export function GitHubRepoCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group flex h-full flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
+        "group flex h-full min-w-[280px] flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
         "transition-colors hover:border-foreground/20 hover:bg-accent/30",
         className,
       )}
@@ -122,23 +121,23 @@ export function GitHubRepoCard({
 
       <div
         className={cn(
-          "relative h-5",
+          "relative h-4 sm:h-5",
           hasTags &&
             "after:pointer-events-none after:absolute after:top-0 after:right-0 after:h-full after:w-8 after:bg-linear-to-l after:from-background after:to-transparent",
         )}
       >
-        <div className="flex h-5 w-full flex-nowrap items-center gap-2 overflow-hidden whitespace-nowrap">
+        <div className="flex h-4 sm:h-5 w-full flex-nowrap items-center gap-1 sm:gap-2 overflow-hidden whitespace-nowrap">
           {hasTags ? (
             tags.map((tag) => (
               <span
                 key={tag}
-                className="flex h-5 items-center rounded-none border border-border/60 bg-white px-2 text-[11px] text-black dark:bg-black dark:text-white"
+                className="flex h-4 sm:h-5 items-center rounded-none border border-border/60 bg-white px-1.5 sm:px-2 text-[10px] sm:text-[11px] text-black dark:bg-black dark:text-white"
               >
                 {tag}
               </span>
             ))
           ) : (
-            <span className="flex h-5 items-center px-2 text-[11px] opacity-0">
+            <span className="flex h-4 sm:h-5 items-center px-1.5 sm:px-2 text-[10px] sm:text-[11px] opacity-0">
               placeholder
             </span>
           )}
@@ -197,7 +196,7 @@ export function GitHubRepoCardSkeleton({
     <div
       data-slot="github-repo-card-skeleton"
       className={cn(
-        "flex h-full flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
+        "flex h-full min-w-[280px] flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
         className,
       )}
       {...props}

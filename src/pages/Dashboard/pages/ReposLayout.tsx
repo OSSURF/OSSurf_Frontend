@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Outlet, useSearchParams } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -21,6 +21,7 @@ interface FiltersContextType {
 }
 
 export default function ReposLayout() {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [language, setLanguage] = useState(
     searchParams.get("language") || "all",
@@ -29,6 +30,10 @@ export default function ReposLayout() {
   const [period, setPeriod] = useState(searchParams.get("period") || "daily");
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [allLanguages, setAllLanguages] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSearch(searchParams.get("search") || "");
+  }, [searchParams]);
 
   const languageOptions = useMemo(
     () => [
@@ -89,13 +94,30 @@ export default function ReposLayout() {
     });
   };
 
+  const pageHeader =
+    location.pathname === "/trending-repos"
+      ? {
+          title: "Trending Repos",
+          description: "See what the open source community is excited about.",
+        }
+      : {
+          title: "Discover Repos",
+          description: "Explore new and interesting repositories.",
+        };
+
   return (
     <div className="flex-1 overflow-y-auto w-full bg-background font-geist">
       <section className="px-6 md:px-10 py-8 max-w-[1600px] mx-auto">
         <div className="space-y-6">
-          {/* Filters */}
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-3 justify-end">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="gap-1">
+              <h1 className="text-3xl tracking-tight font-serif-instrument">
+                {pageHeader.title}
+              </h1>
+              <p className="text-muted-foreground">{pageHeader.description}</p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 justify-start md:justify-end">
               <Select value={period} onValueChange={handlePeriodChange}>
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Period" />
@@ -137,20 +159,23 @@ export default function ReposLayout() {
             </div>
           </div>
 
-          {/* Render child pages */}
           <Outlet
-            context={{
-              language,
-              sort,
-              period,
-              search,
-              onLanguageChange: handleLanguageChange,
-              onSortChange: handleSortChange,
-              onPeriodChange: handlePeriodChange,
-              onSearchChange: handleSearchChange,
-              languageOptions,
-              setAllLanguages,
-            }}
+            context={
+              {
+                language,
+                sort,
+                period,
+                search,
+                onLanguageChange: handleLanguageChange,
+                onSortChange: handleSortChange,
+                onPeriodChange: handlePeriodChange,
+                onSearchChange: handleSearchChange,
+                languageOptions,
+                setAllLanguages,
+              } satisfies FiltersContextType & {
+                setAllLanguages: (langs: string[]) => void;
+              }
+            }
           />
         </div>
       </section>

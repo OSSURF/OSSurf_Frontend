@@ -1,16 +1,17 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LandingPage } from "./pages/LandingPage";
-import DashboardLayout from "./dashboard/layout/DashboardLayout";
-import OverviewPage from "./pages/Overview";
 import LoginPage from "./pages/Login";
+import DashboardLayout from "./pages/Dashboard/layout/DashboardLayout";
+import OverviewPage from "./pages/Dashboard/pages/OverviewPage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import YCPage from "./dashboard/pages/YCPage";
-import GsocPage from "./dashboard/pages/GsocPage";
-import ReposLayout from "./dashboard/pages/repos/ReposLayout";
-import TrendingReposPage from "./dashboard/pages/repos/TrendingReposPage";
-import DiscoverReposPage from "./dashboard/pages/repos/DiscoverReposPage";
-import IssuesPage from "./dashboard/pages/issues/IssuesPage";
+import YCPage from "./pages/Dashboard/pages/YCPage";
+import GsocPage from "./pages/Dashboard/pages/GsocPage";
+import ReposLayout from "./pages/Dashboard/pages/ReposLayout";
+import TrendingReposPage from "./pages/Dashboard/pages/TrendingReposPage";
+import HomePage from "./pages/Dashboard/pages/HomePage";
+import IssuesPage from "./pages/Dashboard/pages/IssuesPage";
+import ProfilePage from "./pages/Dashboard/pages/ProfilePage";
 import "./index.css";
 
 function App() {
@@ -29,7 +30,7 @@ function App() {
 
             {/* Repos with nested layout */}
             <Route element={<ReposLayout />}>
-              <Route path="/home" element={<DiscoverReposPage />} />
+              <Route path="/home" element={<HomePage />} />
               <Route path="/trending-repos" element={<TrendingReposPage />} />
               <Route
                 path="/discover-repos"
@@ -39,6 +40,7 @@ function App() {
 
             {/* Issues */}
             <Route path="/find-issues" element={<IssuesPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>

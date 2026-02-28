@@ -11,6 +11,7 @@ interface SearchHeaderProps {
     | "gsoc-orgs"
     | "trending-repos"
     | "overview"
+    | "profile"
     | "pull-requests"
     | "issues";
   onMenuToggle?: () => void;
@@ -39,6 +40,7 @@ export default function SearchHeader({
     "gsoc-orgs": "Find GSoC orgs...",
     "trending-repos": "Find trending repos...",
     overview: "Search overview...",
+    profile: "Search profile...",
     "pull-requests": "Find pull requests...",
     issues: "Find issues...",
   };

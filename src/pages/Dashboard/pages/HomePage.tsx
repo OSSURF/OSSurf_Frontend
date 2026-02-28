@@ -35,7 +35,7 @@ interface ReposContextType {
   setAllLanguages: (langs: string[]) => void;
 }
 
-export default function DiscoverReposPage() {
+export default function HomePage() {
   const context = useOutletContext<ReposContextType>();
   const { language, sort, search, setAllLanguages } = context;
 
@@ -118,7 +118,6 @@ export default function DiscoverReposPage() {
             ),
         );
 
-        // Extract unique languages for filter
         const languages = new Set<string>();
         uniqueRepos.forEach((repo) => {
           if (repo.language) languages.add(repo.language);
@@ -139,15 +138,6 @@ export default function DiscoverReposPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl tracking-tight font-serif-instrument">
-          Discover Repos
-        </h1>
-        <p className="text-muted-foreground">
-          Explore new and interesting repositories.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
           Array.from({ length: 9 }).map((_, i) => (
