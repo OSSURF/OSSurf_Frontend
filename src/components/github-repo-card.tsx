@@ -83,7 +83,7 @@ export function GitHubRepoCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group flex h-full min-w-[280px] flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
+        "group flex h-full min-w-70 flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
         "transition-colors hover:border-foreground/20 hover:bg-accent/30",
         className,
       )}
@@ -196,7 +196,7 @@ export function GitHubRepoCardSkeleton({
     <div
       data-slot="github-repo-card-skeleton"
       className={cn(
-        "flex h-full min-w-[280px] flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
+        "flex h-full min-w-70 flex-col gap-3 p-4 border border-border/60 rounded-none bg-card max-w-full font-geist",
         className,
       )}
       {...props}

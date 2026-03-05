@@ -5,23 +5,23 @@ import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
 
 const DbRepoSchema = z.object({
   id: z.number(),
-  github_id: z.number(),
+  github_id: z.number().optional().nullable(),
   owner: z.string(),
   repo_name: z.string(),
   full_name: z.string(),
   url: z.string(),
-  description: z.string().nullable(),
-  language: z.string().nullable(),
-  stargazers_count: z.number(),
-  forks_count: z.number(),
-  watchers_count: z.number(),
-  open_issues_count: z.number(),
+  description: z.string().nullable().optional(),
+  language: z.string().nullable().optional(),
+  stargazers_count: z.number().optional(),
+  forks_count: z.number().optional(),
+  watchers_count: z.number().optional().nullable(),
+  open_issues_count: z.number().optional().nullable(),
   avatar_url: z.string().nullable().optional(),
   stars_earned: z.number().nullable().optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
+  created_at: z.string().optional().nullable(),
+  updated_at: z.string().optional().nullable(),
   last_synced_at: z.string().optional().nullable(),
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
 });
 
 const TrendingResponseSchema = z.object({
@@ -100,13 +100,13 @@ export default function TrendingReposPage() {
         const mappedRepos: RepoData[] = result.data.data.map((item) => ({
           owner: item.owner,
           repo_name: item.repo_name,
-          description: item.description,
-          language: item.language,
-          stargazers_count: item.stargazers_count,
-          forks_count: item.forks_count,
-          watchers_count: item.watchers_count,
-          open_issue_count: item.open_issues_count,
-          tags: item.tags,
+          description: item.description ?? null,
+          language: item.language ?? null,
+          stargazers_count: item.stargazers_count ?? 0,
+          forks_count: item.forks_count ?? 0,
+          watchers_count: item.watchers_count ?? null,
+          open_issue_count: item.open_issues_count ?? null,
+          tags: item.tags ?? [],
           avatarUrl: item.avatar_url ?? null,
           stars_earned: item.stars_earned ?? null,
         }));
@@ -140,7 +140,7 @@ export default function TrendingReposPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-1 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
           Array.from({ length: 9 }).map((_, i) => (
             <div

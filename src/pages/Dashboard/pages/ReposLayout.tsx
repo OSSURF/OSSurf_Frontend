@@ -22,6 +22,7 @@ interface FiltersContextType {
 
 export default function ReposLayout() {
   const location = useLocation();
+  const isTrendingPage = location.pathname === "/trending-repos";
   const [searchParams, setSearchParams] = useSearchParams();
   const [language, setLanguage] = useState(
     searchParams.get("language") || "all",
@@ -118,21 +119,23 @@ export default function ReposLayout() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3 justify-start md:justify-end">
-              <Select value={period} onValueChange={handlePeriodChange}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Period" />
-                </SelectTrigger>
-                <SelectContent>
-                  {periodOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {isTrendingPage && (
+                <Select value={period} onValueChange={handlePeriodChange}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periodOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
               <Select value={language} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-[160px] rounded-none">
                   <SelectValue placeholder="Language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -145,7 +148,7 @@ export default function ReposLayout() {
               </Select>
 
               <Select value={sort} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[140px] rounded-none">
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent>

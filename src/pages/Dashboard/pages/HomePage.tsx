@@ -3,29 +3,23 @@ import { useOutletContext } from "react-router-dom";
 import { z } from "zod";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
 
-const DbRepoSchema = z.object({
-  id: z.number(),
-  github_id: z.number(),
-  owner: z.string(),
-  repo_name: z.string(),
-  full_name: z.string(),
-  url: z.string(),
+const GithubRepoSchema = z.object({
+  owner: z.object({
+    login: z.string(),
+    avatar_url: z.string().nullable().optional(),
+  }),
+  name: z.string(),
   description: z.string().nullable(),
   language: z.string().nullable(),
   stargazers_count: z.number(),
   forks_count: z.number(),
   watchers_count: z.number(),
   open_issues_count: z.number(),
-  avatar_url: z.string().nullable().optional(),
-  stars_earned: z.number().nullable().optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
-  last_synced_at: z.string().optional().nullable(),
-  tags: z.array(z.string()),
+  topics: z.array(z.string()).optional().default([]),
 });
 
 const DiscoverResponseSchema = z.object({
-  data: z.array(DbRepoSchema),
+  items: z.array(GithubRepoSchema),
 });
 
 interface ReposContextType {
@@ -77,7 +71,8 @@ export default function HomePage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const url = `http://localhost:3000/api/discover`;
+        const apiSort = sort === "forks" ? "forks" : "stars";
+        const url = `/api/discover?sort=${apiSort}`;
         const res = await fetch(url);
 
         if (!res.ok) {
@@ -96,18 +91,18 @@ export default function HomePage() {
           return;
         }
 
-        const mappedRepos: RepoData[] = result.data.data.map((item) => ({
-          owner: item.owner,
-          repo_name: item.repo_name,
+        const mappedRepos: RepoData[] = result.data.items.map((item) => ({
+          owner: item.owner.login,
+          repo_name: item.name,
           description: item.description,
           language: item.language,
           stargazers_count: item.stargazers_count,
           forks_count: item.forks_count,
           watchers_count: item.watchers_count,
           open_issue_count: item.open_issues_count,
-          tags: item.tags,
-          avatarUrl: item.avatar_url ?? null,
-          stars_earned: item.stars_earned ?? null,
+          tags: item.topics ?? [],
+          avatarUrl: item.owner.avatar_url ?? null,
+          stars_earned: null,
         }));
 
         const uniqueRepos = mappedRepos.filter(
@@ -134,7 +129,7 @@ export default function HomePage() {
     }
 
     fetchData();
-  }, [setAllLanguages]);
+  }, [setAllLanguages, sort]);
 
   return (
     <div className="space-y-6">

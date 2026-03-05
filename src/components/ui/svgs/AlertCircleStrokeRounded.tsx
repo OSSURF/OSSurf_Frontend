@@ -9,6 +9,7 @@ const SvgAlertCircleStrokeRounded = (props: SVGProps<SVGSVGElement>) => (
     stroke="currentColor"
     strokeLinecap="round"
     strokeLinejoin="round"
+    strokeWidth={1}
     color="currentColor"
     viewBox="0 0 24 24"
     {...props}

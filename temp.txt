@@ -1,0 +1,3 @@
+src/components/github-repo-card.tsx(199,1): error TS1185: Merge conflict marker encountered.
+src/components/github-repo-card.tsx(201,1): error TS1185: Merge conflict marker encountered.
+src/components/github-repo-card.tsx(203,1): error TS1185: Merge conflict marker encountered.

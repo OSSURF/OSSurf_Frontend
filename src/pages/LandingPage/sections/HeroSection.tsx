@@ -34,7 +34,7 @@ export function HeroSection() {
         
         <div className="w-full md:w-1/2 relative z-10 flex items-center justify-center">
           <div className="max-w-xl px-6 text-center md:text-left">
-            <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-serif-instrument leading-tight text-foreground">
+            <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-4xl font-serif-instrument leading-tight text-foreground">
               Surface OSS in{" "}
               <span className="font-serif-instrument-italic text-muted-foreground">seconds</span>.
               Not in{" "}

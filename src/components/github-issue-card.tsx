@@ -6,6 +6,7 @@ import {
   Circle,
   XCircle,
   CalendarBlank,
+  Tag,
 } from "@phosphor-icons/react";
 
 interface User {
@@ -39,11 +40,12 @@ function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
+
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffMins < 60) return `${Math.max(1, diffMins)}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 30) return `${diffDays}d ago`;
 
@@ -54,6 +56,49 @@ function getRepositoryName(repositoryUrl?: string): string {
   if (!repositoryUrl) return "Issue";
   const parts = repositoryUrl.split("/");
   return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+}
+
+function normalizeHexColor(color: string): string {
+  const cleaned = color.trim().replace("#", "");
+  if (/^[0-9a-fA-F]{6}$/.test(cleaned)) return `#${cleaned}`;
+  if (/^[0-9a-fA-F]{3}$/.test(cleaned)) {
+    const expanded = cleaned
+      .split("")
+      .map((char) => `${char}${char}`)
+      .join("");
+    return `#${expanded}`;
+  }
+  return "#6b7280";
+}
+
+function hexToRgb(hex: string) {
+  const safe = normalizeHexColor(hex).replace("#", "");
+  const red = parseInt(safe.slice(0, 2), 16);
+  const green = parseInt(safe.slice(2, 4), 16);
+  const blue = parseInt(safe.slice(4, 6), 16);
+  return { red, green, blue };
+}
+
+function getLabelClass(labelName: string): string {
+  const normalized = labelName.toLowerCase();
+
+  if (normalized.startsWith("type:")) {
+    return "border-red-400/30 bg-red-500/12 text-red-300";
+  }
+
+  if (normalized.startsWith("topic:")) {
+    return "border-slate-400/35 bg-slate-500/12 text-slate-200";
+  }
+
+  if (normalized.startsWith("mod:")) {
+    return "border-cyan-400/30 bg-cyan-500/12 text-cyan-200";
+  }
+
+  if (normalized.startsWith("status:")) {
+    return "border-amber-500/30 bg-amber-500/10 text-amber-400";
+  }
+
+  return "border-border/80 bg-muted/35 text-muted-foreground";
 }
 
 export function GitHubIssueCard({
@@ -125,28 +170,25 @@ export function GitHubIssueCard({
       </div>
 
       {hasLabels && (
-        <div
-          className={cn(
-            "relative h-5",
-            "after:pointer-events-none after:absolute after:top-0 after:right-0 after:h-full after:w-8 after:bg-linear-to-l after:from-background after:to-transparent",
+        <div className="flex flex-wrap items-center gap-2">
+          {issue.labels.slice(0, 6).map((label) => (
+            <span
+              key={label.name}
+              className={cn(
+                "inline-flex h-7 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold",
+                getLabelClass(label.name),
+              )}
+              title={label.description || label.name}
+            >
+              <Tag className="h-3.5 w-3.5" weight="regular" />
+              {label.name}
+            </span>
+          ))}
+          {issue.labels.length > 6 && (
+            <span className="inline-flex h-7 items-center rounded-md border border-border/60 px-2.5 text-xs font-medium text-muted-foreground">
+              +{issue.labels.length - 6}
+            </span>
           )}
-        >
-          <div className="flex h-5 w-full flex-nowrap items-center gap-2 overflow-hidden whitespace-nowrap">
-            {issue.labels.map((label) => (
-              <span
-                key={label.name}
-                className="flex h-5 items-center rounded-none border px-2 text-[11px] font-medium"
-                style={{
-                  borderColor: `#${label.color}40`,
-                  backgroundColor: `#${label.color}15`,
-                  color: `#${label.color}`,
-                }}
-                title={label.description || label.name}
-              >
-                {label.name}
-              </span>
-            ))}
-          </div>
         </div>
       )}
 

@@ -12,6 +12,8 @@ import TrendingReposPage from "./pages/Dashboard/pages/TrendingReposPage";
 import HomePage from "./pages/Dashboard/pages/HomePage";
 import IssuesPage from "./pages/Dashboard/pages/IssuesPage";
 import ProfilePage from "./pages/Dashboard/pages/ProfilePage";
+import TrackedPRsPage from "./pages/Dashboard/pages/TrackedPRsPage";
+import TrackedIssuesPage from "./pages/Dashboard/pages/TrackedIssuesPage";
 import "./index.css";
 
 function App() {
@@ -45,8 +47,8 @@ function App() {
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/overview" element={<OverviewPage />} />
-              <Route path="/pull-requests" element={<YCPage />} />
-              <Route path="/issues" element={<IssuesPage />} />
+              <Route path="/pull-requests" element={<TrackedPRsPage />} />
+              <Route path="/issues" element={<TrackedIssuesPage />} />
             </Route>
           </Route>
         </Routes>

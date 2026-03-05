@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cva } from "class-variance-authority";
 import { IconUserCircle, type IconProps } from "@tabler/icons-react";
@@ -13,12 +13,11 @@ import Airpod01Icon from "@/components/ui/svgs/airpod-01-stroke-rounded";
 import Book02Icon from "@/components/ui/svgs/book-02-stroke-rounded";
 import AnalyticsUpIcon from "@/components/ui/svgs/analytics-up-stroke-rounded";
 import GitPullRequestIcon from "@/components/ui/svgs/git-pull-request-stroke-rounded";
-import Bug02Icon from "@/components/ui/svgs/bug-02-stroke-rounded";
 import DashboardSquare03Icon from "@/components/ui/svgs/dashboard-square-03-stroke-rounded";
 import AlertCircleStrokeRounded from "@/components/ui/svgs/AlertCircleStrokeRounded";
 
 interface NavItem {
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement> | IconProps>;
   label: string;
   href: string;
 }
@@ -41,10 +40,9 @@ const items: Item[] = [
     href: "/find-issues",
   },
   { type: "separator" },
-  { icon: IconUserCircle, label: "Profile", href: "/profile" },
   { icon: DashboardSquare03Icon, label: "Overview", href: "/overview" },
   { icon: GitPullRequestIcon, label: "Pull Requests", href: "/pull-requests" },
-  { icon: Bug02Icon, label: "Issues", href: "/issues" },
+  { icon: AlertCircleStrokeRounded, label: "Issues", href: "/issues" },
 ];
 
 const COLLAPSED = 70;
@@ -62,6 +60,7 @@ const iconContainerVariants = cva(
     },
   },
 );
+
 const labelVariants = cva(
   "text-sm whitespace-nowrap overflow-hidden pr-2 transition-colors",
   {
@@ -102,22 +101,22 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
       <motion.aside
         className={`
-        fixed top-0 left-0 z-50
-        h-screen
-        bg-background border-r border-border
-        flex flex-col
-        overflow-hidden
-        transition-transform duration-300 ease-in-out
-        md:translate-x-0
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-      `}
+          fixed top-0 left-0 z-50
+          h-screen
+          bg-background border-r border-border
+          flex flex-col
+          overflow-hidden
+          transition-transform duration-300 ease-in-out
+          md:translate-x-0
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
         initial={{ width: COLLAPSED }}
         animate={{ width: isExpanded ? EXPANDED : COLLAPSED }}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <header className="flex items-center justify-start h-[70px] w-full border-b border-border gap-3">
+        <header className="flex items-center h-[70px] w-full border-b border-border gap-3">
           <div className="ml-4 mr-4 text-gray-600 dark:text-neutral-500">
             <Logo />
           </div>
@@ -126,24 +125,20 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         <nav className="w-full mt-4 flex-1 overflow-y-auto overflow-x-hidden">
           <div className="flex flex-col gap-1">
             {items.map((item, index) => {
-              if ("type" in item && item.type === "separator") {
+              if ("type" in item) {
                 return (
                   <div key={`separator-${index}`} className="py-2 px-2">
                     <Separator />
                   </div>
                 );
               }
-
-              const navItem = item as NavItem;
-              const Icon = navItem.icon as React.ComponentType<
-                React.SVGProps<SVGSVGElement> | IconProps
-              >;
-              const isActive = location.pathname === navItem.href;
+              const { icon: Icon, label, href } = item as NavItem;
+              const isActive = location.pathname === href;
 
               return (
-                <div key={navItem.href} className="group relative h-10">
+                <div key={href} className="group relative h-10">
                   <Link
-                    to={navItem.href}
+                    to={href}
                     className="block h-10 w-full relative"
                     aria-current={isActive ? "page" : undefined}
                     onClick={() => onClose?.()}
@@ -151,8 +146,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     {isActive && (
                       <motion.div
                         layoutId="activeTab"
-                        className="absolute inset-0 border ml-4 mr-4 bg-card border-border"
-                        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                        className="absolute inset-0 border ml-4 mr-4 bg-card/80 border-border"
+                        transition={{ duration: 0.2 }}
                       />
                     )}
 
@@ -162,13 +157,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
                     <motion.div
                       className="absolute top-0 left-14 right-1 h-10 flex items-center pointer-events-none"
-                      animate={{
-                        opacity: isExpanded ? 1 : 0,
-                      }}
-                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                      animate={{ opacity: isExpanded ? 1 : 0 }}
+                      transition={{ duration: 0.2 }}
                     >
                       <motion.span className={labelVariants({ isActive })}>
-                        {navItem.label}
+                        {label}
                       </motion.span>
                     </motion.div>
                   </Link>
@@ -177,6 +170,49 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             })}
           </div>
         </nav>
+
+        <div className="mt-auto mb-4">
+          <div className="group relative h-10">
+            <Link
+              to="/profile"
+              className="block h-10 w-full relative"
+              aria-current={
+                location.pathname === "/profile" ? "page" : undefined
+              }
+              onClick={() => onClose?.()}
+            >
+              {location.pathname === "/profile" && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 border ml-4 mr-4 bg-card/80 border-border"
+                  transition={{ duration: 0.2 }}
+                />
+              )}
+
+              <div
+                className={iconContainerVariants({
+                  isActive: location.pathname === "/profile",
+                })}
+              >
+                <IconUserCircle className="h-5 w-5 shrink-0" stroke={1} />
+              </div>
+
+              <motion.div
+                className="absolute top-0 left-14 right-1 h-10 flex items-center pointer-events-none"
+                animate={{ opacity: isExpanded ? 1 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.span
+                  className={labelVariants({
+                    isActive: location.pathname === "/profile",
+                  })}
+                >
+                  Profile
+                </motion.span>
+              </motion.div>
+            </Link>
+          </div>
+        </div>
       </motion.aside>
     </>
   );
