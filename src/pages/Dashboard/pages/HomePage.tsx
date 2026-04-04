@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
+
+const DISCOVER_PER_PAGE = 30;
 
 const GithubRepoSchema = z.object({
   owner: z.object({
@@ -20,6 +22,12 @@ const GithubRepoSchema = z.object({
 
 const DiscoverResponseSchema = z.object({
   items: z.array(GithubRepoSchema),
+  page: z.number(),
+  perPage: z.number(),
+  total: z.number(),
+  totalPages: z.number(),
+  hasNextPage: z.boolean().optional(),
+  hasPreviousPage: z.boolean().optional(),
 });
 
 interface ReposContextType {
@@ -30,11 +38,14 @@ interface ReposContextType {
 }
 
 export default function HomePage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const context = useOutletContext<ReposContextType>();
   const { language, sort, search, setAllLanguages } = context;
+  const page = Math.max(1, Number(searchParams.get("page") || 1));
 
   const [repos, setRepos] = useState<RepoData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
 
   const processedRepos = useMemo(() => {
     let filtered = repos;
@@ -50,12 +61,6 @@ export default function HomePage() {
       });
     }
 
-    if (language !== "all") {
-      filtered = filtered.filter(
-        (repo) => repo.language?.toLowerCase() === language.toLowerCase(),
-      );
-    }
-
     const sorted = [...filtered].sort((a, b) => {
       if (sort === "stars") return b.stargazers_count - a.stargazers_count;
       if (sort === "forks") return b.forks_count - a.forks_count;
@@ -65,19 +70,29 @@ export default function HomePage() {
     });
 
     return sorted;
-  }, [repos, search, language, sort]);
+  }, [repos, search, sort]);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       try {
         const apiSort = sort === "forks" ? "forks" : "stars";
-        const url = `/api/discover?sort=${apiSort}`;
+        const params = new URLSearchParams();
+        params.set("sort", apiSort);
+        params.set("page", String(page));
+        params.set("perPage", String(DISCOVER_PER_PAGE));
+
+        if (language !== "all") {
+          params.set("language", language);
+        }
+
+        const url = `/api/discover?${params.toString()}`;
         const res = await fetch(url);
 
         if (!res.ok) {
           console.error("API Error:", res.status, res.statusText);
           setRepos([]);
+          setTotalPages(1);
           setLoading(false);
           return;
         }
@@ -88,6 +103,7 @@ export default function HomePage() {
         if (!result.success) {
           console.error("Zod Validation Error:", result.error.issues);
           setRepos([]);
+          setTotalPages(1);
           return;
         }
 
@@ -113,23 +129,45 @@ export default function HomePage() {
             ),
         );
 
-        const languages = new Set<string>();
-        uniqueRepos.forEach((repo) => {
-          if (repo.language) languages.add(repo.language);
-        });
-        setAllLanguages(Array.from(languages).sort());
+        if (language === "all") {
+          const languages = new Set<string>();
+          uniqueRepos.forEach((repo) => {
+            if (repo.language) languages.add(repo.language);
+          });
+          setAllLanguages(Array.from(languages).sort());
+        }
 
         setRepos(uniqueRepos);
+        setTotalPages(result.data.totalPages);
       } catch (error) {
         console.error("Failed to fetch discover repos:", error);
         setRepos([]);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }
     }
 
     fetchData();
-  }, [setAllLanguages, sort]);
+  }, [language, page, setAllLanguages, sort]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
+
+  const updatePage = (nextPage: number) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+
+      if (nextPage <= 1) {
+        next.delete("page");
+      } else {
+        next.set("page", String(nextPage));
+      }
+
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -153,6 +191,30 @@ export default function HomePage() {
             />
           ))
         )}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-border/60 pt-4">
+        <button
+          type="button"
+          onClick={() => updatePage(Math.max(1, page - 1))}
+          className="h-9 px-3 border border-border bg-card text-sm text-foreground disabled:opacity-50"
+          disabled={page <= 1 || loading}
+        >
+          Previous
+        </button>
+
+        <span className="text-sm text-muted-foreground">
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          type="button"
+          onClick={() => updatePage(Math.min(totalPages, page + 1))}
+          className="h-9 px-3 border border-border bg-card text-sm text-foreground disabled:opacity-50"
+          disabled={page >= totalPages || loading}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

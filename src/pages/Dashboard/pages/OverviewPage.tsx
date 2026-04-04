@@ -1,22 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { IconUsers } from "@tabler/icons-react";
-import { GitHubDark, GitHubLight } from "@ridemountainpig/svgl-react";
-import { ActivityCalendar } from "react-activity-calendar";
-import { TrendingUp, BarChart2, Plus, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Area,
   AreaChart,
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
   XAxis,
   CartesianGrid,
-  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
   ResponsiveContainer,
 } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
 import {
   Card,
   CardContent,
@@ -24,15 +23,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import type { ChartConfig } from "@/components/ui/chart";
-import { Badge } from "@/components/ui/badge";
-import GitPullRequestIcon from "@/components/ui/svgs/git-pull-request-stroke-rounded";
-import AlertCircleStrokeRounded from "@/components/ui/svgs/AlertCircleStrokeRounded";
+import { Panel, PanelContent } from "../components/panel";
+import { GitHubContributionGraph } from "../components/github-contributions/graph";
 
 // ─── Types ────────────────────────────────────────
 
@@ -117,12 +109,8 @@ interface DashboardResponse {
   recentIssues: TrackedIssue[];
 }
 
-// ─── Constants ────────────────────────────────────
-
-const RADAR_STROKE_COLOR = "#f97316";
-const RADAR_FILL_COLOR = "rgba(249, 115, 22, 0.18)";
-const RADAR_GRID_COLOR = "rgba(148, 163, 184, 0.28)";
-const RADAR_LABEL_COLOR = "rgba(148, 163, 184, 0.92)";
+const OVERVIEW_CARD_CLASS =
+  "px-3 flex flex-col bg-[#f5f5f5] dark:bg-card border border-dashed rounded-none shadow-none";
 
 // ─── Helpers ──────────────────────────────────────
 
@@ -227,17 +215,96 @@ export default function OverviewPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 overflow-y-auto w-full bg-background font-geist">
-        <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-4">
-          <div className="h-[200px] border bg-muted/20 animate-pulse" />
-          <div className="grid grid-cols-3 gap-2">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-[100px] border bg-muted/20 animate-pulse"
-              />
+      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
+        <div className="max-w-5xl space-y-0 mx-auto">
+
+          {/* Profile card skeleton */}
+          <div className={cn(OVERVIEW_CARD_CLASS, "gap-0 px-0")}>
+            <div className="flex items-center gap-4 p-6 border-b border-dashed border-border">
+              <div className="size-24 shrink-0 rounded-xl bg-muted animate-pulse" />
+              <div className="flex flex-col gap-3 flex-1">
+                <div className="h-8 w-48 rounded bg-muted animate-pulse" />
+                <div className="h-3.5 w-24 rounded bg-muted animate-pulse" />
+                <div className="flex gap-4 mt-1">
+                  <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                  <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 pb-6">
+              <div className="h-[117px] w-full rounded bg-muted/40 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Stat cards skeleton */}
+          <div className="py-6">
+            <div className="grid grid-cols-2 md:grid-cols-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={cn(OVERVIEW_CARD_CLASS, i < 3 && "border-r-0")}
+                >
+                  <div className="h-3.5 w-24 rounded bg-muted animate-pulse mt-2" />
+                  <div className="flex flex-col gap-5 items-start mt-2">
+                    <div className="h-5 w-16 rounded bg-muted animate-pulse" />
+                    <div className="flex justify-between w-full">
+                      <div className="h-3 w-20 rounded bg-muted animate-pulse mb-2" />
+                      <div className="h-3 w-8 rounded bg-muted animate-pulse mb-2" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* PR & Issues skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {[0, 1].map((i) => (
+              <div key={i} className="border border-dashed border-border bg-[#f5f5f5] dark:bg-card">
+                <div className="flex items-center justify-between p-4 border-b border-border">
+                  <div className="h-4 w-36 rounded bg-muted animate-pulse" />
+                  <div className="h-3 w-10 rounded bg-muted animate-pulse" />
+                </div>
+                {[0, 1, 2].map((j) => (
+                  <div key={j} className="p-4 border-b border-border last:border-0">
+                    <div className="flex items-start gap-3">
+                      <div className="size-8 rounded shrink-0 bg-muted animate-pulse" />
+                      <div className="flex-1 flex flex-col gap-2">
+                        <div className="h-3.5 w-3/4 rounded bg-muted animate-pulse" />
+                        <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
+                      </div>
+                      <div className="h-5 w-14 rounded bg-muted animate-pulse shrink-0" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
+
+          {/* Language + Activity skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <div className={cn(OVERVIEW_CARD_CLASS, "gap-0 py-3")}>
+              <div className="h-4 w-36 rounded bg-muted animate-pulse mx-1 mt-2" />
+              <div className="mt-4 h-[165px] w-full rounded bg-muted/40 animate-pulse" />
+              <div className="mt-4 space-y-2.5 px-1 pb-2">
+                {[0, 1, 2, 3].map((k) => (
+                  <div key={k} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-muted animate-pulse" />
+                      <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+                    </div>
+                    <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className={cn(OVERVIEW_CARD_CLASS, "gap-0 py-3")}>
+              <div className="h-4 w-32 rounded bg-muted animate-pulse mx-1 mt-2" />
+              <div className="h-3 w-48 rounded bg-muted animate-pulse mx-1 mt-2" />
+              <div className="mt-4 h-[300px] w-full rounded bg-muted/40 animate-pulse" />
+            </div>
+          </div>
+
         </div>
       </div>
     );
@@ -245,11 +312,13 @@ export default function OverviewPage() {
 
   if (error) {
     return (
-      <div className="flex-1 overflow-y-auto w-full bg-background font-geist">
-        <div className="p-6 md:p-8 max-w-6xl mx-auto">
-          <div className="border bg-card p-4 text-sm text-destructive">
-            {error}
-          </div>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
+        <div className="max-w-5xl mx-auto">
+          <Panel>
+            <PanelContent className="text-sm text-destructive">
+              {error}
+            </PanelContent>
+          </Panel>
         </div>
       </div>
     );
@@ -290,35 +359,12 @@ export default function OverviewPage() {
           { month: "Feb", prs: 3, issues: 1, total: 4 },
         ];
 
-  const radarRawData = profile
-    ? [
-        { stat: "Commits", rawValue: profile.graphs.radar.commits },
-        { stat: "PRs", rawValue: profile.graphs.radar.prs },
-        { stat: "Issues", rawValue: profile.graphs.radar.issues },
-        { stat: "Reviews", rawValue: profile.graphs.radar.reviews },
-      ]
-    : [
-        { stat: "Commits", rawValue: 0 },
-        { stat: "PRs", rawValue: 0 },
-        { stat: "Issues", rawValue: 0 },
-        { stat: "Reviews", rawValue: 0 },
-      ];
-  const maxRadarRawValue = Math.max(
-    ...radarRawData.map((item) => item.rawValue),
-    1,
-  );
-  const radarData = radarRawData.map((item) => ({
-    stat: item.stat,
-    rawValue: item.rawValue,
-    value: Math.max(12, Math.sqrt(item.rawValue / maxRadarRawValue) * 100),
-  }));
-
   const languageColors = [
-    "#3b82f6",
-    "#8b5cf6",
-    "#ec4899",
-    "#f59e0b",
+    "#6366f1",
+    "#22d3ee",
     "#10b981",
+    "#eab308",
+    "#f97316",
   ];
   const languageData = (profile?.graphs.languages ?? []).map((lang, idx) => ({
     name: lang.langName,
@@ -340,391 +386,266 @@ export default function OverviewPage() {
     issues: { label: "Issues", color: "var(--chart-2)" },
   };
 
-  const totalPrsInRange = displayMonthlyActivityData.reduce(
-    (sum, item) => sum + item.prs,
-    0,
-  );
-  const totalIssuesInRange = displayMonthlyActivityData.reduce(
-    (sum, item) => sum + item.issues,
-    0,
-  );
-
-  const prStats = profile?.graphs.prStats ?? {
-    merged: 0,
-    open: 0,
-    closed: 0,
-  };
+  const latestMonthActivity =
+    displayMonthlyActivityData[displayMonthlyActivityData.length - 1];
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(
+    now.getMonth() + 1,
+  ).padStart(2, "0")}`;
+  const commitsThisMonth = calendarData.reduce((sum, item) => {
+    if (!item.date.startsWith(currentMonthKey)) return sum;
+    return sum + item.count;
+  }, 0);
+  const statCards = [
+    {
+      key: "totalCommits",
+      label: "Total Commits",
+      value: profile?.stats.totalCommits ?? 0,
+      monthCount: commitsThisMonth,
+    },
+    {
+      key: "totalIssues",
+      label: "Total Issues",
+      value:
+        profile?.stats.totalIssues ??
+        dashboard?.stats.user.totalIssuesCreated ??
+        0,
+      monthCount: latestMonthActivity?.issues ?? 0,
+    },
+    {
+      key: "totalPrs",
+      label: "Total PRs",
+      value:
+        profile?.stats.totalPrs ?? dashboard?.stats.user.totalPrsCreated ?? 0,
+      monthCount: latestMonthActivity?.prs ?? 0,
+    },
+    {
+      key: "totalReviews",
+      label: "Total Reviews",
+      value: profile?.stats.totalReviews ?? 0,
+      monthCount: 0,
+    },
+  ];
   const recentPrs = dashboard?.recentPrs ?? [];
   const recentIssues = dashboard?.recentIssues ?? [];
 
   return (
-    <div className="flex-1 overflow-y-auto w-full bg-background font-geist">
-      <div className="p-6 md:p-8 max-w-6xl space-y-2 mx-auto">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
+      <div className="max-w-5xl space-y-0 mx-auto">
         {/* ────── Profile Header ────── */}
         {profile && (
-          <section className="border border-border bg-muted text-foreground shadow-none p-1">
-            <div className="bg-background py-6 px-5 md:px-4">
-              <div className="flex flex-col gap-6">
-                <div className="flex justify-between">
-                  <div className="flex items-center justify-center gap-5">
-                    <img
-                      src={profile.user.avatarUrl}
-                      alt={profile.user.login}
-                      className="w-24 h-24 border border-border"
-                    />
-                    <div>
-                      <h1 className="text-5xl font-serif-instrument tracking-tight leading-none">
-                        {profile.user.name || profile.user.login}
-                      </h1>
-                      <p className="text-xl text-muted-foreground">
-                        @{profile.user.login} •{" "}
-                        <IconUsers className="inline w-4 h-4" />{" "}
-                        {profile.user.followers} Followers{" "}
-                        {profile.user.following} Following
-                      </p>
-                      {profile.user.bio && (
-                        <p className="mt-2 text-muted-foreground">
-                          {profile.user.bio}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+          <Card className={cn(OVERVIEW_CARD_CLASS, "gap-0 px-0")}>
+            {/* Panel section with dashed side lines */}
+            <section
+              className="relative flex w-full rounded-none bg-transparent gap-4 p-6 shadow-none border-b border-dashed border-border"
+              style={{
+                backgroundImage: `repeating-linear-gradient(to bottom, hsl(var(--border)) 0px, hsl(var(--border)) 6px, transparent 6px, transparent 14px), repeating-linear-gradient(to bottom, hsl(var(--border)) 0px, hsl(var(--border)) 6px, transparent 6px, transparent 14px)`,
+                backgroundSize: "1px 100%, 1px 100%",
+                backgroundPosition: "left top, right top",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
+              {/* Avatar */}
+              <div className="relative flex items-center md:size-32 sm:size-24 size-24 shrink-0">
+                <img
+                  src={profile.user.avatarUrl}
+                  alt={`${profile.user.name || profile.user.login}'s avatar`}
+                  className="absolute inset-0 h-full w-full rounded-xl border border-solid p-0.5 object-cover"
+                />
+              </div>
+
+              {/* Info */}
+              <div className="flex flex-1 flex-col justify-end pl-2">
+                <div
+                  className="animate-fade-in-blur"
+                  style={{ animationDelay: "0.1s", animationFillMode: "both" }}
+                >
+                  <h1 className="font-normal tracking-tight text-foreground sm:text-4xl text-3xl font-serif-instrument leading-tight">
+                    {profile.user.name || profile.user.login}
+                  </h1>
                   <a
                     href={profile.user.htmlUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
+                    className="inline-block text-sm text-muted-foreground mt-0.5 hover:text-foreground underline"
                   >
-                    <GitHubLight className="w-12 h-12 dark:hidden text-gray-900" />
-                    <GitHubDark className="w-12 h-12 hidden dark:block text-white" />
+                    @{profile.user.login}
                   </a>
-                </div>
-                <div className="flex items-center justify-center">
-                  <ActivityCalendar
-                    data={calendarData}
-                    blockSize={14}
-                    blockRadius={4}
-                    blockMargin={3}
-                    showMonthLabels
-                    showColorLegend
-                    showTotalCount
-                    showWeekdayLabels={false}
-                  />
+                  {/* Followers / Following */}
+                  <div className="flex items-center gap-4 mt-2 flex-wrap">
+                    <span className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground tabular-nums">
+                        {profile.user.followers.toLocaleString()}
+                      </span>{" "}
+                      followers
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground tabular-nums">
+                        {profile.user.following.toLocaleString()}
+                      </span>{" "}
+                      following
+                    </span>
+                  </div>
+                  {/* Bio */}
+                  {profile.user.bio && (
+                    <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
+                      {profile.user.bio}
+                    </p>
+                  )}
                 </div>
               </div>
+            </section>
+
+            {/* GitHub Contributions */}
+            <div className="w-full px-6 py-4 pb-6">
+              <GitHubContributionGraph data={calendarData as any} />
             </div>
-          </section>
+          </Card>
         )}
 
-        {/* ────── Pull Requests & Issues ────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-          {/* Pull Requests */}
-          <Card className="rounded-none shadow-none border-border bg-muted p-1">
-            <div className="bg-background">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/15">
-                      <GitPullRequestIcon className="h-5 w-5 text-green-500" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">Pull Requests</CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Track and manage pull requests
-                      </p>
-                    </div>
-                  </div>
-                  <Link
-                    to="/pull-requests"
-                    className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-                  >
-                    View All <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent className="max-h-[300px] overflow-y-auto">
-                {recentPrs.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">
-                    No tracked PRs yet.{" "}
-                    <Link
-                      to="/pull-requests"
-                      className="text-blue-500 hover:text-blue-400"
+        <div className="py-6">
+          <div className="grid grid-cols-2 md:grid-cols-4">
+            {statCards.map((card, idx) => (
+              <div
+                key={card.key}
+                className={cn(OVERVIEW_CARD_CLASS, idx < 3 && "border-r-0", "hover:bg-muted/60 dark:hover:bg-muted/20 transition-colors cursor-default")}
+              >
+                <span className="text-sm mt-2 font-geist">{card.label}</span>
+                <div className="flex flex-col gap-5 items-start justify-start">
+                  <span className="text-lg font-geist text-foreground">
+                    {card.value.toLocaleString()}
+                  </span>
+                  <div className="flex justify-between w-full">
+                    <span className="text-sm mb-2">This month</span>
+                    <span
+                      className={cn(
+                        "font-semibold mb-2 tabular-nums",
+                        card.monthCount > 0
+                          ? "text-foreground"
+                          : "text-muted-foreground",
+                      )}
                     >
-                      Add some <Plus className="inline h-3.5 w-3.5" />
-                    </Link>
-                  </p>
-                ) : (
-                  <div className="divide-y divide-border">
-                    {recentPrs.map((pr) => (
-                      <div
-                        key={pr.id}
-                        className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-                      >
-                        <img
-                          src={`https://github.com/${pr.author}.png?size=40`}
-                          alt={pr.author}
-                          className="w-8 h-8 rounded-full border border-border shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {pr.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {pr.repo_owner}/{pr.repo_name} #{pr.number}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <Badge
-                            variant="outline"
-                            className="text-xs text-green-500 border-green-500/30 bg-green-500/10"
-                          >
-                            Tracked by &#x1F464;
-                          </Badge>
-                          <Badge
-                            variant={
-                              pr.state === "open"
-                                ? "default"
-                                : pr.state === "merged"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                            className="text-xs capitalize"
-                          >
-                            {pr.state}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
+                      {card.monthCount.toLocaleString()}
+                    </span>
                   </div>
-                )}
-              </CardContent>
-            </div>
-          </Card>
-
-          {/* Issues */}
-          <Card className="rounded-none shadow-none border-border bg-muted p-1">
-            <div className="bg-background">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-600/15">
-                      <AlertCircleStrokeRounded className="h-5 w-5 text-yellow-500" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">Issues</CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Track and organize GitHub issues
-                      </p>
-                    </div>
-                  </div>
-                  <Link
-                    to="/issues"
-                    className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-                  >
-                    View All <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
                 </div>
-              </CardHeader>
-              <CardContent className="max-h-[300px] overflow-y-auto">
-                {recentIssues.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">
-                    No tracked issues yet.{" "}
-                    <Link
-                      to="/issues"
-                      className="text-blue-500 hover:text-blue-400"
-                    >
-                      Add some <Plus className="inline h-3.5 w-3.5" />
-                    </Link>
-                  </p>
-                ) : (
-                  <div className="divide-y divide-border">
-                    {recentIssues.map((issue) => (
-                      <div
-                        key={issue.id}
-                        className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-                      >
-                        <img
-                          src={`https://github.com/${issue.author}.png?size=40`}
-                          alt={issue.author}
-                          className="w-8 h-8 rounded-full border border-border shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {issue.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {issue.repo_owner}/{issue.repo_name} #{issue.number}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <Badge
-                            variant="outline"
-                            className="text-xs text-green-500 border-green-500/30 bg-green-500/10"
-                          >
-                            Tracked by &#x1F464;
-                          </Badge>
-                          <Badge
-                            variant={
-                              issue.state === "open" ? "default" : "secondary"
-                            }
-                            className="text-xs capitalize"
-                          >
-                            {issue.state}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </div>
-          </Card>
-        </div>
-
-        {/* ────── Stats Grid ────── */}
-        <div className="border border-border bg-muted p-1">
-          <div className="grid grid-cols-2 md:grid-cols-4 bg-background">
-            <div className="px-5 py-4 border-r border-b md:border-b-0 border-border">
-              <p className="text-sm text-muted-foreground">Total Commits</p>
-              <p className="text-3xl font-semibold tracking-tight mt-1">
-                {(profile?.stats.totalCommits ?? 0).toLocaleString()}
-              </p>
-            </div>
-            <div className="px-5 py-4 border-b md:border-b-0 md:border-r border-border">
-              <p className="text-sm text-muted-foreground">Total PRs</p>
-              <p className="text-3xl font-semibold tracking-tight mt-1">
-                {(profile?.stats.totalPrs ?? 0).toLocaleString()}
-              </p>
-            </div>
-            <div className="px-5 py-4 border-r border-border">
-              <p className="text-sm text-muted-foreground">Total Issues</p>
-              <p className="text-3xl font-semibold tracking-tight mt-1">
-                {(profile?.stats.totalIssues ?? 0).toLocaleString()}
-              </p>
-            </div>
-            <div className="px-5 py-4">
-              <p className="text-sm text-muted-foreground">Total Reviews</p>
-              <p className="text-3xl font-semibold tracking-tight mt-1">
-                {(profile?.stats.totalReviews ?? 0).toLocaleString()}
-              </p>
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* ────── Language Highlights + Monthly Activity ────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <LanguageHighlights data={displayLanguageData} />
 
-          <Card className="rounded-none shadow-none border-border bg-muted p-1">
-            <div className="bg-background">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle>
-                      Monthly Activity
-                      <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-green-500/10 px-2 py-0.5 text-xs text-green-500">
-                        <TrendingUp className="h-4 w-4" />
-                        <span>PRs & Issues</span>
-                      </span>
-                    </CardTitle>
-                    <CardDescription>
-                      PRs and Issues over the last 12 months
-                    </CardDescription>
-                  </div>
-                  <div className="text-right text-sm tabular-nums">
-                    <span className="font-semibold text-foreground">
-                      {totalPrsInRange.toLocaleString()}
-                    </span>
-                    <span className="text-muted-foreground"> PRs</span>
-                    <span className="text-muted-foreground"> • </span>
-                    <span className="font-semibold text-foreground">
-                      {totalIssuesInRange.toLocaleString()}
-                    </span>
-                    <span className="text-muted-foreground"> Issues</span>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={activityChartConfig}
-                  className="h-[300px] w-full"
-                >
-                  <AreaChart
-                    accessibilityLayer
-                    data={displayMonthlyActivityData}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="ov-gradient-prs"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--color-prs)"
-                          stopOpacity={0.5}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--color-prs)"
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="ov-gradient-issues"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--color-issues)"
-                          stopOpacity={0.5}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--color-issues)"
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      tickFormatter={(value) => String(value).slice(0, 3)}
-                    />
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent />}
-                    />
-                    <Area
-                      dataKey="prs"
-                      fill="url(#ov-gradient-prs)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-prs)"
-                      stackId="a"
-                      strokeWidth={0.8}
-                      strokeDasharray="3 3"
-                    />
-                    <Area
-                      dataKey="issues"
-                      fill="url(#ov-gradient-issues)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-issues)"
-                      stackId="a"
-                      strokeWidth={0.8}
-                      strokeDasharray="3 3"
-                    />
-                  </AreaChart>
-                </ChartContainer>
-              </CardContent>
-            </div>
+        {/* ────── Pull Requests & Issues ────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <TrackerPreviewCard
+            title="Your Pull Requests"
+            count={recentPrs.length}
+            label="PRs"
+            items={recentPrs}
+          />
+          <TrackerPreviewCard
+            title="Your Issues"
+            count={recentIssues.length}
+            label="Issues"
+            items={recentIssues}
+          />
+        </div>
+
+        {/* ────── Language Highlights + Monthly Activity ────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <LanguageBarChart
+            data={displayLanguageData}
+            className="lg:border-r-0"
+          />
+
+          <Card className={cn(OVERVIEW_CARD_CLASS, "gap-0 py-3")}>
+            <CardHeader className="px-0 pt-2 pb-2">
+              <div>
+                <CardTitle className="text-lg mb-1">
+                  Monthly Activity
+                </CardTitle>
+                <CardDescription>
+                  PRs and Issues over the last 12 months
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="px-0">
+              <ChartContainer
+                config={activityChartConfig}
+                className="h-[300px] w-full"
+              >
+                <AreaChart accessibilityLayer data={displayMonthlyActivityData}>
+                  <defs>
+                    <linearGradient
+                      id="gradient-chart-prs"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor="var(--color-prs)"
+                        stopOpacity={0.5}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="var(--color-prs)"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                    <linearGradient
+                      id="gradient-chart-issues"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor="var(--color-issues)"
+                        stopOpacity={0.5}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="var(--color-issues)"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => String(value).slice(0, 3)}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent />}
+                  />
+                  <Area
+                    dataKey="prs"
+                    fill="url(#gradient-chart-prs)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-prs)"
+                    stackId="a"
+                    strokeWidth={0.8}
+                    strokeDasharray="3 3"
+                  />
+                  <Area
+                    dataKey="issues"
+                    fill="url(#gradient-chart-issues)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-issues)"
+                    stackId="a"
+                    strokeWidth={0.8}
+                    strokeDasharray="3 3"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
           </Card>
         </div>
       </div>
@@ -734,64 +655,163 @@ export default function OverviewPage() {
 
 // ─── Language Highlights ──────────────────────────
 
-function LanguageHighlights({
+function LanguageBarChart({
   data,
+  className,
 }: {
   data: { name: string; value: number; fill: string }[];
+  className?: string;
 }) {
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  const langPercentages = data.map((item) => ({
-    ...item,
-    percent: total ? (item.value / total) * 100 : 0,
-  }));
+  const total = data.reduce((sum, d) => sum + d.value, 0);
+  const gaugeData =
+    data.length > 0
+      ? data
+      : [{ name: "empty", value: 1, fill: "hsl(var(--muted))" }];
 
   return (
-    <Card className="rounded-none shadow-none border-border bg-muted p-1">
-      <div className="bg-background">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Language Highlights</CardTitle>
-            <BarChart2 className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <CardDescription>All time language usage</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex w-full h-5 gap-1.5 mb-5">
-            {langPercentages.map((lang) => (
-              <div
-                key={lang.name}
-                style={{ background: lang.fill, width: `${lang.percent}%` }}
-                className="h-full rounded-sm"
-              />
-            ))}
-          </div>
-          <div className="flex flex-col gap-3">
-            {langPercentages.map((lang) => (
-              <div
-                key={lang.name}
-                className="grid items-center text-sm"
-                style={{ gridTemplateColumns: "1fr auto auto" }}
+    <Card className={cn(OVERVIEW_CARD_CLASS, "gap-0 py-3", className)}>
+      <CardHeader className="px-0 pb-0 pt-2">
+        <CardTitle className="text-base font-medium">Language Highlights</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 px-0 pb-4">
+        {/* Gauge */}
+        <div className="relative w-full" style={{ height: 165 }}>
+          <ResponsiveContainer width="100%" height={165}>
+            <PieChart>
+              <Pie
+                data={gaugeData}
+                cx="50%"
+                cy="100%"
+                startAngle={180}
+                endAngle={0}
+                innerRadius={65}
+                outerRadius={100}
+                paddingAngle={data.length > 1 ? 3 : 0}
+                dataKey="value"
+                strokeWidth={0}
               >
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className="inline-block w-3 h-3 rounded-full shrink-0"
-                    style={{ background: lang.fill }}
+                {gaugeData.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={entry.fill}
+                    stroke="none"
+                    strokeWidth={0}
                   />
-                  <span className="font-medium text-foreground">
-                    {lang.name}
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          {/* Center total */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 text-center"
+            style={{ bottom: 10 }}
+          >
+            <span className="text-2xl font-bold tabular-nums text-foreground">
+              {total.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-2 space-y-2.5 px-1">
+          {data.map((item) => {
+            const pct = total > 0 ? (item.value / total) * 100 : 0;
+            return (
+              <div
+                key={item.name}
+                className="flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-2 w-2 rounded-full shrink-0"
+                    style={{ backgroundColor: item.fill }}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {item.name}
                   </span>
                 </div>
-                <span className="font-mono text-foreground tabular-nums text-right min-w-[3rem]">
-                  {lang.value}
-                </span>
-                <span className="font-mono text-muted-foreground tabular-nums text-right text-xs min-w-[4rem]">
-                  {lang.percent.toFixed(1)}%
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium tabular-nums text-foreground">
+                    {item.value.toLocaleString()}
+                  </span>
+                  <span className="text-sm text-muted-foreground tabular-nums w-10 text-right">
+                    {pct.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TrackerPreviewCard({
+  title,
+  count,
+  label,
+  items,
+}: {
+  title: string;
+  count: number;
+  label: string;
+  items: Array<TrackedPR | TrackedIssue>;
+}) {
+  return (
+    <div className="border border-dashed border-border bg-[#f5f5f5] dark:bg-card">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border">
+        <h3 className="font-medium text-sm">{title}</h3>
+        <span className="text-xs text-muted-foreground">
+          {count} {label}
+        </span>
+      </div>
+
+      {/* Items */}
+      <div className="divide-y divide-border">
+        {items.length === 0 ? (
+          <div className="p-4 text-sm text-muted-foreground">
+            No tracked items yet
+          </div>
+        ) : (
+          items.map((item) => (
+            <a
+              key={item.id}
+              href={item.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 hover:bg-muted/50 dark:hover:bg-[#1f2020] transition-colors block"
+            >
+              <div className="flex items-start gap-3">
+                <img
+                  src={`https://github.com/${item.author}.png?size=40`}
+                  alt="Repo"
+                  width={32}
+                  height={32}
+                  className="rounded shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm truncate">{item.title}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {item.repo_owner}/{item.repo_name} #{item.number}
+                  </div>
+                </div>
+                <span
+                  className={cn(
+                    "text-xs px-2 py-1 rounded border shrink-0",
+                    item.state === "open"
+                      ? "bg-green-500/10 text-green-400 border-green-400/30"
+                      : "bg-purple-500/10 text-purple-400 border-purple-400/30",
+                  )}
+                >
+                  {item.state}
                 </span>
               </div>
-            ))}
-          </div>
-        </CardContent>
+            </a>
+          ))
+        )}
       </div>
-    </Card>
+    </div>
   );
 }

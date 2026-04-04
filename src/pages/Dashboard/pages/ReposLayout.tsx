@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import {
   Select,
@@ -7,6 +7,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+const COMMON_LANGUAGES = [
+  "TypeScript",
+  "JavaScript",
+  "Python",
+  "Go",
+  "Rust",
+  "Java",
+  "C++",
+  "C",
+  "PHP",
+  "Ruby",
+];
 
 interface FiltersContextType {
   language: string;
@@ -29,21 +42,23 @@ export default function ReposLayout() {
   );
   const [sort, setSort] = useState(searchParams.get("sort") || "stars");
   const [period, setPeriod] = useState(searchParams.get("period") || "daily");
-  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [allLanguages, setAllLanguages] = useState<string[]>([]);
-
-  useEffect(() => {
-    setSearch(searchParams.get("search") || "");
-  }, [searchParams]);
+  const search = searchParams.get("search") || "";
 
   const languageOptions = useMemo(
-    () => [
-      { value: "all", label: "All Languages" },
-      ...allLanguages.map((lang) => ({
-        value: lang.toLowerCase(),
-        label: lang,
-      })),
-    ],
+    () => {
+      const mergedLanguages = Array.from(
+        new Set([...COMMON_LANGUAGES, ...allLanguages]),
+      ).sort((left, right) => left.localeCompare(right));
+
+      return [
+        { value: "all", label: "All Languages" },
+        ...mergedLanguages.map((lang) => ({
+          value: lang.toLowerCase(),
+          label: lang,
+        })),
+      ];
+    },
     [allLanguages],
   );
 
@@ -63,6 +78,7 @@ export default function ReposLayout() {
     setLanguage(lang);
     setSearchParams((prev) => {
       prev.set("language", lang);
+      prev.set("page", "1");
       return prev;
     });
   };
@@ -71,6 +87,7 @@ export default function ReposLayout() {
     setSort(newSort);
     setSearchParams((prev) => {
       prev.set("sort", newSort);
+      prev.set("page", "1");
       return prev;
     });
   };
@@ -84,8 +101,8 @@ export default function ReposLayout() {
   };
 
   const handleSearchChange = (newSearch: string) => {
-    setSearch(newSearch);
     setSearchParams((prev) => {
+      prev.set("page", "1");
       if (newSearch) {
         prev.set("search", newSearch);
       } else {

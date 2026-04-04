@@ -52,9 +52,11 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString();
 }
 
-function getRepositoryName(repositoryUrl?: string): string {
-  if (!repositoryUrl) return "Issue";
-  const parts = repositoryUrl.split("/");
+function getRepositoryNameFromIssue(issue: IssueData): string {
+  const repoSource = issue.repository_url || issue.html_url;
+  if (!repoSource) return "Issue";
+  const parts = repoSource.split("/");
+  if (parts.length < 2) return "Issue";
   return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
 }
 
@@ -112,7 +114,7 @@ export function GitHubIssueCard({
 
   const isOpen = issue.state === "open";
   const hasLabels = issue.labels.length > 0;
-  const repoName = getRepositoryName(issue.repository_url);
+  const repoName = getRepositoryNameFromIssue(issue);
 
   const truncatedBody = issue.body
     ? issue.body.split("\n")[0].substring(0, 80)

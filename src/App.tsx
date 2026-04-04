@@ -16,6 +16,8 @@ import TrackedPRsPage from "./pages/Dashboard/pages/TrackedPRsPage";
 import TrackedIssuesPage from "./pages/Dashboard/pages/TrackedIssuesPage";
 import "./index.css";
 
+import ContributorsPage from "./pages/ContributorsPage";
+
 function App() {
   return (
     <>
@@ -23,6 +25,9 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+
+          {/* Contributors Ranking Page */}
+          <Route path="/contributors" element={<ContributorsPage />} />
 
           {/* Dashboard layout for authenticated pages */}
           <Route element={<DashboardLayout />}>

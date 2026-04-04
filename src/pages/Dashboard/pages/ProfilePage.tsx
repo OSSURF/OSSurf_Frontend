@@ -11,15 +11,10 @@ import {
 import {
   Area,
   AreaChart,
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
+  Bar as RechartsBar,
+  BarChart,
   XAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 import {
   Card,
@@ -464,7 +459,7 @@ export default function ProfilePage() {
             return statCards.map((card, idx) => (
               <div
                 key={card.key}
-                className={`px-3 flex flex-col bg-card border border-dashed ${idx < 3 ? " border-r-0" : ""}`}
+                className={`px-3 flex flex-col bg-[#f5f5f5] dark:bg-card border border-dashed ${idx < 3 ? " border-r-0" : ""}`}
               >
                 <span className="text-sm mt-2 font-geist">{card.label}</span>
                 <div className="flex flex-col gap-5 items-start justify-start">
@@ -483,7 +478,7 @@ export default function ProfilePage() {
 
         {/* Language Highlights + Monthly Activity side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <LanguageEvilRadarChart data={displayLanguageData} />
+          <LanguageBarChart data={displayLanguageData} />
 
           {/* Monthly Activity Area Chart */}
           <Card className="rounded-none shadow-none border-border">
@@ -590,21 +585,23 @@ export default function ProfilePage() {
   );
 }
 
-// Replace <LanguageHighlights data={displayLanguageData} /> or <LanguageRadialChart data={displayLanguageData} /> with:
-// <LanguageEvilRadarChart data={displayLanguageData} />
-function LanguageEvilRadarChart({
+function LanguageBarChart({
   data,
 }: {
   data: { name: string; value: number; fill: string }[];
 }) {
-  // EvilCharts expects data as [{ label, value, color }]
   const chartData = data.map((lang) => ({
-    label: lang.name,
-    value: lang.value,
-    color: lang.fill,
+    month: lang.name,
+    desktop: lang.value,
   }));
+  const chartConfig: ChartConfig = {
+    desktop: {
+      label: "Desktop",
+      color: "var(--chart-1)",
+    },
+  };
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col rounded-none">
       <CardHeader className="pb-2 pt-2">
         <div>
           <CardTitle className="text-lg mb-1">Language Highlights</CardTitle>
@@ -614,16 +611,50 @@ function LanguageEvilRadarChart({
         </div>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <div className="flex flex-col items-center">
-          <RadarChart
-            data={chartData}
-            width={320}
-            height={240}
-            maxValue={Math.max(...chartData.map((d) => d.value), 10)}
-            showLegend
-            showTooltip
-          />
-        </div>
+        <ChartContainer config={chartConfig}>
+          <BarChart accessibilityLayer data={chartData}>
+            <rect
+              x="0"
+              y="0"
+              width="100%"
+              height="85%"
+              fill="url(#language-pattern-dots)"
+            />
+            <defs>
+              <pattern
+                id="language-pattern-dots"
+                x="0"
+                y="0"
+                width="10"
+                height="10"
+                patternUnits="userSpaceOnUse"
+              >
+                <circle
+                  className="dark:text-muted/40 text-muted"
+                  cx="2"
+                  cy="2"
+                  r="1"
+                  fill="currentColor"
+                />
+              </pattern>
+            </defs>
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <RechartsBar
+              dataKey="desktop"
+              fill="var(--color-desktop)"
+              radius={4}
+            />
+          </BarChart>
+        </ChartContainer>
       </CardContent>
     </Card>
   );

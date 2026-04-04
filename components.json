@@ -22,6 +22,7 @@
     "@magicui": "https://magicui.design/r/{name}",
     "@svgl": "https://svgl.app/r/{name}.json",
     "@blocks": "https://blocks.so/r/{name}.json",
-    "@elements": "https://www.tryelements.dev/r/{name}.json"
+    "@elements": "https://www.tryelements.dev/r/{name}.json",
+    "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
   }
 }
