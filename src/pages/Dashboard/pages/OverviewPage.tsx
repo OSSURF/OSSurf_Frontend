@@ -110,7 +110,7 @@ interface DashboardResponse {
 }
 
 const OVERVIEW_CARD_CLASS =
-  "px-3 flex flex-col bg-[#f5f5f5] dark:bg-card border border-dashed rounded-none shadow-none";
+  "px-3 flex flex-col bg-card border border-dashed rounded-none shadow-none";
 
 // ─── Helpers ──────────────────────────────────────
 
@@ -260,7 +260,7 @@ export default function OverviewPage() {
           {/* PR & Issues skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {[0, 1].map((i) => (
-              <div key={i} className="border border-dashed border-border bg-[#f5f5f5] dark:bg-card">
+              <div key={i} className="border border-dashed border-border bg-card">
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <div className="h-4 w-36 rounded bg-muted animate-pulse" />
                   <div className="h-3 w-10 rounded bg-muted animate-pulse" />
@@ -759,9 +759,9 @@ function TrackerPreviewCard({
   items: Array<TrackedPR | TrackedIssue>;
 }) {
   return (
-    <div className="border border-dashed border-border bg-[#f5f5f5] dark:bg-card">
+    <div className={cn(OVERVIEW_CARD_CLASS, "px-0")}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="flex items-center justify-between p-4 border-b border-dashed border-border">
         <h3 className="font-medium text-sm">{title}</h3>
         <span className="text-xs text-muted-foreground">
           {count} {label}
@@ -781,7 +781,7 @@ function TrackerPreviewCard({
               href={item.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-4 hover:bg-muted/50 dark:hover:bg-[#1f2020] transition-colors block"
+              className="p-4 hover:bg-muted/60 dark:hover:bg-muted/20 transition-colors block"
             >
               <div className="flex items-start gap-3">
                 <img
