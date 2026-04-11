@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cva } from "class-variance-authority";
 import { IconUserCircle, type IconProps } from "@tabler/icons-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
 import { Separator } from "@/components/ui/separator";
+import { LogOut, X, UserCircle2 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 import Home05Icon from "@/components/ui/svgs/home-05-stroke-rounded";
 import Airpod01Icon from "@/components/ui/svgs/airpod-01-stroke-rounded";
@@ -34,11 +37,7 @@ const items: Item[] = [
   { icon: Book02Icon, label: "GSoC Orgs", href: "/gsoc-orgs" },
   { type: "separator" },
   { icon: AnalyticsUpIcon, label: "Trending Repos", href: "/trending-repos" },
-  {
-    icon: AlertCircleStrokeRounded,
-    label: "Find Issues",
-    href: "/find-issues",
-  },
+  { icon: AlertCircleStrokeRounded, label: "Find Issues", href: "/find-issues" },
   { type: "separator" },
   { icon: DashboardSquare03Icon, label: "Overview", href: "/overview" },
   { icon: GitPullRequestIcon, label: "Pull Requests", href: "/pull-requests" },
@@ -54,8 +53,7 @@ const iconContainerVariants = cva(
     variants: {
       isActive: {
         true: "text-gray-900 dark:text-white",
-        false:
-          "text-gray-600 dark:text-neutral-500 group-hover:text-gray-900 dark:group-hover:text-neutral-100",
+        false: "text-gray-600 dark:text-neutral-500 group-hover:text-gray-900 dark:group-hover:text-neutral-100",
       },
     },
   },
@@ -67,8 +65,7 @@ const labelVariants = cva(
     variants: {
       isActive: {
         true: "text-gray-900 dark:text-white",
-        false:
-          "text-gray-600 dark:text-neutral-500 group-hover:text-gray-900 dark:group-hover:text-neutral-100",
+        false: "text-gray-600 dark:text-neutral-500 group-hover:text-gray-900 dark:group-hover:text-neutral-100",
       },
     },
   },
@@ -79,9 +76,122 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+// ─── Account Popover ──────────────────────────────────────────────────────────
+
+function AccountPopover({
+  open,
+  onClose,
+  anchorRef,
+}: {
+  open: boolean;
+  onClose: () => void;
+  anchorRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const { data: session } = authClient.useSession();
+  const navigate = useNavigate();
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ bottom: 0, left: 0 });
+
+  const user = session?.user;
+  const displayName = user?.name ?? user?.email?.split("@")[0] ?? "User";
+
+  // Calculate position from anchor
+  useEffect(() => {
+    if (!open || !anchorRef.current) return;
+    const rect = anchorRef.current.getBoundingClientRect();
+    setPos({
+      bottom: window.innerHeight - rect.top + 8,
+      left: rect.left + 12,
+    });
+  }, [open, anchorRef]);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target as Node) &&
+        anchorRef.current &&
+        !anchorRef.current.contains(e.target as Node)
+      ) {
+        onClose();
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open, onClose, anchorRef]);
+
+  async function handleSignOut() {
+    onClose();
+    await authClient.signOut();
+    navigate("/login");
+  }
+
+  if (!open) return null;
+
+  return ReactDOM.createPortal(
+    <div
+      ref={popoverRef}
+      className="fixed z-[9999] w-64 bg-card border border-border shadow-2xl overflow-hidden"
+      style={{ bottom: pos.bottom, left: pos.left }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <span className="text-sm font-semibold">Account</span>
+        <button
+          onClick={onClose}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <X size={14} />
+        </button>
+      </div>
+
+      {/* Actions */}
+      <div className="p-3 space-y-2">
+        <Link
+          to="/profile"
+          onClick={onClose}
+          className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm bg-muted/60 hover:bg-muted transition-colors font-medium"
+        >
+          <UserCircle2 size={16} />
+          View Profile
+        </Link>
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-destructive bg-destructive/10 hover:bg-destructive/20 transition-colors font-medium"
+        >
+          <LogOut size={16} />
+          Sign Out
+        </button>
+      </div>
+
+      {/* User info */}
+      <div className="flex items-center gap-3 px-4 py-3 border-t border-border">
+        {user?.image ? (
+          <img src={user.image} alt={displayName} className="w-9 h-9 rounded-full shrink-0 object-cover" />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-sm font-semibold shrink-0">
+            {displayName.slice(0, 2).toUpperCase()}
+          </div>
+        )}
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-medium truncate">{displayName}</span>
+          <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
+
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const [hovered, setHovered] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const location = useLocation();
+  const profileBtnRef = useRef<HTMLDivElement>(null);
 
   const isExpanded = isOpen || hovered;
 
@@ -150,11 +260,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         transition={{ duration: 0.2 }}
                       />
                     )}
-
                     <div className={iconContainerVariants({ isActive })}>
                       <Icon className="h-5 w-5 shrink-0" />
                     </div>
-
                     <motion.div
                       className="absolute top-0 left-14 right-1 h-10 flex items-center pointer-events-none"
                       animate={{ opacity: isExpanded ? 1 : 0 }}
@@ -171,15 +279,19 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           </div>
         </nav>
 
-        <div className="mt-auto mb-4">
+        {/* Bottom: profile + account popover trigger */}
+        <div className="mt-auto mb-4 relative" ref={profileBtnRef}>
+          <AccountPopover
+            open={popoverOpen}
+            onClose={() => setPopoverOpen(false)}
+            anchorRef={profileBtnRef}
+          />
+
           <div className="group relative h-10">
-            <Link
-              to="/profile"
-              className="block h-10 w-full relative"
-              aria-current={
-                location.pathname === "/profile" ? "page" : undefined
-              }
-              onClick={() => onClose?.()}
+            <button
+              id="account-popover-btn"
+              onClick={() => setPopoverOpen((p) => !p)}
+              className="block h-10 w-full relative focus:outline-none"
             >
               {location.pathname === "/profile" && (
                 <motion.div
@@ -188,29 +300,19 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                   transition={{ duration: 0.2 }}
                 />
               )}
-
-              <div
-                className={iconContainerVariants({
-                  isActive: location.pathname === "/profile",
-                })}
-              >
+              <div className={iconContainerVariants({ isActive: location.pathname === "/profile" })}>
                 <IconUserCircle className="h-5 w-5 shrink-0" stroke={1} />
               </div>
-
               <motion.div
                 className="absolute top-0 left-14 right-1 h-10 flex items-center pointer-events-none"
                 animate={{ opacity: isExpanded ? 1 : 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <motion.span
-                  className={labelVariants({
-                    isActive: location.pathname === "/profile",
-                  })}
-                >
+                <motion.span className={labelVariants({ isActive: location.pathname === "/profile" })}>
                   Profile
                 </motion.span>
               </motion.div>
-            </Link>
+            </button>
           </div>
         </div>
       </motion.aside>
