@@ -1,9 +1,9 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  // baseURL must be the server ORIGIN — better-auth appends /api/auth automatically
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+  // Use the current origin so Vercel's /api rewrite proxy and Vite's dev proxy both work
+  baseURL: import.meta.env.VITE_API_URL || window.location.origin,
   fetchOptions: {
-    credentials: "include", // Include cookies for cross-origin requests
+    credentials: "include",
   },
 });
