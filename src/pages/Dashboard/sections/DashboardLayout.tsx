@@ -1,4 +1,4 @@
-import SearchHeader from "./SearchHeader";
+import SearchHeader from "../components/SearchHeader";
 import {
   Select,
   SelectContent,
@@ -62,11 +62,9 @@ export function DashboardLayout<T>({
   sortOptions = [],
   currentSort,
   onSortChange,
-  searchQuery = "",
   onSearchChange,
   titleClassName,
   emptyMessage = "No items found matching your criteria.",
-  onMenuToggle,
 }: DashboardLayoutProps<T> & { onMenuToggle?: () => void }) {
   return (
     <main className="flex-1 overflow-y-auto md:ml-[70px] w-full bg-background h-screen font-geist">

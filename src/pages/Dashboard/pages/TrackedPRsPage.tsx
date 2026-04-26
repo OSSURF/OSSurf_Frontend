@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Trash2,
   Pencil,
-  ExternalLink,
   FileDiff,
 } from "lucide-react";
 import GitPullRequestIcon from "@/components/ui/svgs/git-pull-request-stroke-rounded";

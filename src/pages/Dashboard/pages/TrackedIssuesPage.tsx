@@ -8,7 +8,6 @@ import {
   RefreshCw,
   Trash2,
   Pencil,
-  ExternalLink,
 } from "lucide-react";
 import AlertCircleStrokeRounded from "@/components/ui/svgs/AlertCircleStrokeRounded";
 import { Button } from "@/components/ui/button";

@@ -387,7 +387,7 @@ export default function ProfilePage() {
   const currentMonthKey = `${now.getFullYear()}-${String(
     now.getMonth() + 1,
   ).padStart(2, "0")}`;
-  const commitsThisMonth = calendarData.reduce((sum, item) => {
+  const commitsThisMonth = calendarData.reduce((sum, item: any) => {
     if (!item.date.startsWith(currentMonthKey)) return sum;
     return sum + item.count;
   }, 0);
@@ -591,7 +591,7 @@ export default function ProfilePage() {
           {/* ────── Stats ────── */}
           <div className="py-3 px-6 sm:px-0">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {statCards.map((card, idx) => (
+              {statCards.map((card) => (
                 <div
                   key={card.key}
                   className={cn(CARD, "hover:bg-muted/30 transition-colors border-border/80 p-4 justify-start my-0 shadow-none")}
