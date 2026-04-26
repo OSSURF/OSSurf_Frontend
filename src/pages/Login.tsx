@@ -60,7 +60,7 @@ export default function LoginPage() {
     await authClient.signIn.social(
       {
         provider,
-        callbackURL: "http://localhost:5173/overview",
+        callbackURL: `${window.location.origin}/overview`,
       },
       {
         onSuccess: () => {
@@ -81,7 +81,7 @@ export default function LoginPage() {
         email: data.email,
         password: data.password,
         rememberMe: true,
-        callbackURL: "http://localhost:5173/overview",
+        callbackURL: `${window.location.origin}/overview`,
       },
       {
         onRequest: () => {
