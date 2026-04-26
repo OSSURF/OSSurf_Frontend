@@ -73,13 +73,7 @@ function normalizeHexColor(color: string): string {
   return "#6b7280";
 }
 
-function hexToRgb(hex: string) {
-  const safe = normalizeHexColor(hex).replace("#", "");
-  const red = parseInt(safe.slice(0, 2), 16);
-  const green = parseInt(safe.slice(2, 4), 16);
-  const blue = parseInt(safe.slice(4, 6), 16);
-  return { red, green, blue };
-}
+
 
 function getLabelClass(labelName: string): string {
   const normalized = labelName.toLowerCase();

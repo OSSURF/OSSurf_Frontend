@@ -4,14 +4,13 @@ import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { GitPullRequest, CircleDot, ListChecks, MessageSquare, Plus, AlertCircle } from "lucide-react";
+import { GitPullRequest, Plus, AlertCircle } from "lucide-react";
 import { Panel, PanelContent } from "../components/panel";
-import { AreaChart, Area, CartesianGrid, XAxis, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { type ChartConfig } from "@/components/ui/chart";
 
 // ─── Types ────────────────────────────────────────
 
@@ -331,20 +330,6 @@ export default function OverviewPage() {
     value: lang.value,
     fill: languageColors[idx % languageColors.length],
   }));
-  const displayLanguageData = languageData.length
-    ? languageData
-    : [
-        { name: "C", value: 42, fill: languageColors[0] },
-        { name: "Assembly", value: 18, fill: languageColors[1] },
-        { name: "Perl", value: 14, fill: languageColors[2] },
-        { name: "Python", value: 13, fill: languageColors[3] },
-        { name: "Makefile", value: 13, fill: languageColors[4] },
-      ];
-
-  const activityChartConfig: ChartConfig = {
-    prs: { label: "Pull Requests", color: "var(--chart-1)" },
-    issues: { label: "Issues", color: "var(--chart-2)" },
-  };
 
   const latestMonthActivity =
     displayMonthlyActivityData[displayMonthlyActivityData.length - 1];
@@ -356,36 +341,7 @@ export default function OverviewPage() {
     if (!item.date.startsWith(currentMonthKey)) return sum;
     return sum + item.count;
   }, 0);
-  const statCards = [
-    {
-      key: "totalCommits",
-      label: "Total Commits",
-      value: profile?.stats.totalCommits ?? 0,
-      monthCount: commitsThisMonth,
-    },
-    {
-      key: "totalIssues",
-      label: "Total Issues",
-      value:
-        profile?.stats.totalIssues ??
-        dashboard?.stats.user.totalIssuesCreated ??
-        0,
-      monthCount: latestMonthActivity?.issues ?? 0,
-    },
-    {
-      key: "totalPrs",
-      label: "Total PRs",
-      value:
-        profile?.stats.totalPrs ?? dashboard?.stats.user.totalPrsCreated ?? 0,
-      monthCount: latestMonthActivity?.prs ?? 0,
-    },
-    {
-      key: "totalReviews",
-      label: "Total Reviews",
-      value: profile?.stats.totalReviews ?? 0,
-      monthCount: 0,
-    },
-  ];
+
   const recentPrs = profile?.recentPrs ?? dashboard?.recentPrs ?? [];
   const recentIssues = profile?.recentIssues ?? dashboard?.recentIssues ?? [];
 
@@ -634,71 +590,3 @@ export function LanguageBarChart({
   );
 }
 
-function TrackerPreviewCard({
-  title,
-  count,
-  label,
-  items,
-}: {
-  title: string;
-  count: number;
-  label: string;
-  items: Array<TrackedPR | TrackedIssue>;
-}) {
-  return (
-    <div className={cn(OVERVIEW_CARD_CLASS, "px-0")}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-solid border-border">
-        <h3 className="font-medium text-sm">{title}</h3>
-        <span className="text-xs text-muted-foreground">
-          {count} {label}
-        </span>
-      </div>
-
-      {/* Items */}
-      <div className="divide-y divide-border">
-        {items.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">
-            No tracked items yet
-          </div>
-        ) : (
-          items.map((item) => (
-            <a
-              key={item.id}
-              href={item.html_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-4 hover:bg-muted/60 dark:hover:bg-muted/20 transition-colors block"
-            >
-              <div className="flex items-start gap-3">
-                <img
-                  src={`https://github.com/${item.author}.png?size=40`}
-                  alt="Repo"
-                  width={32}
-                  height={32}
-                  className="rounded shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">{item.title}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {item.repo_owner}/{item.repo_name} #{item.number}
-                  </div>
-                </div>
-                <span
-                  className={cn(
-                    "text-xs px-2 py-1 rounded border shrink-0",
-                    item.state === "open"
-                      ? "bg-green-500/10 text-green-400 border-green-400/30"
-                      : "bg-purple-500/10 text-purple-400 border-purple-400/30",
-                  )}
-                >
-                  {item.state}
-                </span>
-              </div>
-            </a>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}

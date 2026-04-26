@@ -6,7 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+
 import type { JSX, SVGProps } from "react";
 
 const GitHubIcon = (

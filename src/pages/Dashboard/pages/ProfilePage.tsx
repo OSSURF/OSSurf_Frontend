@@ -10,12 +10,11 @@ import {
   Linkedin,
   Globe,
   Link2,
-  ExternalLink,
   Check,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { GitHubContributionFallback, GitHubContributionGraph } from "../components/github-contributions/graph";
+import { GitHubContributionGraph } from "../components/github-contributions/graph";
 import { AreaChart, Area, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { LanguageBarChart } from "./OverviewPage";
@@ -387,7 +386,7 @@ export default function ProfilePage() {
   const currentMonthKey = `${now.getFullYear()}-${String(
     now.getMonth() + 1,
   ).padStart(2, "0")}`;
-  const commitsThisMonth = calendarData.reduce((sum, item: any) => {
+  const commitsThisMonth = calendarData.reduce((sum: number, item: any) => {
     if (!item.date.startsWith(currentMonthKey)) return sum;
     return sum + item.count;
   }, 0);

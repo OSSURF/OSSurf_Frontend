@@ -20,7 +20,7 @@ import DashboardSquare03Icon from "@/components/ui/svgs/dashboard-square-03-stro
 import AlertCircleStrokeRounded from "@/components/ui/svgs/AlertCircleStrokeRounded";
 
 interface NavItem {
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement> | IconProps>;
+  icon: React.ComponentType<any>;
   label: string;
   href: string;
 }
