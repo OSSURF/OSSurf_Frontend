@@ -60,19 +60,6 @@ function getRepositoryNameFromIssue(issue: IssueData): string {
   return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
 }
 
-function normalizeHexColor(color: string): string {
-  const cleaned = color.trim().replace("#", "");
-  if (/^[0-9a-fA-F]{6}$/.test(cleaned)) return `#${cleaned}`;
-  if (/^[0-9a-fA-F]{3}$/.test(cleaned)) {
-    const expanded = cleaned
-      .split("")
-      .map((char) => `${char}${char}`)
-      .join("");
-    return `#${expanded}`;
-  }
-  return "#6b7280";
-}
-
 
 
 function getLabelClass(labelName: string): string {

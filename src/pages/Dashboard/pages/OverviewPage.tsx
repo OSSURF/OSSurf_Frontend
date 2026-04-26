@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -10,7 +10,6 @@ import {
 import { GitPullRequest, Plus, AlertCircle } from "lucide-react";
 import { Panel, PanelContent } from "../components/panel";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { type ChartConfig } from "@/components/ui/chart";
 
 // ─── Types ────────────────────────────────────────
 
@@ -102,45 +101,6 @@ const OVERVIEW_CARD_CLASS =
 
 // ─── Helpers ──────────────────────────────────────
 
-function monthLevel(value: number, maxValue: number): 0 | 1 | 2 | 3 | 4 {
-  if (value <= 0) return 0;
-  const ratio = value / Math.max(maxValue, 1);
-  if (ratio <= 0.25) return 1;
-  if (ratio <= 0.5) return 2;
-  if (ratio <= 0.75) return 3;
-  return 4;
-}
-
-function buildCalendarData(history: MonthlyActivity[]): CalendarActivity[] {
-  if (!history.length) return [];
-  const now = new Date();
-  const totals = history.map((e) => e.prs + e.issues);
-  const maxTotal = Math.max(...totals, 1);
-  const data: CalendarActivity[] = [];
-
-  history.forEach((entry, index) => {
-    const total = entry.prs + entry.issues;
-    const monthDate = new Date(
-      now.getFullYear(),
-      now.getMonth() - 11 + index,
-      1,
-    );
-    const year = monthDate.getFullYear();
-    const month = monthDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const activeDays = Math.min(total, daysInMonth);
-    const perDayCount =
-      activeDays > 0 ? Math.max(1, Math.round(total / activeDays)) : 0;
-    const level = monthLevel(total, maxTotal);
-
-    for (let day = 1; day <= activeDays; day += 1) {
-      const isoDate = new Date(year, month, day).toISOString().slice(0, 10);
-      data.push({ date: isoDate, count: perDayCount, level });
-    }
-  });
-  return data;
-}
-
 // ─── Component ────────────────────────────────────
 
 export default function OverviewPage() {
@@ -191,15 +151,6 @@ export default function OverviewPage() {
     load();
   }, []);
 
-  const calendarData = useMemo(() => {
-    if (dashboard?.stats.user.contributionCalendar?.length) {
-      return dashboard.stats.user.contributionCalendar;
-    }
-    if (profile?.graphs.contributionCalendar?.length) {
-      return profile.graphs.contributionCalendar;
-    }
-    return buildCalendarData(profile?.graphs.activityHistory ?? []);
-  }, [dashboard, profile]);
 
   if (loading) {
     return (
@@ -283,64 +234,6 @@ export default function OverviewPage() {
     );
   }
 
-  // Chart data
-  const activityHistory = profile?.graphs.activityHistory ?? [];
-  const monthlyActivityData = activityHistory.map((item) => ({
-    month: item.month,
-    prs: item.prs,
-    issues: item.issues,
-    total: item.prs + item.issues,
-  }));
-
-  const displayMonthlyActivityData = monthlyActivityData.some(
-    (item) => item.total > 0,
-  )
-    ? monthlyActivityData
-    : activityHistory.length
-      ? activityHistory.map((item, index) => ({
-          month: item.month,
-          prs: 2 + (index % 4),
-          issues: 1 + (index % 3),
-          total: 3 + (index % 4) + (index % 3),
-        }))
-      : [
-          { month: "Mar", prs: 3, issues: 2, total: 5 },
-          { month: "Apr", prs: 4, issues: 1, total: 5 },
-          { month: "May", prs: 5, issues: 2, total: 7 },
-          { month: "Jun", prs: 4, issues: 3, total: 7 },
-          { month: "Jul", prs: 3, issues: 2, total: 5 },
-          { month: "Aug", prs: 6, issues: 2, total: 8 },
-          { month: "Sep", prs: 5, issues: 1, total: 6 },
-          { month: "Oct", prs: 4, issues: 2, total: 6 },
-          { month: "Nov", prs: 5, issues: 2, total: 7 },
-          { month: "Dec", prs: 6, issues: 3, total: 9 },
-          { month: "Jan", prs: 4, issues: 2, total: 6 },
-          { month: "Feb", prs: 3, issues: 1, total: 4 },
-        ];
-
-  const languageColors = [
-    "#6366f1",
-    "#22d3ee",
-    "#10b981",
-    "#eab308",
-    "#f97316",
-  ];
-  const languageData = (profile?.graphs.languages ?? []).map((lang, idx) => ({
-    name: lang.langName,
-    value: lang.value,
-    fill: languageColors[idx % languageColors.length],
-  }));
-
-  const latestMonthActivity =
-    displayMonthlyActivityData[displayMonthlyActivityData.length - 1];
-  const now = new Date();
-  const currentMonthKey = `${now.getFullYear()}-${String(
-    now.getMonth() + 1,
-  ).padStart(2, "0")}`;
-  const commitsThisMonth = calendarData.reduce((sum, item) => {
-    if (!item.date.startsWith(currentMonthKey)) return sum;
-    return sum + item.count;
-  }, 0);
 
   const recentPrs = profile?.recentPrs ?? dashboard?.recentPrs ?? [];
   const recentIssues = profile?.recentIssues ?? dashboard?.recentIssues ?? [];

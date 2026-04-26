@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cva } from "class-variance-authority";
-import { IconUserCircle, type IconProps } from "@tabler/icons-react";
+import { IconUserCircle } from "@tabler/icons-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
 import { Separator } from "@/components/ui/separator";
