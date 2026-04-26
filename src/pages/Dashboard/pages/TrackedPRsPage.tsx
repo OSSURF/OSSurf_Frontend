@@ -126,13 +126,13 @@ function priorityColor(priority: string | null | undefined): string {
 function StateIcon({ state }: { state: string }) {
   switch (state) {
     case "open":
-      return <GitPullRequestDraft className="h-4 w-4 text-green-500" />;
+      return <GitPullRequestDraft className="h-4 w-4 mt-0.5 text-green-500 shrink-0" />;
     case "merged":
-      return <GitMerge className="h-4 w-4 text-purple-500" />;
+      return <GitMerge className="h-4 w-4 mt-0.5 text-purple-500 shrink-0" />;
     case "closed":
-      return <GitPullRequestClosed className="h-4 w-4 text-red-500" />;
+      return <GitPullRequestClosed className="h-4 w-4 mt-0.5 text-red-500 shrink-0" />;
     default:
-      return <GitPullRequestDraft className="h-4 w-4 text-muted-foreground" />;
+      return <GitPullRequestDraft className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />;
   }
 }
 
@@ -429,13 +429,13 @@ export default function TrackedPRsPage() {
           </div>
 
           {/* PR List */}
-          <div className="divide-y divide-border border border-border">
+          <div className="flex flex-col pt-2">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-[110px] animate-pulse bg-muted/20" />
+                <div key={i} className="h-[90px] animate-pulse bg-muted/20" />
               ))
             ) : filteredPRs.length === 0 ? (
-              <div className="py-20 text-center text-muted-foreground">
+              <div className="py-20 text-center text-[14px] text-muted-foreground">
                 {prs.length === 0
                   ? "No tracked PRs yet. Add one to get started."
                   : "No PRs match your filters."}
@@ -618,94 +618,77 @@ function PRCard({
   const changedFiles = pr.changed_files ?? 0;
 
   return (
-    <div className="flex items-start gap-4 px-5 py-4 bg-card hover:bg-accent/30 transition-colors">
-      {/* Author avatar */}
-      <img
-        src={`https://github.com/${pr.author}.png?size=80`}
-        alt={pr.author}
-        className="w-10 h-10 rounded-full border border-border mt-1 shrink-0"
-      />
+    <div className="flex items-start gap-4 py-4 px-2 hover:bg-muted/30 transition-colors w-full rounded-none group relative">
+      <StateIcon state={pr.state} />
 
-      {/* Main content */}
-      <div className="flex-1 min-w-0 space-y-1.5">
-        {/* Title row */}
-        <div className="flex items-center gap-2">
-          <StateIcon state={pr.state} />
-          <h3 className="font-semibold text-foreground truncate">{pr.title}</h3>
+      <div className="flex flex-col flex-1 min-w-0 pr-16 space-y-2">
+        <div className="flex flex-col">
           <a
             href={pr.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            className="font-medium text-[14px] text-foreground leading-tight hover:underline inline-flex items-center gap-1.5"
           >
-            <ExternalLink className="h-3.5 w-3.5" />
+            {pr.title}
           </a>
+          <div className="flex items-center flex-wrap gap-1.5 mt-1.5 text-[12px] text-muted-foreground">
+            <span className="truncate">{pr.repo_owner}/{pr.repo_name} #{pr.number}</span>
+            <span>·</span>
+            <img
+              src={`https://github.com/${pr.author}.png?size=24`}
+              alt={pr.author}
+              className="w-4 h-4 rounded-full shrink-0"
+            />
+            <span className="truncate">{pr.author}</span>
+          </div>
         </div>
 
-        {/* Repo + author */}
-        <p className="text-sm text-muted-foreground">
-          {pr.repo_owner}/{pr.repo_name} #{pr.number} • by {pr.author}
-        </p>
-
         {/* Badges + stats */}
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <Badge variant={stateColor(pr.state)} className="text-xs capitalize">
+        <div className="flex flex-wrap items-center gap-2 text-[11px]">
+          <Badge variant={stateColor(pr.state)} className="text-[10px] px-1.5 py-0 rounded-sm capitalize h-5 font-normal leading-none">
             {pr.state}
           </Badge>
 
           {pr.priority && pr.priority !== "none" && (
             <Badge
               variant="outline"
-              className={`text-xs capitalize ${priorityColor(pr.priority)}`}
+              className={`text-[10px] px-1.5 py-0 rounded-sm capitalize h-5 font-normal leading-none bg-transparent ${priorityColor(pr.priority)}`}
             >
               {pr.priority}
             </Badge>
           )}
 
           {(additions > 0 || deletions > 0) && (
-            <span className="flex items-center gap-1 text-muted-foreground">
+            <span className="flex items-center gap-1 font-mono tracking-tight text-muted-foreground">
               <span className="text-green-500">+{additions}</span>
               <span className="text-red-500">-{deletions}</span>
             </span>
           )}
 
           {changedFiles > 0 && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <FileDiff className="h-3 w-3" />
+            <span className="flex items-center gap-1 text-muted-foreground font-mono bg-muted/40 px-1 rounded-sm">
+              <FileDiff className="h-2.5 w-2.5" />
               {changedFiles} {changedFiles === 1 ? "file" : "files"}
             </span>
           )}
+          <span>·</span>
+          <span className="text-muted-foreground/60 mb-[1px]">
+            Synced {formatSyncDate(pr.last_synced_at)}
+          </span>
         </div>
-
-        {/* Synced timestamp */}
-        <p className="text-xs text-muted-foreground/60">
-          Synced {formatSyncDate(pr.last_synced_at)}
-        </p>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 shrink-0">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onSync}
-          disabled={syncing}
-          title="Sync PR"
-        >
-          <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-        </Button>
-        <Button variant="ghost" size="icon-sm" onClick={onEdit} title="Edit PR">
-          <Pencil className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onDelete}
-          title="Delete PR"
-          className="hover:text-destructive"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+      <div className="flex items-center gap-2 shrink-0 absolute right-4 top-3.5">
+        <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-none" onClick={onSync} disabled={syncing} title="Sync PR">
+          <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
+        </button>
+        <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-none" onClick={onEdit} title="Edit PR">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+        <button className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-none" onClick={onDelete} title="Delete PR">
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   );

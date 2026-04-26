@@ -1,21 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-  Area,
-  AreaChart,
-  XAxis,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-} from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import type { ChartConfig } from "@/components/ui/chart";
 import {
   Card,
   CardContent,
@@ -23,8 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { GitPullRequest, CircleDot, ListChecks, MessageSquare, Plus, AlertCircle } from "lucide-react";
 import { Panel, PanelContent } from "../components/panel";
-import { GitHubContributionGraph } from "../components/github-contributions/graph";
+import { AreaChart, Area, CartesianGrid, XAxis, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 
 // ─── Types ────────────────────────────────────────
 
@@ -65,6 +52,8 @@ type ProfileResponse = {
     prStats: { merged: number; open: number; closed: number };
     radar: { commits: number; prs: number; issues: number; reviews: number };
   };
+  recentPrs?: TrackedPR[];
+  recentIssues?: TrackedPR[];
 };
 
 interface TrackedPR {
@@ -110,7 +99,7 @@ interface DashboardResponse {
 }
 
 const OVERVIEW_CARD_CLASS =
-  "px-3 flex flex-col bg-card border border-dashed rounded-none shadow-none";
+  "px-3 flex flex-col bg-card border border-solid rounded-none shadow-none";
 
 // ─── Helpers ──────────────────────────────────────
 
@@ -218,91 +207,62 @@ export default function OverviewPage() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
         <div className="max-w-5xl space-y-0 mx-auto">
 
-          {/* Profile card skeleton */}
-          <div className={cn(OVERVIEW_CARD_CLASS, "gap-0 px-0")}>
-            <div className="flex items-center gap-4 p-6 border-b border-dashed border-border">
-              <div className="size-24 shrink-0 rounded-xl bg-muted animate-pulse" />
-              <div className="flex flex-col gap-3 flex-1">
-                <div className="h-8 w-48 rounded bg-muted animate-pulse" />
-                <div className="h-3.5 w-24 rounded bg-muted animate-pulse" />
-                <div className="flex gap-4 mt-1">
-                  <div className="h-3 w-20 rounded bg-muted animate-pulse" />
-                  <div className="h-3 w-20 rounded bg-muted animate-pulse" />
-                </div>
-              </div>
-            </div>
-            <div className="px-6 py-4 pb-6">
-              <div className="h-[117px] w-full rounded bg-muted/40 animate-pulse" />
-            </div>
+          {/* Profile header skeleton */}
+          <div className="pt-6 pb-2 px-6 sm:px-0">
+            <div className="h-9 w-64 rounded bg-muted animate-pulse" />
           </div>
 
-          {/* Stat cards skeleton */}
-          <div className="py-6">
-            <div className="grid grid-cols-2 md:grid-cols-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={cn(OVERVIEW_CARD_CLASS, i < 3 && "border-r-0")}
-                >
-                  <div className="h-3.5 w-24 rounded bg-muted animate-pulse mt-2" />
-                  <div className="flex flex-col gap-5 items-start mt-2">
-                    <div className="h-5 w-16 rounded bg-muted animate-pulse" />
-                    <div className="flex justify-between w-full">
-                      <div className="h-3 w-20 rounded bg-muted animate-pulse mb-2" />
-                      <div className="h-3 w-8 rounded bg-muted animate-pulse mb-2" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* PR & Issues skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Action buttons skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 px-6 sm:px-0 mt-4">
             {[0, 1].map((i) => (
-              <div key={i} className="border border-dashed border-border bg-card">
-                <div className="flex items-center justify-between p-4 border-b border-border">
-                  <div className="h-4 w-36 rounded bg-muted animate-pulse" />
-                  <div className="h-3 w-10 rounded bg-muted animate-pulse" />
-                </div>
-                {[0, 1, 2].map((j) => (
-                  <div key={j} className="p-4 border-b border-border last:border-0">
-                    <div className="flex items-start gap-3">
-                      <div className="size-8 rounded shrink-0 bg-muted animate-pulse" />
-                      <div className="flex-1 flex flex-col gap-2">
-                        <div className="h-3.5 w-3/4 rounded bg-muted animate-pulse" />
-                        <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
-                      </div>
-                      <div className="h-5 w-14 rounded bg-muted animate-pulse shrink-0" />
-                    </div>
+              <div key={i} className="flex items-center justify-between p-5 bg-card border border-solid border-border/80 h-[92px]">
+                <div className="flex items-center gap-4 w-full">
+                  <div className="size-10 rounded bg-muted animate-pulse shrink-0" />
+                  <div className="flex flex-col gap-2 w-full max-w-[200px]">
+                    <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+                    <div className="h-3 w-full rounded bg-muted animate-pulse" />
                   </div>
-                ))}
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Language + Activity skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-            <div className={cn(OVERVIEW_CARD_CLASS, "gap-0 py-3")}>
-              <div className="h-4 w-36 rounded bg-muted animate-pulse mx-1 mt-2" />
-              <div className="mt-4 h-[165px] w-full rounded bg-muted/40 animate-pulse" />
-              <div className="mt-4 space-y-2.5 px-1 pb-2">
-                {[0, 1, 2, 3].map((k) => (
-                  <div key={k} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-muted animate-pulse" />
-                      <div className="h-3 w-16 rounded bg-muted animate-pulse" />
-                    </div>
-                    <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+          {/* Activity Header Skeleton */}
+          <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
+             <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-muted animate-pulse" />
+                <div className="h-5 w-40 rounded bg-muted animate-pulse" />
+             </div>
+             <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+          </div>
+
+          {/* Activity Columns Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-0 mb-8">
+            {[0, 1].map((col) => (
+              <div key={col} className="flex flex-col">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
+                  <div className="flex items-center gap-2">
+                    <div className="size-4 rounded bg-muted animate-pulse" />
+                    <div className="h-4 w-32 rounded bg-muted animate-pulse" />
                   </div>
-                ))}
+                  <div className="h-3 w-12 rounded bg-muted animate-pulse" />
+                </div>
+                <div className="flex flex-col">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="flex items-center justify-between py-3 border-b border-border/10 last:border-0">
+                      <div className="flex items-start gap-4">
+                        <div className="size-8 rounded bg-muted animate-pulse shrink-0 mt-0.5" />
+                        <div className="flex flex-col gap-2">
+                          <div className="h-3.5 w-48 rounded bg-muted animate-pulse" />
+                          <div className="h-3 w-32 rounded bg-muted animate-pulse" />
+                        </div>
+                      </div>
+                      <div className="h-5 w-12 rounded bg-muted animate-pulse shrink-0 ml-4" />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className={cn(OVERVIEW_CARD_CLASS, "gap-0 py-3")}>
-              <div className="h-4 w-32 rounded bg-muted animate-pulse mx-1 mt-2" />
-              <div className="h-3 w-48 rounded bg-muted animate-pulse mx-1 mt-2" />
-              <div className="mt-4 h-[300px] w-full rounded bg-muted/40 animate-pulse" />
-            </div>
+            ))}
           </div>
 
         </div>
@@ -426,228 +386,155 @@ export default function OverviewPage() {
       monthCount: 0,
     },
   ];
-  const recentPrs = dashboard?.recentPrs ?? [];
-  const recentIssues = dashboard?.recentIssues ?? [];
+  const recentPrs = profile?.recentPrs ?? dashboard?.recentPrs ?? [];
+  const recentIssues = profile?.recentIssues ?? dashboard?.recentIssues ?? [];
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
       <div className="max-w-5xl space-y-0 mx-auto">
         {/* ────── Profile Header ────── */}
         {profile && (
-          <Card className={cn(OVERVIEW_CARD_CLASS, "gap-0 px-0")}>
-            {/* Panel section with dashed side lines */}
-            <section
-              className="relative flex w-full rounded-none bg-transparent gap-4 p-6 shadow-none border-b border-dashed border-border"
-              style={{
-                backgroundImage: `repeating-linear-gradient(to bottom, hsl(var(--border)) 0px, hsl(var(--border)) 6px, transparent 6px, transparent 14px), repeating-linear-gradient(to bottom, hsl(var(--border)) 0px, hsl(var(--border)) 6px, transparent 6px, transparent 14px)`,
-                backgroundSize: "1px 100%, 1px 100%",
-                backgroundPosition: "left top, right top",
-                backgroundRepeat: "no-repeat",
-              }}
-            >
-              {/* Avatar */}
-              <div className="relative flex items-center md:size-32 sm:size-24 size-24 shrink-0">
-                <img
-                  src={profile.user.avatarUrl}
-                  alt={`${profile.user.name || profile.user.login}'s avatar`}
-                  className="absolute inset-0 h-full w-full rounded-xl border border-solid p-0.5 object-cover"
-                />
-              </div>
-
-              {/* Info */}
-              <div className="flex flex-1 flex-col justify-end pl-2">
-                <div
-                  className="animate-fade-in-blur"
-                  style={{ animationDelay: "0.1s", animationFillMode: "both" }}
-                >
-                  <h1 className="font-normal tracking-tight text-foreground sm:text-4xl text-3xl font-serif-instrument leading-tight">
-                    {profile.user.name || profile.user.login}
-                  </h1>
-                  <a
-                    href={profile.user.htmlUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-sm text-muted-foreground mt-0.5 hover:text-foreground underline"
-                  >
-                    @{profile.user.login}
-                  </a>
-                  {/* Followers / Following */}
-                  <div className="flex items-center gap-4 mt-2 flex-wrap">
-                    <span className="text-sm text-muted-foreground">
-                      <span className="font-semibold text-foreground tabular-nums">
-                        {profile.user.followers.toLocaleString()}
-                      </span>{" "}
-                      followers
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      <span className="font-semibold text-foreground tabular-nums">
-                        {profile.user.following.toLocaleString()}
-                      </span>{" "}
-                      following
-                    </span>
-                  </div>
-                  {/* Bio */}
-                  {profile.user.bio && (
-                    <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
-                      {profile.user.bio}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* GitHub Contributions */}
-            <div className="w-full px-6 py-4 pb-6">
-              <GitHubContributionGraph data={calendarData as any} />
-            </div>
-          </Card>
+          <div className="pt-6 pb-2 px-6 sm:px-0">
+            <h1 className="text-[28px] font-semibold tracking-tight text-foreground font-geist">
+              Welcome back, {profile.user.name?.split(" ")[0] || profile.user.login}
+            </h1>
+          </div>
         )}
 
-        <div className="py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4">
-            {statCards.map((card, idx) => (
-              <div
-                key={card.key}
-                className={cn(OVERVIEW_CARD_CLASS, idx < 3 && "border-r-0", "hover:bg-muted/60 dark:hover:bg-muted/20 transition-colors cursor-default")}
-              >
-                <span className="text-sm mt-2 font-geist">{card.label}</span>
-                <div className="flex flex-col gap-5 items-start justify-start">
-                  <span className="text-lg font-geist text-foreground">
-                    {card.value.toLocaleString()}
-                  </span>
-                  <div className="flex justify-between w-full">
-                    <span className="text-sm mb-2">This month</span>
-                    <span
-                      className={cn(
-                        "font-semibold mb-2 tabular-nums",
-                        card.monthCount > 0
-                          ? "text-foreground"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {card.monthCount.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
+        {/* ────── Action Buttons ────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 px-6 sm:px-0">
+          <Link
+            to="/pull-requests"
+            className="flex items-center justify-between p-5 bg-card border border-solid border-border/80 hover:bg-muted/30 transition-colors group rounded-none"
+          >
+             <div className="flex items-center gap-4">
+               <div className="flex items-center justify-center size-10 rounded bg-muted/20 text-muted-foreground shrink-0">
+                 <GitPullRequest className="size-5" />
+               </div>
+               <div className="flex flex-col">
+                 <span className="font-semibold text-[15px] text-foreground">Manage PRs</span>
+                 <span className="text-[12px] text-muted-foreground mt-0.5">Add, track, and update pull requests</span>
+               </div>
+             </div>
+             <Plus className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          </Link>
+          
+          <Link
+            to="/issues"
+            className="flex items-center justify-between p-5 bg-card border border-solid border-border/80 hover:bg-muted/30 transition-colors group rounded-none"
+          >
+             <div className="flex items-center gap-4">
+               <div className="flex items-center justify-center size-10 rounded bg-muted/20 text-muted-foreground shrink-0">
+                 <AlertCircle className="size-5" />
+               </div>
+               <div className="flex flex-col">
+                 <span className="font-semibold text-[15px] text-foreground">Manage Issues</span>
+                 <span className="text-[12px] text-muted-foreground mt-0.5">Track and organize GitHub issues</span>
+               </div>
+             </div>
+             <Plus className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          </Link>
+        </div>
+
+        {/* ────── Your GitHub Activity Header ────── */}
+        <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
+           <div className="flex items-center gap-2">
+              <div className="size-2 rounded-full bg-foreground" />
+              <h2 className="text-[16px] font-semibold text-foreground">Your GitHub Activity</h2>
+           </div>
+           <Link to="/profile" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Settings →</Link>
+        </div>
+
+        {/* ────── Columns ────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-0 mb-8">
+          
+          {/* PRs Column */}
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
+              <div className="flex items-center gap-2">
+                <GitPullRequest className="size-4 text-muted-foreground" />
+                <span className="text-[14px] font-medium text-foreground">Your Pull Requests</span>
               </div>
-            ))}
+              <span className="text-[12px] text-muted-foreground">{recentPrs.length} PRs</span>
+            </div>
+            <div className="flex flex-col">
+              {recentPrs.length === 0 ? (
+                <div className="text-sm text-muted-foreground p-2 -mx-2">No recent pull requests</div>
+              ) : (
+                recentPrs.map((item) => (
+                  <a
+                    key={item.id}
+                    href={item.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between py-3 hover:bg-muted/30 transition-colors w-full rounded-none group border-b border-border/10 last:border-0"
+                  >
+                    <div className="flex items-start gap-4 overflow-hidden">
+                      <img src={`https://github.com/${item.author}.png?size=40`} className="size-8 rounded shrink-0 object-cover mt-0.5" alt="" />
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-medium text-[13px] text-foreground leading-tight truncate">{item.title}</span>
+                        <span className="text-[11px] text-muted-foreground mt-1 truncate">{item.repo_owner}/{item.repo_name} #{item.number}</span>
+                      </div>
+                    </div>
+                    <div className="ml-4 shrink-0">
+                       <span className={cn(
+                          "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
+                          item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                       )}>
+                         {item.state}
+                       </span>
+                    </div>
+                  </a>
+                ))
+              )}
+            </div>
           </div>
-        </div>
 
-
-        {/* ────── Pull Requests & Issues ────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TrackerPreviewCard
-            title="Your Pull Requests"
-            count={recentPrs.length}
-            label="PRs"
-            items={recentPrs}
-          />
-          <TrackerPreviewCard
-            title="Your Issues"
-            count={recentIssues.length}
-            label="Issues"
-            items={recentIssues}
-          />
-        </div>
-
-        {/* ────── Language Highlights + Monthly Activity ────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          <LanguageBarChart
-            data={displayLanguageData}
-            className="lg:border-r-0"
-          />
-
-          <Card className={cn(OVERVIEW_CARD_CLASS, "gap-0 py-3")}>
-            <CardHeader className="px-0 pt-2 pb-2">
-              <div>
-                <CardTitle className="text-lg mb-1">
-                  Monthly Activity
-                </CardTitle>
-                <CardDescription>
-                  PRs and Issues over the last 12 months
-                </CardDescription>
+          {/* Issues Column */}
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="size-4 text-muted-foreground" />
+                <span className="text-[14px] font-medium text-foreground">Your Issues</span>
               </div>
-            </CardHeader>
-            <CardContent className="px-0">
-              <ChartContainer
-                config={activityChartConfig}
-                className="h-[300px] w-full"
-              >
-                <AreaChart accessibilityLayer data={displayMonthlyActivityData}>
-                  <defs>
-                    <linearGradient
-                      id="gradient-chart-prs"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-prs)"
-                        stopOpacity={0.5}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-prs)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                    <linearGradient
-                      id="gradient-chart-issues"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-issues)"
-                        stopOpacity={0.5}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-issues)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => String(value).slice(0, 3)}
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent />}
-                  />
-                  <Area
-                    dataKey="prs"
-                    fill="url(#gradient-chart-prs)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-prs)"
-                    stackId="a"
-                    strokeWidth={0.8}
-                    strokeDasharray="3 3"
-                  />
-                  <Area
-                    dataKey="issues"
-                    fill="url(#gradient-chart-issues)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-issues)"
-                    stackId="a"
-                    strokeWidth={0.8}
-                    strokeDasharray="3 3"
-                  />
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+              <span className="text-[12px] text-muted-foreground">{recentIssues.length} Issues</span>
+            </div>
+            <div className="flex flex-col">
+              {recentIssues.length === 0 ? (
+                <div className="text-sm text-muted-foreground p-2 -mx-2">No recent issues</div>
+              ) : (
+                recentIssues.map((item) => (
+                  <a
+                    key={item.id}
+                    href={item.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between py-3 hover:bg-muted/30 transition-colors w-full rounded-none group border-b border-border/10 last:border-0"
+                  >
+                    <div className="flex items-start gap-4 overflow-hidden">
+                      <img src={`https://github.com/${item.author}.png?size=40`} className="size-8 rounded shrink-0 object-cover mt-0.5" alt="" />
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-medium text-[13px] text-foreground leading-tight truncate">{item.title}</span>
+                        <span className="text-[11px] text-muted-foreground mt-1 truncate">{item.repo_owner}/{item.repo_name} #{item.number}</span>
+                      </div>
+                    </div>
+                    <div className="ml-4 shrink-0">
+                       <span className={cn(
+                          "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
+                          item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                       )}>
+                         {item.state}
+                       </span>
+                    </div>
+                  </a>
+                ))
+              )}
+            </div>
+          </div>
+
         </div>
+
+
       </div>
     </div>
   );
@@ -655,7 +542,7 @@ export default function OverviewPage() {
 
 // ─── Language Highlights ──────────────────────────
 
-function LanguageBarChart({
+export function LanguageBarChart({
   data,
   className,
 }: {
@@ -761,7 +648,7 @@ function TrackerPreviewCard({
   return (
     <div className={cn(OVERVIEW_CARD_CLASS, "px-0")}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-dashed border-border">
+      <div className="flex items-center justify-between p-4 border-b border-solid border-border">
         <h3 className="font-medium text-sm">{title}</h3>
         <span className="text-xs text-muted-foreground">
           {count} {label}

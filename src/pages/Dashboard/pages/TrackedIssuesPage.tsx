@@ -114,11 +114,11 @@ function priorityColor(priority: string | null | undefined): string {
 function StateIcon({ state }: { state: string }) {
   switch (state) {
     case "open":
-      return <CircleDot className="h-4 w-4 text-green-500" />;
+      return <CircleDot className="h-4 w-4 mt-0.5 text-green-500 shrink-0" />;
     case "closed":
-      return <CircleCheck className="h-4 w-4 text-purple-500" />;
+      return <CircleCheck className="h-4 w-4 mt-0.5 text-purple-500 shrink-0" />;
     default:
-      return <CircleDot className="h-4 w-4 text-muted-foreground" />;
+      return <CircleDot className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />;
   }
 }
 
@@ -421,13 +421,13 @@ export default function TrackedIssuesPage() {
           </div>
 
           {/* Issue List */}
-          <div className="divide-y divide-border border border-border">
+          <div className="flex flex-col pt-2">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-[110px] animate-pulse bg-muted/20" />
+                <div key={i} className="h-[90px] animate-pulse bg-muted/20" />
               ))
             ) : filteredIssues.length === 0 ? (
-              <div className="py-20 text-center text-muted-foreground">
+              <div className="py-20 text-center text-[14px] text-muted-foreground">
                 {issues.length === 0
                   ? "No tracked issues yet. Add one to get started."
                   : "No issues match your filters."}
@@ -606,43 +606,36 @@ function IssueCard({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-start gap-4 px-5 py-4 bg-card hover:bg-accent/30 transition-colors">
-      {/* Author avatar */}
-      <img
-        src={`https://github.com/${issue.author}.png?size=80`}
-        alt={issue.author}
-        className="w-10 h-10 rounded-full border border-border mt-1 shrink-0"
-      />
+    <div className="flex items-start gap-4 py-4 px-2 hover:bg-muted/30 transition-colors w-full rounded-none group relative">
+      <StateIcon state={issue.state} />
 
-      {/* Main content */}
-      <div className="flex-1 min-w-0 space-y-1.5">
-        {/* Title row */}
-        <div className="flex items-center gap-2">
-          <StateIcon state={issue.state} />
-          <h3 className="font-semibold text-foreground truncate">
-            {issue.title}
-          </h3>
+      <div className="flex flex-col flex-1 min-w-0 pr-16 space-y-2">
+        <div className="flex flex-col">
           <a
             href={issue.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            className="font-medium text-[14px] text-foreground leading-tight hover:underline inline-flex items-center gap-1.5"
           >
-            <ExternalLink className="h-3.5 w-3.5" />
+            {issue.title}
           </a>
+          <div className="flex items-center flex-wrap gap-1.5 mt-1.5 text-[12px] text-muted-foreground">
+            <span className="truncate">{issue.repo_owner}/{issue.repo_name} #{issue.number}</span>
+            <span>·</span>
+            <img
+              src={`https://github.com/${issue.author}.png?size=24`}
+              alt={issue.author}
+              className="w-4 h-4 rounded-full shrink-0"
+            />
+            <span className="truncate">{issue.author}</span>
+          </div>
         </div>
 
-        {/* Repo + author */}
-        <p className="text-sm text-muted-foreground">
-          {issue.repo_owner}/{issue.repo_name} #{issue.number} • by{" "}
-          {issue.author}
-        </p>
-
         {/* Badges */}
-        <div className="flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-[11px]">
           <Badge
             variant={stateColor(issue.state)}
-            className="text-xs capitalize"
+            className="text-[10px] px-1.5 py-0 rounded-sm capitalize h-5 font-normal leading-none"
           >
             {issue.state}
           </Badge>
@@ -650,46 +643,45 @@ function IssueCard({
           {issue.priority && issue.priority !== "none" && (
             <Badge
               variant="outline"
-              className={`text-xs capitalize ${priorityColor(issue.priority)}`}
+              className={`text-[10px] px-1.5 py-0 rounded-sm capitalize h-5 font-normal leading-none bg-transparent ${priorityColor(issue.priority)}`}
             >
               {issue.priority}
             </Badge>
           )}
-        </div>
 
-        {/* Synced timestamp */}
-        <p className="text-xs text-muted-foreground/60">
-          Synced {formatSyncDate(issue.last_synced_at)}
-        </p>
+          <span>·</span>
+          <span className="text-muted-foreground/60 mb-[1px]">
+            Synced {formatSyncDate(issue.last_synced_at)}
+          </span>
+        </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex items-center gap-1 shrink-0 absolute right-4 top-3.5">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon" className="h-7 w-7"
           onClick={onSync}
           disabled={syncing}
           title="Sync Issue"
         >
-          <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} />
         </Button>
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon" className="h-7 w-7"
           onClick={onEdit}
           title="Edit Issue"
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-3 w-3" />
         </Button>
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon" className="h-7 w-7 hover:text-destructive"
           onClick={onDelete}
           title="Delete Issue"
-          className="hover:text-destructive"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3 w-3" />
         </Button>
       </div>
     </div>
