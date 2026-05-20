@@ -19,7 +19,6 @@ import { AreaChart, Area, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { LanguageBarChart } from "./OverviewPage";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type CustomLink = { label: string; url: string };
 type StoredLinks = {
@@ -36,7 +35,7 @@ function loadLinks(): StoredLinks {
   try {
     const raw = localStorage.getItem(LINKS_KEY);
     if (raw) return JSON.parse(raw) as StoredLinks;
-  } catch {}
+  } catch { }
   return { github: "", twitter: "", linkedin: "", website: "", custom: [] };
 }
 
@@ -44,12 +43,10 @@ function saveLinks(l: StoredLinks) {
   localStorage.setItem(LINKS_KEY, JSON.stringify(l));
 }
 
-// ─── Design tokens (mirror OverviewPage) ─────────────────────────────────────
 
 const CARD = "flex flex-col bg-card border border-solid border-border rounded-none shadow-none";
 const DASH_DIVIDER = "border-b border-solid border-border";
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function LinkPill({ icon, href, label }: { icon: React.ReactNode; href: string; label: string }) {
   const full = href.startsWith("http") ? href : `https://${href}`;
@@ -90,7 +87,6 @@ function InlineInput({
   );
 }
 
-// ─── Edit Modal ───────────────────────────────────────────────────────────────
 
 function EditModal({
   open,
@@ -334,25 +330,25 @@ export default function ProfilePage() {
     ? monthlyActivityData
     : activityHistory.length
       ? activityHistory.map((item: any, index: number) => ({
-          month: item.month,
-          prs: 2 + (index % 4),
-          issues: 1 + (index % 3),
-          total: 3 + (index % 4) + (index % 3),
-        }))
+        month: item.month,
+        prs: 2 + (index % 4),
+        issues: 1 + (index % 3),
+        total: 3 + (index % 4) + (index % 3),
+      }))
       : [
-          { month: "Mar", prs: 3, issues: 2, total: 5 },
-          { month: "Apr", prs: 4, issues: 1, total: 5 },
-          { month: "May", prs: 5, issues: 2, total: 7 },
-          { month: "Jun", prs: 4, issues: 3, total: 7 },
-          { month: "Jul", prs: 3, issues: 2, total: 5 },
-          { month: "Aug", prs: 6, issues: 2, total: 8 },
-          { month: "Sep", prs: 5, issues: 1, total: 6 },
-          { month: "Oct", prs: 4, issues: 2, total: 6 },
-          { month: "Nov", prs: 5, issues: 2, total: 7 },
-          { month: "Dec", prs: 6, issues: 3, total: 9 },
-          { month: "Jan", prs: 4, issues: 2, total: 6 },
-          { month: "Feb", prs: 3, issues: 1, total: 4 },
-        ];
+        { month: "Mar", prs: 3, issues: 2, total: 5 },
+        { month: "Apr", prs: 4, issues: 1, total: 5 },
+        { month: "May", prs: 5, issues: 2, total: 7 },
+        { month: "Jun", prs: 4, issues: 3, total: 7 },
+        { month: "Jul", prs: 3, issues: 2, total: 5 },
+        { month: "Aug", prs: 6, issues: 2, total: 8 },
+        { month: "Sep", prs: 5, issues: 1, total: 6 },
+        { month: "Oct", prs: 4, issues: 2, total: 6 },
+        { month: "Nov", prs: 5, issues: 2, total: 7 },
+        { month: "Dec", prs: 6, issues: 3, total: 9 },
+        { month: "Jan", prs: 4, issues: 2, total: 6 },
+        { month: "Feb", prs: 3, issues: 1, total: 4 },
+      ];
 
   const languageColors = [
     "#6366f1",
@@ -369,12 +365,12 @@ export default function ProfilePage() {
   const displayLanguageData = languageData.length
     ? languageData
     : [
-        { name: "TypeScript", value: 42, fill: languageColors[0] },
-        { name: "Assembly", value: 18, fill: languageColors[1] },
-        { name: "Perl", value: 14, fill: languageColors[2] },
-        { name: "Python", value: 13, fill: languageColors[3] },
-        { name: "Lua", value: 13, fill: languageColors[4] },
-      ];
+      { name: "TypeScript", value: 42, fill: languageColors[0] },
+      { name: "Assembly", value: 18, fill: languageColors[1] },
+      { name: "Perl", value: 14, fill: languageColors[2] },
+      { name: "Python", value: 13, fill: languageColors[3] },
+      { name: "Lua", value: 13, fill: languageColors[4] },
+    ];
 
   const activityChartConfig: ChartConfig = {
     prs: { label: "Pull Requests", color: "var(--chart-1)" },
@@ -425,7 +421,7 @@ export default function ProfilePage() {
     return (
       <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
         <div className="max-w-5xl mx-auto space-y-0">
-          
+
           {/* Skeleton Header */}
           <div className="px-6 sm:px-0 pt-6 pb-6 relative flex flex-col items-start w-full bg-transparent">
             <div className="md:size-[104px] size-24 shrink-0 border border-solid border-border bg-muted animate-pulse mb-4 z-10" />
@@ -468,7 +464,7 @@ export default function ProfilePage() {
               ))}
             </div>
           </div>
-          
+
         </div>
       </div>
     );
@@ -489,89 +485,89 @@ export default function ProfilePage() {
 
           {/* ── Profile Header ─────────────────────────────────────────────── */}
           <div className="px-6 sm:px-0 pt-6 pb-6 relative flex flex-col items-start w-full bg-transparent">
-              {/* Avatar */}
-              <div className="relative flex items-center md:size-[104px] size-24 shrink-0 rounded-none border border-solid border-border bg-background shadow-none z-10 box-content mb-4">
-                {user?.image ? (
-                  <img
-                    src={user.image}
-                    alt={displayName}
-                    className="absolute inset-0 h-full w-full rounded-none object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-none bg-muted text-3xl font-semibold text-muted-foreground select-none">
-                    {displayName.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
-              </div>
-
-              {/* Edit Action Absolute */}
-              <div className="absolute right-6 sm:right-0 top-6 flex shrink-0 items-center justify-end">
-                <button
-                  id="edit-profile-btn"
-                  onClick={() => setEditOpen(true)}
-                  className="flex items-center justify-center size-[34px] rounded-none hover:bg-muted transition-colors text-muted-foreground hover:text-foreground border border-solid border-border"
-                >
-                  <Pencil size={15} />
-                </button>
-              </div>
-
-              {/* Info */}
-              <div
-                className="mt-3 flex w-full flex-col animate-fade-in-blur"
-                style={{ animationDelay: "0.1s", animationFillMode: "both" }}
-              >
-                <h1 className="font-semibold tracking-tight text-foreground sm:text-[22px] text-[20px] font-geist leading-none">
-                  {displayName}
-                </h1>
-                <p className="text-[14px] text-muted-foreground mt-1.5 font-geist">
-                  @{links.github ? links.github.split("/").pop() : dashboard?.stats?.user?.username || "username"}
-                  {" · "}
-                  Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "October 2023"}
-                </p>
-
-                <p className="mt-4 text-[14px] text-foreground font-geist">
-                  I use vim btw
-                </p>
-
-                {allLinks.length > 0 && (
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-[14px]">
-                    {allLinks.map((l, i) => (
-                      <LinkPill key={i} {...l} />
-                    ))}
-                  </div>
-                )}
-
-                {/* Followers / Following */}
-                <div className="flex items-center gap-3 mt-4 text-[14px] text-muted-foreground">
-                  {profile?.user ? (
-                    <>
-                      <span className="flex items-center gap-1.5">
-                        <svg className="size-[15px] text-muted-foreground" aria-hidden="true" viewBox="0 0 16 16" version="1.1" fill="currentColor">
-                          <path d="M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.749.749 0 0 1-.885.954.752.752 0 0 1-.549-.514 3.507 3.507 0 0 0-2.522-2.372.75.75 0 0 1-.574-.73v-.352a.75.75 0 0 1 .416-.672A1.5 1.5 0 0 0 11 5.5.75.75 0 0 1 11 4Zm-5.5-.5a2 2 0 1 0-.001 3.999A2 2 0 0 0 5.5 3.5Z"></path>
-                        </svg>
-                        <span className="font-semibold text-foreground">{profile.user.followers}</span> followers
-                      </span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1.5">
-                        <span className="font-semibold text-foreground">{profile.user.following}</span> following
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="flex items-center gap-1.5">
-                        <svg className="size-[15px] text-muted-foreground" aria-hidden="true" viewBox="0 0 16 16" version="1.1" fill="currentColor">
-                          <path d="M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.749.749 0 0 1-.885.954.752.752 0 0 1-.549-.514 3.507 3.507 0 0 0-2.522-2.372.75.75 0 0 1-.574-.73v-.352a.75.75 0 0 1 .416-.672A1.5 1.5 0 0 0 11 5.5.75.75 0 0 1 11 4Zm-5.5-.5a2 2 0 1 0-.001 3.999A2 2 0 0 0 5.5 3.5Z"></path>
-                        </svg>
-                        <span className="font-semibold text-foreground">12</span> followers
-                      </span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1.5">
-                        <span className="font-semibold text-foreground">20</span> following
-                      </span>
-                    </>
-                  )}
+            {/* Avatar */}
+            <div className="relative flex items-center md:size-[104px] size-24 shrink-0 rounded-none border border-solid border-border bg-background shadow-none z-10 box-content mb-4">
+              {user?.image ? (
+                <img
+                  src={user.image}
+                  alt={displayName}
+                  className="absolute inset-0 h-full w-full rounded-none object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center rounded-none bg-muted text-3xl font-semibold text-muted-foreground select-none">
+                  {displayName.slice(0, 2).toUpperCase()}
                 </div>
+              )}
+            </div>
+
+            {/* Edit Action Absolute */}
+            <div className="absolute right-6 sm:right-0 top-6 flex shrink-0 items-center justify-end">
+              <button
+                id="edit-profile-btn"
+                onClick={() => setEditOpen(true)}
+                className="flex items-center justify-center size-[34px] rounded-none hover:bg-muted transition-colors text-muted-foreground hover:text-foreground border border-solid border-border"
+              >
+                <Pencil size={15} />
+              </button>
+            </div>
+
+            {/* Info */}
+            <div
+              className="mt-3 flex w-full flex-col animate-fade-in-blur"
+              style={{ animationDelay: "0.1s", animationFillMode: "both" }}
+            >
+              <h1 className="font-semibold tracking-tight text-foreground sm:text-[22px] text-[20px] font-geist leading-none">
+                {displayName}
+              </h1>
+              <p className="text-[14px] text-muted-foreground mt-1.5 font-geist">
+                @{links.github ? links.github.split("/").pop() : dashboard?.stats?.user?.username || "username"}
+                {" · "}
+                Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "October 2023"}
+              </p>
+
+              <p className="mt-4 text-[14px] text-foreground font-geist">
+                I use vim btw
+              </p>
+
+              {allLinks.length > 0 && (
+                <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-[14px]">
+                  {allLinks.map((l, i) => (
+                    <LinkPill key={i} {...l} />
+                  ))}
+                </div>
+              )}
+
+              {/* Followers / Following */}
+              <div className="flex items-center gap-3 mt-4 text-[14px] text-muted-foreground">
+                {profile?.user ? (
+                  <>
+                    <span className="flex items-center gap-1.5">
+                      <svg className="size-[15px] text-muted-foreground" aria-hidden="true" viewBox="0 0 16 16" version="1.1" fill="currentColor">
+                        <path d="M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.749.749 0 0 1-.885.954.752.752 0 0 1-.549-.514 3.507 3.507 0 0 0-2.522-2.372.75.75 0 0 1-.574-.73v-.352a.75.75 0 0 1 .416-.672A1.5 1.5 0 0 0 11 5.5.75.75 0 0 1 11 4Zm-5.5-.5a2 2 0 1 0-.001 3.999A2 2 0 0 0 5.5 3.5Z"></path>
+                      </svg>
+                      <span className="font-semibold text-foreground">{profile.user.followers}</span> followers
+                    </span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-semibold text-foreground">{profile.user.following}</span> following
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex items-center gap-1.5">
+                      <svg className="size-[15px] text-muted-foreground" aria-hidden="true" viewBox="0 0 16 16" version="1.1" fill="currentColor">
+                        <path d="M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.749.749 0 0 1-.885.954.752.752 0 0 1-.549-.514 3.507 3.507 0 0 0-2.522-2.372.75.75 0 0 1-.574-.73v-.352a.75.75 0 0 1 .416-.672A1.5 1.5 0 0 0 11 5.5.75.75 0 0 1 11 4Zm-5.5-.5a2 2 0 1 0-.001 3.999A2 2 0 0 0 5.5 3.5Z"></path>
+                      </svg>
+                      <span className="font-semibold text-foreground">12</span> followers
+                    </span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-semibold text-foreground">20</span> following
+                    </span>
+                  </>
+                )}
               </div>
+            </div>
           </div>
 
           <div className="w-full h-px bg-border max-w-5xl"></div>
@@ -579,11 +575,11 @@ export default function ProfilePage() {
           {/* ── Github Contributions ─────────────────────────────────────────────── */}
           {calendarData.length > 0 && (
             <div className="pt-6 pb-3 px-6 sm:px-0">
-               <div className="flex items-center bg-card border border-solid border-border/80 rounded-none shadow-none p-4 w-full overflow-x-auto">
-                 <div className="w-full flex justify-center min-w-[700px]">
-                   <GitHubContributionGraph data={calendarData} />
-                 </div>
-               </div>
+              <div className="flex items-center bg-card border border-solid border-border/80 rounded-none shadow-none p-4 w-full overflow-x-auto">
+                <div className="w-full flex justify-center min-w-[700px]">
+                  <GitHubContributionGraph data={calendarData} />
+                </div>
+              </div>
             </div>
           )}
 
@@ -631,18 +627,18 @@ export default function ProfilePage() {
                     )}
                     {(repo.stars || 0) > 0 && (
                       <div className="flex items-center gap-1">
-                         <svg aria-label="star" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
-                            <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
-                         </svg>
-                         <span className="text-[12px] text-muted-foreground">{repo.stars}</span>
+                        <svg aria-label="star" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
+                          <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
+                        </svg>
+                        <span className="text-[12px] text-muted-foreground">{repo.stars}</span>
                       </div>
                     )}
                     {(repo.forks || 0) > 0 && (
                       <div className="flex items-center gap-1">
-                         <svg aria-label="fork" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
-                            <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
-                         </svg>
-                         <span className="text-[12px] text-muted-foreground">{repo.forks}</span>
+                        <svg aria-label="fork" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
+                          <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
+                        </svg>
+                        <span className="text-[12px] text-muted-foreground">{repo.forks}</span>
                       </div>
                     )}
                   </div>
