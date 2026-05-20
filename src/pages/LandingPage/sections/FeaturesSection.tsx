@@ -7,7 +7,7 @@ export function FeaturesSection() {
     <Container className="flex flex-col border-x border-dashed border-border gap-8 items-center pt-8">
       <div className="flex flex-col gap-8 w-full">
         <div className="gap-2 px-6">
-            <div className="flex gap-2 px-24 flex-col items-center">
+            <div className="flex gap-2 px-2 md:px-24 flex-col items-center">
           <Button variant="secondary" size="sm" className="text-xl">
             Features
           </Button>
