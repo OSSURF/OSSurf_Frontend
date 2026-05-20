@@ -47,13 +47,12 @@ function App() {
 
             {/* Issues */}
             <Route path="/find-issues" element={<IssuesPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/overview" element={<OverviewPage />} />
               <Route path="/pull-requests" element={<TrackedPRsPage />} />
               <Route path="/issues" element={<TrackedIssuesPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
         </Routes>
