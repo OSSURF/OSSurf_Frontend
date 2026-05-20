@@ -53,7 +53,7 @@ export default function YCPage() {
     async function fetchYcData() {
       setLoading(true);
       try {
-        const res = await fetch("http://localhost:3000/api/yc?page=1");
+        const res = await fetch("/api/yc?page=1");
 
         if (!res.ok) {
           setCompanies([]);

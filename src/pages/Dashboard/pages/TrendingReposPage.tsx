@@ -78,7 +78,7 @@ export default function TrendingReposPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const url = `http://localhost:3000/api/trending?period=${period}`;
+        const url = `/api/trending?period=${period}`;
         const res = await fetch(url);
 
         if (!res.ok) {
