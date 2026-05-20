@@ -60,8 +60,9 @@ function formatNumber(num: number): string {
 export function GitHubRepoCard({
   repo,
   className,
+  period = "daily",
   ...props
-}: { repo: RepoData } & React.HTMLAttributes<HTMLAnchorElement>) {
+}: { repo: RepoData; period?: string } & React.HTMLAttributes<HTMLAnchorElement>) {
   const [avatarError, setAvatarError] = useState(false);
 
   if (!repo) return null;
@@ -177,10 +178,21 @@ export function GitHubRepoCard({
         {repo.stars_earned !== undefined && repo.stars_earned !== null && (
           <span
             className="flex items-center gap-1 text-muted-foreground ml-auto"
-            title="Stars earned today"
+            title={`Stars earned ${
+              period === "weekly"
+                ? "this week"
+                : period === "monthly"
+                  ? "this month"
+                  : "today"
+            }`}
           >
             <Star className="w-4 h-4" weight="fill" />
-            {formatNumber(repo.stars_earned)} stars today
+            {formatNumber(repo.stars_earned)} stars{" "}
+            {period === "weekly"
+              ? "this week"
+              : period === "monthly"
+                ? "this month"
+                : "today"}
           </span>
         )}
       </div>

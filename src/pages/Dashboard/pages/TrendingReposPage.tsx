@@ -157,6 +157,7 @@ export default function TrendingReposPage() {
             <GitHubRepoCard
               key={`${repo.owner}/${repo.repo_name}`}
               repo={repo}
+              period={period}
             />
           ))
         )}
