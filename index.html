@@ -3,8 +3,32 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Primary Meta Tags -->
+  <title>SourceSurf — Discover Open Source in Seconds</title>
+  <meta name="title" content="SourceSurf — Discover Open Source in Seconds" />
+  <meta name="description" content="Discover, track, and search the best open-source projects on GitHub in seconds. Browse trending repos, YC OSS startups, GSoC organizations, and manage your contributions in one dashboard." />
+  <meta name="keywords" content="open source, github, tracking, pull requests, issues, gsoc, yc, y combinator, developer dashboard, oss, code contribution, trends" />
+  <meta name="author" content="SourceSurf" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sourcesurf.com" />
+  <meta property="og:title" content="SourceSurf — Discover Open Source in Seconds" />
+  <meta property="og:description" content="Discover, track, and search the best open-source projects on GitHub in seconds. Browse trending repos, YC OSS startups, GSoC organizations, and manage your contributions in one dashboard." />
+  <meta property="og:image" content="/logo.svg" />
+  <meta property="og:site_name" content="SourceSurf" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary" />
+  <meta property="twitter:url" content="https://sourcesurf.com" />
+  <meta property="twitter:title" content="SourceSurf — Discover Open Source in Seconds" />
+  <meta property="twitter:description" content="Discover, track, and search the best open-source projects on GitHub in seconds. Browse trending repos, YC OSS startups, GSoC organizations, and manage your contributions in one dashboard." />
+  <meta property="twitter:image" content="/logo.svg" />
+
   <script>
     const stored = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -14,7 +38,6 @@
     root.dataset.theme = resolved;
     root.style.colorScheme = resolved;
   </script>
-  <title>frontend</title>
 </head>
 
 <body>
