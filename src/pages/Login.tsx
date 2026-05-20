@@ -49,6 +49,7 @@ const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const {
     register,
     handleSubmit,
@@ -76,28 +77,53 @@ export default function LoginPage() {
   };
 
   const onSubmit = async (data: any) => {
-    await authClient.signIn.email(
-      {
-        email: data.email,
-        password: data.password,
-        rememberMe: true,
-        callbackURL: `${window.location.origin}/overview`,
-      },
-      {
-        onRequest: () => {
-          setLoading(true);
+    if (isSignUp) {
+      await authClient.signUp.email(
+        {
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          callbackURL: `${window.location.origin}/overview`,
         },
-        onResponse: () => {
-          setLoading(false);
+        {
+          onRequest: () => {
+            setLoading(true);
+          },
+          onResponse: () => {
+            setLoading(false);
+          },
+          onSuccess: () => {
+            toast.success("Account created successfully!");
+          },
+          onError: (context) => {
+            toast.error(context.error.message || "Failed to create account");
+          },
         },
-        onSuccess: () => {
-          toast.success("Login successful");
+      );
+    } else {
+      await authClient.signIn.email(
+        {
+          email: data.email,
+          password: data.password,
+          rememberMe: true,
+          callbackURL: `${window.location.origin}/overview`,
         },
-        onError: (context) => {
-          toast.error(context.error.message || "Login failed");
+        {
+          onRequest: () => {
+            setLoading(true);
+          },
+          onResponse: () => {
+            setLoading(false);
+          },
+          onSuccess: () => {
+            toast.success("Login successful");
+          },
+          onError: (context) => {
+            toast.error(context.error.message || "Login failed");
+          },
         },
-      },
-    );
+      );
+    }
   };
 
   return (
@@ -114,16 +140,17 @@ export default function LoginPage() {
             </p>
           </div>
           <h3 className="text-balance mt-6 text-lg font-semibold text-foreground dark:text-foreground">
-            Sign in to your account
+            {isSignUp ? "Create your account" : "Sign in to your account"}
           </h3>
           <p className="text-pretty mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <a
-              href="#"
-              className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
+            {isSignUp ? "Already have an account? " : "Don't have an account? "}
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90 cursor-pointer focus:outline-none"
             >
-              Sign up
-            </a>
+              {isSignUp ? "Sign in" : "Sign up"}
+            </button>
           </p>
           <div className="mt-8 flex flex-col items-center space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
             <Button
@@ -158,6 +185,26 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+            {isSignUp && (
+              <div>
+                <Label
+                  htmlFor="name"
+                  className="text-sm font-medium text-foreground dark:text-foreground"
+                >
+                  Name
+                </Label>
+                <Input
+                  type="text"
+                  id="name"
+                  placeholder="Your Name"
+                  className="mt-2"
+                  {...register("name", { required: isSignUp })}
+                />
+                {errors.name && (
+                  <span className="text-red-500 text-xs">Name is required</span>
+                )}
+              </div>
+            )}
             <div>
               <Label
                 htmlFor="email"
@@ -198,21 +245,29 @@ export default function LoginPage() {
             </div>
             <Button
               type="submit"
-              className="mt-4 w-full py-2 font-medium"
+              className="mt-4 w-full py-2 font-medium cursor-pointer"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading
+                ? isSignUp
+                  ? "Creating account..."
+                  : "Signing in..."
+                : isSignUp
+                  ? "Sign up"
+                  : "Sign in"}
             </Button>
           </form>
-          <p className="text-pretty mt-6 text-sm text-muted-foreground dark:text-muted-foreground">
-            Forgot your password?{" "}
-            <a
-              href="#"
-              className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
-            >
-              Reset password
-            </a>
-          </p>
+          {!isSignUp && (
+            <p className="text-pretty mt-6 text-sm text-muted-foreground dark:text-muted-foreground">
+              Forgot your password?{" "}
+              <a
+                href="#"
+                className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
+              >
+                Reset password
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </div>

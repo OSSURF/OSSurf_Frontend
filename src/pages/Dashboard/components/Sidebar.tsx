@@ -169,19 +169,21 @@ function AccountPopover({
       </div>
 
       {/* User info */}
-      <div className="flex items-center gap-3 px-4 py-3 border-t border-border">
-        {user?.image ? (
-          <img src={user.image} alt={displayName} className="w-9 h-9 rounded-full shrink-0 object-cover" />
-        ) : (
-          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-sm font-semibold shrink-0">
-            {displayName.slice(0, 2).toUpperCase()}
+      {user && (
+        <div className="flex items-center gap-3 px-4 py-3 border-t border-border">
+          {user.image ? (
+            <img src={user.image} alt={displayName} className="w-9 h-9 rounded-full shrink-0 object-cover" />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-sm font-semibold shrink-0">
+              {displayName.slice(0, 2).toUpperCase()}
+            </div>
+          )}
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-medium truncate">{displayName}</span>
+            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
           </div>
-        )}
-        <div className="flex flex-col min-w-0">
-          <span className="text-sm font-medium truncate">{displayName}</span>
-          <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
         </div>
-      </div>
+      )}
     </div>,
     document.body,
   );
