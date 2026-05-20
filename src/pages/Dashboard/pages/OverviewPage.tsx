@@ -7,9 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { GitPullRequest, Plus, AlertCircle } from "lucide-react";
+import { GitPullRequest, Plus, AlertCircle, Github } from "lucide-react";
 import { Panel, PanelContent } from "../components/panel";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { authClient } from "@/lib/auth-client";
 
 // ─── Types ────────────────────────────────────────
 
@@ -108,6 +109,8 @@ export default function OverviewPage() {
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const githubConnected = !!dashboard?.stats?.user?.username;
 
   useEffect(() => {
     async function load() {
@@ -241,8 +244,42 @@ export default function OverviewPage() {
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
       <div className="max-w-5xl space-y-0 mx-auto">
+
+        {/* ────── GitHub Not Connected Banner ────── */}
+        {!githubConnected && (
+          <div className="mx-6 sm:mx-0 mt-6 mb-6">
+            <div className="border border-border bg-card p-8 flex flex-col items-center text-center gap-4">
+              <div className="flex items-center justify-center size-14 rounded-full bg-muted/50">
+                <Github className="size-7 text-muted-foreground" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Login with GitHub to see your total PRs and Issues
+                </h2>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  You can still view and manage manually tracked PRs and issues below.
+                  To see your full GitHub stats, please login with GitHub.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  authClient.signIn.social({
+                    provider: "github",
+                    callbackURL: `${window.location.origin}/overview`,
+                  });
+                }}
+                className="mt-2 inline-flex items-center gap-2 px-6 py-2.5 bg-foreground text-background font-medium text-sm hover:bg-foreground/90 transition-colors cursor-pointer"
+              >
+                <Github className="size-4" />
+                Login with GitHub
+                <span aria-hidden>→</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ────── Profile Header ────── */}
-        {profile && (
+        {profile && githubConnected && (
           <div className="pt-6 pb-2 px-6 sm:px-0">
             <h1 className="text-[28px] font-semibold tracking-tight text-foreground font-geist">
               Welcome back, {profile.user.name?.split(" ")[0] || profile.user.login}
@@ -286,108 +323,112 @@ export default function OverviewPage() {
         </div>
 
         {/* ────── Your GitHub Activity Header ────── */}
-        <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
-           <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full bg-foreground" />
-              <h2 className="text-[16px] font-semibold text-foreground">Your GitHub Activity</h2>
-           </div>
-           <Link to="/profile" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Settings →</Link>
-        </div>
+        {githubConnected && (
+          <>
+            <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
+               <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-foreground" />
+                  <h2 className="text-[16px] font-semibold text-foreground">Your GitHub Activity</h2>
+               </div>
+               <Link to="/profile" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Settings →</Link>
+            </div>
 
-        {/* ────── Columns ────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-0 mb-8">
-          
-          {/* PRs Column */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
-              <div className="flex items-center gap-2">
-                <GitPullRequest className="size-4 text-muted-foreground" />
-                <span className="text-[14px] font-medium text-foreground">Your Pull Requests</span>
+            {/* ────── Columns ────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-0 mb-8">
+              
+              {/* PRs Column */}
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
+                  <div className="flex items-center gap-2">
+                    <GitPullRequest className="size-4 text-muted-foreground" />
+                    <span className="text-[14px] font-medium text-foreground">Your Pull Requests</span>
+                  </div>
+                  <span className="text-[12px] text-muted-foreground">{recentPrs.length} PRs</span>
+                </div>
+                <div className="flex flex-col">
+                  {recentPrs.length === 0 ? (
+                    <div className="text-sm text-muted-foreground p-2 -mx-2">No recent pull requests</div>
+                  ) : (
+                    recentPrs.map((item) => (
+                      <a
+                        key={item.id}
+                        href={item.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between py-3 hover:bg-muted/30 transition-colors w-full rounded-none group border-b border-border/10 last:border-0"
+                      >
+                        <div className="flex items-start gap-4 overflow-hidden">
+                          <img src={`https://github.com/${item.author}.png?size=40`} className="size-8 rounded shrink-0 object-cover mt-0.5" alt="" />
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium text-[13px] text-foreground leading-tight truncate">{item.title}</span>
+                            <span className="text-[11px] text-muted-foreground mt-1 truncate">{item.repo_owner}/{item.repo_name} #{item.number}</span>
+                          </div>
+                        </div>
+                        <div className="ml-4 shrink-0">
+                           <span className={cn(
+                              "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
+                              item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                           )}>
+                             {item.state}
+                           </span>
+                        </div>
+                      </a>
+                    ))
+                  )}
+                </div>
               </div>
-              <span className="text-[12px] text-muted-foreground">{recentPrs.length} PRs</span>
-            </div>
-            <div className="flex flex-col">
-              {recentPrs.length === 0 ? (
-                <div className="text-sm text-muted-foreground p-2 -mx-2">No recent pull requests</div>
-              ) : (
-                recentPrs.map((item) => (
-                  <a
-                    key={item.id}
-                    href={item.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between py-3 hover:bg-muted/30 transition-colors w-full rounded-none group border-b border-border/10 last:border-0"
-                  >
-                    <div className="flex items-start gap-4 overflow-hidden">
-                      <img src={`https://github.com/${item.author}.png?size=40`} className="size-8 rounded shrink-0 object-cover mt-0.5" alt="" />
-                      <div className="flex flex-col min-w-0">
-                        <span className="font-medium text-[13px] text-foreground leading-tight truncate">{item.title}</span>
-                        <span className="text-[11px] text-muted-foreground mt-1 truncate">{item.repo_owner}/{item.repo_name} #{item.number}</span>
-                      </div>
-                    </div>
-                    <div className="ml-4 shrink-0">
-                       <span className={cn(
-                          "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
-                          item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                       )}>
-                         {item.state}
-                       </span>
-                    </div>
-                  </a>
-                ))
-              )}
-            </div>
-          </div>
 
-          {/* Issues Column */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="size-4 text-muted-foreground" />
-                <span className="text-[14px] font-medium text-foreground">Your Issues</span>
+              {/* Issues Column */}
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="size-4 text-muted-foreground" />
+                    <span className="text-[14px] font-medium text-foreground">Your Issues</span>
+                  </div>
+                  <span className="text-[12px] text-muted-foreground">{recentIssues.length} Issues</span>
+                </div>
+                <div className="flex flex-col">
+                  {recentIssues.length === 0 ? (
+                    <div className="text-sm text-muted-foreground p-2 -mx-2">No recent issues</div>
+                  ) : (
+                    recentIssues.map((item) => (
+                      <a
+                        key={item.id}
+                        href={item.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between py-3 hover:bg-muted/30 transition-colors w-full rounded-none group border-b border-border/10 last:border-0"
+                      >
+                        <div className="flex items-start gap-4 overflow-hidden">
+                          <img src={`https://github.com/${item.author}.png?size=40`} className="size-8 rounded shrink-0 object-cover mt-0.5" alt="" />
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium text-[13px] text-foreground leading-tight truncate">{item.title}</span>
+                            <span className="text-[11px] text-muted-foreground mt-1 truncate">{item.repo_owner}/{item.repo_name} #{item.number}</span>
+                          </div>
+                        </div>
+                        <div className="ml-4 shrink-0">
+                           <span className={cn(
+                              "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
+                              item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                           )}>
+                             {item.state}
+                           </span>
+                        </div>
+                      </a>
+                    ))
+                  )}
+                </div>
               </div>
-              <span className="text-[12px] text-muted-foreground">{recentIssues.length} Issues</span>
-            </div>
-            <div className="flex flex-col">
-              {recentIssues.length === 0 ? (
-                <div className="text-sm text-muted-foreground p-2 -mx-2">No recent issues</div>
-              ) : (
-                recentIssues.map((item) => (
-                  <a
-                    key={item.id}
-                    href={item.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between py-3 hover:bg-muted/30 transition-colors w-full rounded-none group border-b border-border/10 last:border-0"
-                  >
-                    <div className="flex items-start gap-4 overflow-hidden">
-                      <img src={`https://github.com/${item.author}.png?size=40`} className="size-8 rounded shrink-0 object-cover mt-0.5" alt="" />
-                      <div className="flex flex-col min-w-0">
-                        <span className="font-medium text-[13px] text-foreground leading-tight truncate">{item.title}</span>
-                        <span className="text-[11px] text-muted-foreground mt-1 truncate">{item.repo_owner}/{item.repo_name} #{item.number}</span>
-                      </div>
-                    </div>
-                    <div className="ml-4 shrink-0">
-                       <span className={cn(
-                          "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
-                          item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                       )}>
-                         {item.state}
-                       </span>
-                    </div>
-                  </a>
-                ))
-              )}
-            </div>
-          </div>
 
-        </div>
-
+            </div>
+          </>
+        )}
 
       </div>
     </div>
   );
 }
+
 
 // ─── Language Highlights ──────────────────────────
 

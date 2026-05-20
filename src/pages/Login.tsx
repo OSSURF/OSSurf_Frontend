@@ -1,11 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 
 import type { JSX, SVGProps } from "react";
 
@@ -48,14 +43,6 @@ const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
 );
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-
   const handleSocialLogin = async (provider: "github" | "google") => {
     console.log(`Attempting login with ${provider}...`);
     await authClient.signIn.social(
@@ -76,56 +63,6 @@ export default function LoginPage() {
     );
   };
 
-  const onSubmit = async (data: any) => {
-    if (isSignUp) {
-      await authClient.signUp.email(
-        {
-          email: data.email,
-          password: data.password,
-          name: data.name,
-          callbackURL: `${window.location.origin}/overview`,
-        },
-        {
-          onRequest: () => {
-            setLoading(true);
-          },
-          onResponse: () => {
-            setLoading(false);
-          },
-          onSuccess: () => {
-            toast.success("Account created successfully!");
-          },
-          onError: (context) => {
-            toast.error(context.error.message || "Failed to create account");
-          },
-        },
-      );
-    } else {
-      await authClient.signIn.email(
-        {
-          email: data.email,
-          password: data.password,
-          rememberMe: true,
-          callbackURL: `${window.location.origin}/overview`,
-        },
-        {
-          onRequest: () => {
-            setLoading(true);
-          },
-          onResponse: () => {
-            setLoading(false);
-          },
-          onSuccess: () => {
-            toast.success("Login successful");
-          },
-          onError: (context) => {
-            toast.error(context.error.message || "Login failed");
-          },
-        },
-      );
-    }
-  };
-
   return (
     <div className="flex items-center justify-center min-h-dvh">
       <div className="flex flex-1 flex-col justify-center px-4 py-10 lg:px-6">
@@ -140,134 +77,31 @@ export default function LoginPage() {
             </p>
           </div>
           <h3 className="text-balance mt-6 text-lg font-semibold text-foreground dark:text-foreground">
-            {isSignUp ? "Create your account" : "Sign in to your account"}
+            Sign in to your account
           </h3>
           <p className="text-pretty mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-            {isSignUp ? "Already have an account? " : "Don't have an account? "}
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90 cursor-pointer focus:outline-none"
-            >
-              {isSignUp ? "Sign in" : "Sign up"}
-            </button>
+            Continue with your GitHub or Google account
           </p>
-          <div className="mt-8 flex flex-col items-center space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
+          <div className="mt-8 flex flex-col space-y-3">
             <Button
               variant="outline"
               type="button"
-              className="flex-1 items-center justify-center space-x-2 py-2 cursor-pointer"
+              className="w-full items-center justify-center space-x-2 py-2.5 cursor-pointer"
               onClick={() => handleSocialLogin("github")}
             >
               <GitHubIcon className="size-5" aria-hidden={true} />
-              <span className="text-sm font-medium">Login with GitHub</span>
+              <span className="text-sm font-medium">Continue with GitHub</span>
             </Button>
             <Button
               variant="outline"
               type="button"
-              className="mt-2 flex-1 items-center justify-center space-x-2 py-2 sm:mt-0 cursor-pointer"
+              className="w-full items-center justify-center space-x-2 py-2.5 cursor-pointer"
               onClick={() => handleSocialLogin("google")}
             >
               <GoogleIcon className="size-4" aria-hidden={true} />
-              <span className="text-sm font-medium">Login with Google</span>
+              <span className="text-sm font-medium">Continue with Google</span>
             </Button>
           </div>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <Separator className="w-full" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                or
-              </span>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-            {isSignUp && (
-              <div>
-                <Label
-                  htmlFor="name"
-                  className="text-sm font-medium text-foreground dark:text-foreground"
-                >
-                  Name
-                </Label>
-                <Input
-                  type="text"
-                  id="name"
-                  placeholder="Your Name"
-                  className="mt-2"
-                  {...register("name", { required: isSignUp })}
-                />
-                {errors.name && (
-                  <span className="text-red-500 text-xs">Name is required</span>
-                )}
-              </div>
-            )}
-            <div>
-              <Label
-                htmlFor="email"
-                className="text-sm font-medium text-foreground dark:text-foreground"
-              >
-                Email
-              </Label>
-              <Input
-                type="email"
-                id="email"
-                placeholder="you@example.com"
-                className="mt-2"
-                {...register("email", { required: true })}
-              />
-              {errors.email && (
-                <span className="text-red-500 text-xs">Email is required</span>
-              )}
-            </div>
-            <div>
-              <Label
-                htmlFor="password"
-                className="text-sm font-medium text-foreground dark:text-foreground"
-              >
-                Password
-              </Label>
-              <Input
-                type="password"
-                id="password"
-                placeholder="********"
-                className="mt-2"
-                {...register("password", { required: true })}
-              />
-              {errors.password && (
-                <span className="text-red-500 text-xs">
-                  Password is required
-                </span>
-              )}
-            </div>
-            <Button
-              type="submit"
-              className="mt-4 w-full py-2 font-medium cursor-pointer"
-              disabled={loading}
-            >
-              {loading
-                ? isSignUp
-                  ? "Creating account..."
-                  : "Signing in..."
-                : isSignUp
-                  ? "Sign up"
-                  : "Sign in"}
-            </Button>
-          </form>
-          {!isSignUp && (
-            <p className="text-pretty mt-6 text-sm text-muted-foreground dark:text-muted-foreground">
-              Forgot your password?{" "}
-              <a
-                href="#"
-                className="font-medium text-primary hover:text-primary/90 dark:text-primary hover:dark:text-primary/90"
-              >
-                Reset password
-              </a>
-            </p>
-          )}
         </div>
       </div>
     </div>
