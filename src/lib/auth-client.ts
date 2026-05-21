@@ -1,6 +1,10 @@
 import { createAuthClient } from "better-auth/react";
-import { API_BASE_URL } from "./api";
+
+const apiURL = import.meta.env.VITE_API_URL || "https://sourcesuf-backend.onrender.com";
 
 export const authClient = createAuthClient({
-  baseURL: API_BASE_URL || window.location.origin,
+  baseURL: apiURL,
+  fetchOptions: {
+    credentials: "include",
+  },
 });
