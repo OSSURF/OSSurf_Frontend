@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { ArrowUpRight, CalendarBlank, Briefcase } from "@phosphor-icons/react";
+import { apiUrl } from "@/lib/api";
 
 const GsocOrgSchema = z
   .object({
@@ -297,7 +298,7 @@ export default function GsocPage() {
       setLoading(true);
       try {
         const res = await fetch(
-          `/api/findGSOC?page=${page}&perPage=${perPage}`,
+          apiUrl(`/api/findGSOC?page=${page}&perPage=${perPage}`),
         );
 
         if (!res.ok) {

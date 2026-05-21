@@ -11,8 +11,7 @@ import { GitPullRequest, Plus, AlertCircle, Github } from "lucide-react";
 import { Panel, PanelContent } from "../components/panel";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { authClient } from "@/lib/auth-client";
-
-// ─── Types ────────────────────────────────────────
+import { apiUrl } from "@/lib/api";
 
 type MonthlyActivity = {
   month: string;
@@ -100,9 +99,7 @@ interface DashboardResponse {
 const OVERVIEW_CARD_CLASS =
   "px-3 flex flex-col bg-card border border-solid rounded-none shadow-none";
 
-// ─── Helpers ──────────────────────────────────────
 
-// ─── Component ────────────────────────────────────
 
 export default function OverviewPage() {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
@@ -119,7 +116,7 @@ export default function OverviewPage() {
 
       try {
         // Fetch dashboard first (it has the username)
-        const dashRes = await fetch("/api/dashboard/", {
+        const dashRes = await fetch(apiUrl("/api/dashboard/"), {
           credentials: "include",
         });
         if (!dashRes.ok)
@@ -127,11 +124,10 @@ export default function OverviewPage() {
         const dashData = (await dashRes.json()) as DashboardResponse;
         setDashboard(dashData);
 
-        // Fetch profile using the dashboard-provided username
         const username = dashData.stats.user.username;
         if (username) {
           const profileRes = await fetch(
-            `/api/profile/${encodeURIComponent(username)}`,
+            apiUrl(`/api/profile/${encodeURIComponent(username)}`),
           );
           if (profileRes.ok) {
             const profileData = (await profileRes.json()) as ProfileResponse;
@@ -182,11 +178,11 @@ export default function OverviewPage() {
 
           {/* Activity Header Skeleton */}
           <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
-             <div className="flex items-center gap-2">
-                <div className="size-2 rounded-full bg-muted animate-pulse" />
-                <div className="h-5 w-40 rounded bg-muted animate-pulse" />
-             </div>
-             <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+            <div className="flex items-center gap-2">
+              <div className="size-2 rounded-full bg-muted animate-pulse" />
+              <div className="h-5 w-40 rounded bg-muted animate-pulse" />
+            </div>
+            <div className="h-4 w-16 rounded bg-muted animate-pulse" />
           </div>
 
           {/* Activity Columns Skeleton */}
@@ -293,32 +289,32 @@ export default function OverviewPage() {
             to="/pull-requests"
             className="flex items-center justify-between p-5 bg-card border border-solid border-border/80 hover:bg-muted/30 transition-colors group rounded-none"
           >
-             <div className="flex items-center gap-4">
-               <div className="flex items-center justify-center size-10 rounded bg-muted/20 text-muted-foreground shrink-0">
-                 <GitPullRequest className="size-5" />
-               </div>
-               <div className="flex flex-col">
-                 <span className="font-semibold text-[15px] text-foreground">Manage PRs</span>
-                 <span className="text-[12px] text-muted-foreground mt-0.5">Add, track, and update pull requests</span>
-               </div>
-             </div>
-             <Plus className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center size-10 rounded bg-muted/20 text-muted-foreground shrink-0">
+                <GitPullRequest className="size-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-semibold text-[15px] text-foreground">Manage PRs</span>
+                <span className="text-[12px] text-muted-foreground mt-0.5">Add, track, and update pull requests</span>
+              </div>
+            </div>
+            <Plus className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
           </Link>
-          
+
           <Link
             to="/issues"
             className="flex items-center justify-between p-5 bg-card border border-solid border-border/80 hover:bg-muted/30 transition-colors group rounded-none"
           >
-             <div className="flex items-center gap-4">
-               <div className="flex items-center justify-center size-10 rounded bg-muted/20 text-muted-foreground shrink-0">
-                 <AlertCircle className="size-5" />
-               </div>
-               <div className="flex flex-col">
-                 <span className="font-semibold text-[15px] text-foreground">Manage Issues</span>
-                 <span className="text-[12px] text-muted-foreground mt-0.5">Track and organize GitHub issues</span>
-               </div>
-             </div>
-             <Plus className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center size-10 rounded bg-muted/20 text-muted-foreground shrink-0">
+                <AlertCircle className="size-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-semibold text-[15px] text-foreground">Manage Issues</span>
+                <span className="text-[12px] text-muted-foreground mt-0.5">Track and organize GitHub issues</span>
+              </div>
+            </div>
+            <Plus className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
           </Link>
         </div>
 
@@ -326,16 +322,16 @@ export default function OverviewPage() {
         {githubConnected && (
           <>
             <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
-               <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-foreground" />
-                  <h2 className="text-[16px] font-semibold text-foreground">Your GitHub Activity</h2>
-               </div>
-               <Link to="/profile" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Settings →</Link>
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-foreground" />
+                <h2 className="text-[16px] font-semibold text-foreground">Your GitHub Activity</h2>
+              </div>
+              <Link to="/profile" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Settings →</Link>
             </div>
 
             {/* ────── Columns ────── */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-0 mb-8">
-              
+
               {/* PRs Column */}
               <div className="flex flex-col">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
@@ -365,12 +361,12 @@ export default function OverviewPage() {
                           </div>
                         </div>
                         <div className="ml-4 shrink-0">
-                           <span className={cn(
-                              "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
-                              item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                           )}>
-                             {item.state}
-                           </span>
+                          <span className={cn(
+                            "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
+                            item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                          )}>
+                            {item.state}
+                          </span>
                         </div>
                       </a>
                     ))
@@ -407,12 +403,12 @@ export default function OverviewPage() {
                           </div>
                         </div>
                         <div className="ml-4 shrink-0">
-                           <span className={cn(
-                              "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
-                              item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                           )}>
-                             {item.state}
-                           </span>
+                          <span className={cn(
+                            "text-[11px] px-2.5 py-0.5 rounded border border-solid capitalize font-medium",
+                            item.state === "open" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                          )}>
+                            {item.state}
+                          </span>
                         </div>
                       </a>
                     ))

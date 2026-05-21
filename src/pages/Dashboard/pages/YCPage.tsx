@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { YcOssCard, type YcCompanyData } from "@/components/yc-oss-card";
+import { apiUrl } from "@/lib/api";
 
 const YcCompanySchema = z.object({
   id: z.number(),
@@ -53,7 +54,7 @@ export default function YCPage() {
     async function fetchYcData() {
       setLoading(true);
       try {
-        const res = await fetch("/api/yc?page=1");
+        const res = await fetch(apiUrl("/api/yc?page=1"));
 
         if (!res.ok) {
           setCompanies([]);

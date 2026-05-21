@@ -135,9 +135,11 @@ function StateIcon({ state }: { state: string }) {
   }
 }
 
-// ─── API ──────────────────────────────────────────
 
-const API_BASE = "/api/track-prs";
+
+import { apiUrl } from "@/lib/api";
+
+const API_BASE = apiUrl("/api/track-prs");
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -310,12 +312,12 @@ export default function TrackedPRsPage() {
         prev.map((pr) =>
           pr.id === id
             ? {
-                ...pr,
-                ...updated,
-                last_synced_at:
-                  (updated.last_synced_at as string) ??
-                  new Date().toISOString(),
-              }
+              ...pr,
+              ...updated,
+              last_synced_at:
+                (updated.last_synced_at as string) ??
+                new Date().toISOString(),
+            }
             : pr,
         ),
       );

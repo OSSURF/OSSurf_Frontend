@@ -13,6 +13,7 @@ import {
   Check,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { apiUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { GitHubContributionGraph } from "../components/github-contributions/graph";
 import { AreaChart, Area, CartesianGrid, XAxis } from "recharts";
@@ -228,7 +229,7 @@ export default function ProfilePage() {
     async function loadStats() {
       setLoadingStats(true);
       try {
-        const dashRes = await fetch("/api/dashboard/", {
+        const dashRes = await fetch(apiUrl("/api/dashboard/"), {
           credentials: "include",
         });
         if (!dashRes.ok) return;
@@ -238,7 +239,7 @@ export default function ProfilePage() {
         const username = dashData.stats?.user?.username;
         if (username) {
           const profileRes = await fetch(
-            `/api/profile/${encodeURIComponent(username)}`,
+            apiUrl(`/api/profile/${encodeURIComponent(username)}`),
           );
           if (profileRes.ok) {
             const profileData = await profileRes.json();

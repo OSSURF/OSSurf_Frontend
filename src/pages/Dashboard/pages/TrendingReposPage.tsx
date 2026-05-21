@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useOutletContext } from "react-router-dom";
 import { z } from "zod";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
+import { apiUrl } from "@/lib/api";
 
 const DbRepoSchema = z.object({
   id: z.number(),
@@ -78,7 +79,7 @@ export default function TrendingReposPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const url = `/api/trending?period=${period}`;
+        const url = apiUrl(`/api/trending?period=${period}`);
         const res = await fetch(url);
 
         if (!res.ok) {

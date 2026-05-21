@@ -123,7 +123,9 @@ function StateIcon({ state }: { state: string }) {
 
 // ─── API ──────────────────────────────────────────
 
-const API_BASE = "/api/track-issues";
+import { apiUrl } from "@/lib/api";
+
+const API_BASE = apiUrl("/api/track-issues");
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {

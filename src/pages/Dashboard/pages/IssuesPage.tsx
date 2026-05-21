@@ -6,6 +6,7 @@ import {
   type IssueData,
 } from "@/components/github-issue-card";
 import { Button } from "@/components/ui/button";
+import { apiUrl } from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -143,7 +144,7 @@ export default function IssuesPage() {
           params.set("labels", labels.trim());
         }
 
-        const res = await fetch(`/api/findIssues?${params.toString()}`);
+        const res = await fetch(apiUrl(`/api/findIssues?${params.toString()}`));
 
         if (!res.ok) {
           let serverMessage = "";

@@ -6,6 +6,7 @@ import {
   WarningCircle,
   UserCircle,
 } from "phosphor-react";
+import { apiUrl } from "@/lib/api";
 
 interface ContributorRanking {
   id: string;
@@ -22,7 +23,7 @@ const ContributorsRanking: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/contributors/rankings")
+    fetch(apiUrl("/api/contributors/rankings"))
       .then((res) => res.json())
       .then((data) => {
         setRankings(data);

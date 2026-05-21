@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
+import { apiUrl } from "@/lib/api";
 
 const DISCOVER_PER_PAGE = 30;
 
@@ -86,7 +87,7 @@ export default function HomePage() {
           params.set("language", language);
         }
 
-        const url = `/api/discover?${params.toString()}`;
+        const url = apiUrl(`/api/discover?${params.toString()}`);
         const res = await fetch(url);
 
         if (!res.ok) {
