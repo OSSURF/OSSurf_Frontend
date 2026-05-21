@@ -1,35 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { useOutletContext, useSearchParams } from "react-router-dom";
-import { z } from "zod";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
-import { apiUrl } from "@/lib/api";
+import { fetchDiscoverRepos } from "@/api/repos";
 
 const DISCOVER_PER_PAGE = 30;
-
-const GithubRepoSchema = z.object({
-  owner: z.object({
-    login: z.string(),
-    avatar_url: z.string().nullable().optional(),
-  }),
-  name: z.string(),
-  description: z.string().nullable(),
-  language: z.string().nullable(),
-  stargazers_count: z.number(),
-  forks_count: z.number(),
-  watchers_count: z.number(),
-  open_issues_count: z.number(),
-  topics: z.array(z.string()).optional().default([]),
-});
-
-const DiscoverResponseSchema = z.object({
-  items: z.array(GithubRepoSchema),
-  page: z.number(),
-  perPage: z.number(),
-  total: z.number(),
-  totalPages: z.number(),
-  hasNextPage: z.boolean().optional(),
-  hasPreviousPage: z.boolean().optional(),
-});
 
 interface ReposContextType {
   language: string;
@@ -78,37 +52,14 @@ export default function HomePage() {
       setLoading(true);
       try {
         const apiSort = sort === "forks" ? "forks" : "stars";
-        const params = new URLSearchParams();
-        params.set("sort", apiSort);
-        params.set("page", String(page));
-        params.set("perPage", String(DISCOVER_PER_PAGE));
+        const result = await fetchDiscoverRepos({
+          sort: apiSort,
+          page,
+          perPage: DISCOVER_PER_PAGE,
+          language,
+        });
 
-        if (language !== "all") {
-          params.set("language", language);
-        }
-
-        const url = apiUrl(`/api/discover?${params.toString()}`);
-        const res = await fetch(url);
-
-        if (!res.ok) {
-          console.error("API Error:", res.status, res.statusText);
-          setRepos([]);
-          setTotalPages(1);
-          setLoading(false);
-          return;
-        }
-
-        const json = await res.json();
-        const result = DiscoverResponseSchema.safeParse(json);
-
-        if (!result.success) {
-          console.error("Zod Validation Error:", result.error.issues);
-          setRepos([]);
-          setTotalPages(1);
-          return;
-        }
-
-        const mappedRepos: RepoData[] = result.data.items.map((item) => ({
+        const mappedRepos: RepoData[] = result.items.map((item) => ({
           owner: item.owner.login,
           repo_name: item.name,
           description: item.description,
@@ -139,7 +90,7 @@ export default function HomePage() {
         }
 
         setRepos(uniqueRepos);
-        setTotalPages(result.data.totalPages);
+        setTotalPages(result.totalPages);
       } catch (error) {
         console.error("Failed to fetch discover repos:", error);
         setRepos([]);

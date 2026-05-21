@@ -6,27 +6,20 @@ import {
   WarningCircle,
   UserCircle,
 } from "phosphor-react";
-import { apiUrl } from "@/lib/api";
-
-interface ContributorRanking {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  score: number;
-  mergedPRs: number;
-  openPRs: number;
-  issues: number;
-}
+import { fetchContributorsRankings, type ContributorRanking } from "@/api/contributors";
 
 const ContributorsRanking: React.FC = () => {
   const [rankings, setRankings] = useState<ContributorRanking[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(apiUrl("/api/contributors/rankings"))
-      .then((res) => res.json())
+    fetchContributorsRankings()
       .then((data) => {
         setRankings(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
         setLoading(false);
       });
   }, []);

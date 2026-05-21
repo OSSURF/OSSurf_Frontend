@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { z } from "zod";
 import {
   GitHubIssueCard,
   type IssueData,
 } from "@/components/github-issue-card";
 import { Button } from "@/components/ui/button";
-import { apiUrl } from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -14,39 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const UserSchema = z.object({
-  login: z.string(),
-  avatar_url: z.string().nullable().optional(),
-  html_url: z.string().optional().default(""),
-});
-
-const LabelSchema = z.object({
-  name: z.string(),
-  color: z.string(),
-  description: z.string().nullable().optional(),
-});
-
-const IssueSchema = z.object({
-  number: z.number(),
-  title: z.string(),
-  state: z.enum(["open", "closed"]),
-  html_url: z.string(),
-  user: UserSchema,
-  labels: z.array(LabelSchema).default([]),
-  comments: z.number().default(0),
-  created_at: z.string(),
-  updated_at: z.string(),
-  body: z.string().nullable().optional(),
-  repository_url: z.string().optional(),
-});
-
-const FindIssuesResponseSchema = z.object({
-  page: z.number(),
-  perPage: z.number(),
-  total: z.number(),
-  issues: z.array(IssueSchema),
-});
+import { findIssues, type Issue } from "@/api/issues";
 
 const LANGUAGE_OPTIONS = [
   { value: "all", label: "All Languages" },
@@ -70,7 +36,7 @@ function parseRequestedLabels(labels: string): string[] {
 }
 
 function toCardIssue(
-  issue: z.infer<typeof IssueSchema>,
+  issue: Issue,
   requestedLabels: string[],
 ): IssueData {
   const sortedLabels = [...issue.labels].sort((left, right) => {
@@ -132,65 +98,29 @@ export default function IssuesPage() {
 
       try {
         const requestedLabels = parseRequestedLabels(labels);
-        const params = new URLSearchParams();
-        params.set("page", String(page));
-        params.set("perPage", String(perPage));
-
-        if (language !== "all") {
-          params.set("language", language);
-        }
-
-        if (labels.trim()) {
-          params.set("labels", labels.trim());
-        }
-
-        const res = await fetch(apiUrl(`/api/findIssues?${params.toString()}`));
-
-        if (!res.ok) {
-          let serverMessage = "";
-          try {
-            const body = (await res.json()) as {
-              message?: string;
-              error?: string;
-            };
-            serverMessage = body.error || body.message || "";
-          } catch {
-            serverMessage = "";
-          }
-
-          setIssues([]);
-          setTotal(0);
-          setError(
-            serverMessage
-              ? `Failed to fetch issues: ${serverMessage}`
-              : "Failed to fetch issues.",
-          );
-          return;
-        }
-
-        const json = await res.json();
-        const parsed = FindIssuesResponseSchema.safeParse(json);
-
-        if (!parsed.success) {
-          console.error("Issues data validation error:", parsed.error.issues);
-          setIssues([]);
-          setTotal(0);
-          setError("Received invalid issue data.");
-          return;
-        }
+        const data = await findIssues({
+          page,
+          perPage,
+          language,
+          labels,
+        });
 
         setIssues(
-          parsed.data.issues.map((issue) =>
+          data.issues.map((issue) =>
             toCardIssue(issue, requestedLabels),
           ),
         );
-        setTotal(parsed.data.total);
-        setPerPage(parsed.data.perPage);
+        setTotal(data.total);
+        setPerPage(data.perPage);
       } catch (fetchError) {
         console.error("Failed to fetch issues:", fetchError);
         setIssues([]);
         setTotal(0);
-        setError("Failed to fetch issues.");
+        setError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : "Failed to fetch issues.",
+        );
       } finally {
         setLoading(false);
       }

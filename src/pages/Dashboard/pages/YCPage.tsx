@@ -1,33 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { z } from "zod";
 import { YcOssCard, type YcCompanyData } from "@/components/yc-oss-card";
-import { apiUrl } from "@/lib/api";
-
-const YcCompanySchema = z.object({
-  id: z.number(),
-  ycId: z.number(),
-  name: z.string(),
-  slug: z.string(),
-  smallLogoThumbUrl: z.string().nullable(),
-  website: z.string().nullable(),
-  oneLiner: z.string().nullable(),
-  teamSize: z.number().nullable().default(0),
-  batch: z.string().nullable().default("N/A"),
-  status: z.string().nullable().default("Unknown"),
-  industries: z.array(z.string()).nullable().default([]),
-  regions: z.array(z.string()).nullable().default([]),
-  url: z.string().nullable().default("#"),
-  isHiring: z.boolean().nullable().default(false),
-  topCompany: z.boolean().nullable().optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-});
-
-const YcResponseSchema = z.object({
-  data: z.array(YcCompanySchema),
-  page: z.number().optional(),
-});
+import { fetchYcData } from "@/api/yc";
 
 export default function YCPage() {
   const [searchParams] = useSearchParams();
@@ -51,26 +25,11 @@ export default function YCPage() {
   }, [companies, search]);
 
   useEffect(() => {
-    async function fetchYcData() {
+    async function loadYCData() {
       setLoading(true);
       try {
-        const res = await fetch(apiUrl("/api/yc?page=1"));
-
-        if (!res.ok) {
-          setCompanies([]);
-          return;
-        }
-
-        const json = await res.json();
-        const parsed = YcResponseSchema.safeParse(json);
-
-        if (!parsed.success) {
-          console.error("YC data validation error:", parsed.error.issues);
-          setCompanies([]);
-          return;
-        }
-
-        const normalized: YcCompanyData[] = parsed.data.data.map((company) => ({
+        const result = await fetchYcData(1);
+        const normalized: YcCompanyData[] = result.data.map((company) => ({
           id: company.id,
           ycId: company.ycId,
           name: company.name,
@@ -99,7 +58,7 @@ export default function YCPage() {
       }
     }
 
-    fetchYcData();
+    loadYCData();
   }, []);
 
   return (

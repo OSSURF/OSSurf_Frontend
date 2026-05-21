@@ -1,37 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { z } from "zod";
 import { ArrowUpRight, CalendarBlank, Briefcase } from "@phosphor-icons/react";
-import { apiUrl } from "@/lib/api";
-
-const GsocOrgSchema = z
-  .object({
-    name: z.string().optional(),
-    shortdesc: z.string().nullable().optional(),
-    description: z.string().nullable().optional(),
-    url: z.string().nullable().optional(),
-    logo_url: z.string().nullable().optional(),
-    image_url: z.string().nullable().optional(),
-    category: z.string().nullable().optional(),
-    num_projects: z.number().optional(),
-    total_projects: z.number().optional(),
-    years_participated: z.number().optional(),
-    participation_years: z.array(z.number()).optional(),
-    technologies: z.array(z.string()).nullable().optional(),
-    topics: z.array(z.string()).nullable().optional(),
-  })
-  .passthrough();
-
-const GsocResponseSchema = z.object({
-  year: z.number().optional(),
-  organizaitons: z.array(GsocOrgSchema),
-  total: z.number().optional(),
-  page: z.number().optional(),
-  perPage: z.number().optional(),
-  totalPages: z.number().optional(),
-});
-
-type GsocOrg = z.infer<typeof GsocOrgSchema>;
+import { fetchGsocData, type GsocOrg } from "@/api/gsoc";
 
 function GsocOrgCard({ org }: { org: GsocOrg }) {
   const title = org.name || "Unnamed Organization";
@@ -294,29 +264,12 @@ export default function GsocPage() {
   }, [page]);
 
   useEffect(() => {
-    async function fetchGsocData() {
+    async function loadData() {
       setLoading(true);
       try {
-        const res = await fetch(
-          apiUrl(`/api/findGSOC?page=${page}&perPage=${perPage}`),
-        );
-
-        if (!res.ok) {
-          setOrgs([]);
-          return;
-        }
-
-        const json = await res.json();
-        const parsed = GsocResponseSchema.safeParse(json);
-
-        if (!parsed.success) {
-          console.error("GSoC data validation error:", parsed.error.issues);
-          setOrgs([]);
-          return;
-        }
-
-        setOrgs(parsed.data.organizaitons);
-        setTotalPages(parsed.data.totalPages ?? 1);
+        const data = await fetchGsocData(page, perPage);
+        setOrgs(data.organizaitons);
+        setTotalPages(data.totalPages ?? 1);
       } catch (error) {
         console.error("Failed to fetch GSoC organizations:", error);
         setOrgs([]);
@@ -325,7 +278,7 @@ export default function GsocPage() {
       }
     }
 
-    fetchGsocData();
+    loadData();
   }, [page]);
 
   return (

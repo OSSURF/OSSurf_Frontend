@@ -11,90 +11,12 @@ import { GitPullRequest, Plus, AlertCircle, Github } from "lucide-react";
 import { Panel, PanelContent } from "../components/panel";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { authClient } from "@/lib/auth-client";
-import { apiUrl } from "@/lib/api";
-
-type MonthlyActivity = {
-  month: string;
-  prs: number;
-  issues: number;
-};
-
-type CalendarActivity = {
-  date: string;
-  count: number;
-  level: 0 | 1 | 2 | 3 | 4;
-};
-
-type ProfileResponse = {
-  username: string;
-  user: {
-    name: string | null;
-    login: string;
-    avatarUrl: string;
-    bio: string | null;
-    followers: number;
-    following: number;
-    htmlUrl: string;
-  };
-  stats: {
-    totalCommits: number;
-    totalPrs: number;
-    totalIssues: number;
-    totalReviews: number;
-  };
-  graphs: {
-    activityHistory: MonthlyActivity[];
-    contributionCalendar?: CalendarActivity[];
-    contributionTotals?: Record<string, number>;
-    languages: Array<{ langName: string; value: number }>;
-    prStats: { merged: number; open: number; closed: number };
-    radar: { commits: number; prs: number; issues: number; reviews: number };
-  };
-  recentPrs?: TrackedPR[];
-  recentIssues?: TrackedPR[];
-};
-
-interface TrackedPR {
-  id: number;
-  repo_owner: string;
-  repo_name: string;
-  number: number;
-  html_url: string;
-  title: string;
-  state: string;
-  author: string;
-}
-
-interface TrackedIssue {
-  id: number;
-  repo_owner: string;
-  repo_name: string;
-  number: number;
-  html_url: string;
-  title: string;
-  state: string;
-  author: string;
-}
-
-interface DashboardResponse {
-  stats: {
-    user: {
-      username: string | null;
-      totalPrsCreated: number;
-      totalPrsMerged: number;
-      totalIssuesCreated: number;
-      contributionCalendar: CalendarActivity[];
-      contributionTotals: Record<string, number>;
-    };
-    tracking: {
-      activePrs: number;
-      activeIssues: number;
-      totalTracked: number;
-    };
-  };
-  recentPrs: TrackedPR[];
-  recentIssues: TrackedIssue[];
-}
+import {
+  fetchDashboard,
+  fetchProfile,
+  type ProfileResponse,
+  type DashboardResponse,
+} from "@/api/profile";
 
 const OVERVIEW_CARD_CLASS =
   "px-3 flex flex-col bg-card border border-solid rounded-none shadow-none";
@@ -115,33 +37,23 @@ export default function OverviewPage() {
       setError(null);
 
       try {
-        // Fetch dashboard first (it has the username)
-        const dashRes = await fetch(apiUrl("/api/dashboard/"), {
-          credentials: "include",
-        });
-        if (!dashRes.ok)
-          throw new Error(`Dashboard failed (${dashRes.status})`);
-        const dashData = (await dashRes.json()) as DashboardResponse;
+        const dashData = await fetchDashboard();
         setDashboard(dashData);
 
         const username = dashData.stats.user.username;
         if (username) {
-          const profileRes = await fetch(
-            apiUrl(`/api/profile/${encodeURIComponent(username)}`),
-          );
-          if (profileRes.ok) {
-            const profileData = (await profileRes.json()) as ProfileResponse;
+          try {
+            const profileData = await fetchProfile(username);
             setProfile(profileData);
+          } catch (profileErr) {
+            console.error("Profile fetch failed:", profileErr);
           }
         }
       } catch (err) {
-        if (err instanceof TypeError) {
-          setError("Unable to reach API. Start backend and try again.");
-        } else {
-          setError(
-            err instanceof Error ? err.message : "Failed to load overview",
-          );
-        }
+        console.error(err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load dashboard data",
+        );
       } finally {
         setLoading(false);
       }
@@ -156,12 +68,10 @@ export default function OverviewPage() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
         <div className="max-w-5xl space-y-0 mx-auto">
 
-          {/* Profile header skeleton */}
           <div className="pt-6 pb-2 px-6 sm:px-0">
             <div className="h-9 w-64 rounded bg-muted animate-pulse" />
           </div>
 
-          {/* Action buttons skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 px-6 sm:px-0 mt-4">
             {[0, 1].map((i) => (
               <div key={i} className="flex items-center justify-between p-5 bg-card border border-solid border-border/80 h-[92px]">
@@ -176,7 +86,6 @@ export default function OverviewPage() {
             ))}
           </div>
 
-          {/* Activity Header Skeleton */}
           <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
             <div className="flex items-center gap-2">
               <div className="size-2 rounded-full bg-muted animate-pulse" />
@@ -185,7 +94,6 @@ export default function OverviewPage() {
             <div className="h-4 w-16 rounded bg-muted animate-pulse" />
           </div>
 
-          {/* Activity Columns Skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-0 mb-8">
             {[0, 1].map((col) => (
               <div key={col} className="flex flex-col">
@@ -241,7 +149,6 @@ export default function OverviewPage() {
     <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
       <div className="max-w-5xl space-y-0 mx-auto">
 
-        {/* ────── GitHub Not Connected Banner ────── */}
         {!githubConnected && (
           <div className="mx-6 sm:mx-0 mt-6 mb-6">
             <div className="border border-border bg-card p-8 flex flex-col items-center text-center gap-4">
@@ -274,7 +181,6 @@ export default function OverviewPage() {
           </div>
         )}
 
-        {/* ────── Profile Header ────── */}
         {profile && githubConnected && (
           <div className="pt-6 pb-2 px-6 sm:px-0">
             <h1 className="text-[28px] font-semibold tracking-tight text-foreground font-geist">
@@ -283,7 +189,6 @@ export default function OverviewPage() {
           </div>
         )}
 
-        {/* ────── Action Buttons ────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 px-6 sm:px-0">
           <Link
             to="/pull-requests"
@@ -318,7 +223,6 @@ export default function OverviewPage() {
           </Link>
         </div>
 
-        {/* ────── Your GitHub Activity Header ────── */}
         {githubConnected && (
           <>
             <div className="flex items-center justify-between px-6 sm:px-0 mb-6">
@@ -329,10 +233,8 @@ export default function OverviewPage() {
               <Link to="/profile" className="text-[12px] text-muted-foreground hover:text-foreground transition-colors">Settings →</Link>
             </div>
 
-            {/* ────── Columns ────── */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-0 mb-8">
 
-              {/* PRs Column */}
               <div className="flex flex-col">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
                   <div className="flex items-center gap-2">
@@ -374,7 +276,6 @@ export default function OverviewPage() {
                 </div>
               </div>
 
-              {/* Issues Column */}
               <div className="flex flex-col">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b border-border/20">
                   <div className="flex items-center gap-2">
@@ -426,8 +327,6 @@ export default function OverviewPage() {
 }
 
 
-// ─── Language Highlights ──────────────────────────
-
 export function LanguageBarChart({
   data,
   className,
@@ -447,7 +346,6 @@ export function LanguageBarChart({
         <CardTitle className="text-base font-medium">Language Highlights</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 px-0 pb-4">
-        {/* Gauge */}
         <div className="relative w-full" style={{ height: 165 }}>
           <ResponsiveContainer width="100%" height={165}>
             <PieChart>
@@ -474,7 +372,6 @@ export function LanguageBarChart({
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-          {/* Center total */}
           <div
             className="absolute left-1/2 -translate-x-1/2 text-center"
             style={{ bottom: 10 }}
@@ -485,7 +382,6 @@ export function LanguageBarChart({
           </div>
         </div>
 
-        {/* Legend */}
         <div className="mt-2 space-y-2.5 px-1">
           {data.map((item) => {
             const pct = total > 0 ? (item.value / total) * 100 : 0;

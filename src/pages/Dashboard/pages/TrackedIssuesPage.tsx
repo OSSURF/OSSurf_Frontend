@@ -30,23 +30,14 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-// ─── Types ────────────────────────────────────────
-
-interface TrackedIssue {
-  id: number;
-  user_id: string;
-  repo_owner: string;
-  repo_name: string;
-  number: number;
-  html_url: string;
-  title: string;
-  state: string;
-  author: string;
-  note: string | null;
-  priority: string | null;
-  created_at: string;
-  last_synced_at: string;
-}
+import {
+  fetchTrackedIssues,
+  addTrackedIssue,
+  deleteTrackedIssue,
+  syncTrackedIssue,
+  updateTrackedIssue,
+  type TrackedIssue
+} from "@/api/trackIssues";
 
 type IssueState = "all" | "open" | "closed";
 type IssuePriority = "all" | "critical" | "high" | "medium" | "low" | "none";
@@ -70,8 +61,6 @@ const PRIORITY_SELECT_OPTIONS = PRIORITY_OPTIONS.filter(
   (o) => o.value !== "all",
 );
 
-// ─── Helpers ──────────────────────────────────────
-
 function formatSyncDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString("en-US", {
@@ -89,7 +78,7 @@ function stateColor(
     case "open":
       return "default";
     case "closed":
-      return "secondary";
+      return "destructive";
     default:
       return "outline";
   }
@@ -115,67 +104,11 @@ function StateIcon({ state }: { state: string }) {
     case "open":
       return <CircleDot className="h-4 w-4 mt-0.5 text-green-500 shrink-0" />;
     case "closed":
-      return <CircleCheck className="h-4 w-4 mt-0.5 text-purple-500 shrink-0" />;
+      return <CircleCheck className="h-4 w-4 mt-0.5 text-red-500 shrink-0" />;
     default:
       return <CircleDot className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />;
   }
 }
-
-// ─── API ──────────────────────────────────────────
-
-import { apiUrl } from "@/lib/api";
-
-const API_BASE = apiUrl("/api/track-issues");
-
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error || `Request failed (${res.status})`,
-    );
-  }
-  return res.json() as Promise<T>;
-}
-
-async function fetchTrackedIssues(): Promise<TrackedIssue[]> {
-  return apiFetch<TrackedIssue[]>("/");
-}
-
-async function addTrackedIssue(payload: {
-  url: string;
-  notes: string;
-  priority: string;
-}): Promise<TrackedIssue> {
-  return apiFetch<TrackedIssue>("/", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-async function deleteTrackedIssue(id: number): Promise<void> {
-  await apiFetch(`/${id}`, { method: "DELETE" });
-}
-
-async function syncTrackedIssue(id: number): Promise<Partial<TrackedIssue>> {
-  return apiFetch<Partial<TrackedIssue>>(`/${id}/sync`, { method: "POST" });
-}
-
-async function updateTrackedIssue(
-  id: number,
-  payload: { notes?: string; priority?: string },
-): Promise<TrackedIssue> {
-  return apiFetch<TrackedIssue>(`/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(payload),
-  });
-}
-
-// ─── Component ────────────────────────────────────
 
 export default function TrackedIssuesPage() {
   const [issues, setIssues] = useState<TrackedIssue[]>([]);
@@ -184,7 +117,6 @@ export default function TrackedIssuesPage() {
   const [stateFilter, setStateFilter] = useState<IssueState>("all");
   const [priorityFilter, setPriorityFilter] = useState<IssuePriority>("all");
 
-  // Add Issue dialog
   const [addOpen, setAddOpen] = useState(false);
   const [addUrl, setAddUrl] = useState("");
   const [addName, setAddName] = useState("");
@@ -192,14 +124,12 @@ export default function TrackedIssuesPage() {
   const [addNotes, setAddNotes] = useState("");
   const [addLoading, setAddLoading] = useState(false);
 
-  // Edit Issue dialog
   const [editOpen, setEditOpen] = useState(false);
   const [editIssue, setEditIssue] = useState<TrackedIssue | null>(null);
   const [editNotes, setEditNotes] = useState("");
   const [editPriority, setEditPriority] = useState("none");
   const [editLoading, setEditLoading] = useState(false);
 
-  // Syncing state per Issue
   const [syncingIds, setSyncingIds] = useState<Set<number>>(new Set());
 
   const loadIssues = useCallback(async () => {
@@ -219,8 +149,6 @@ export default function TrackedIssuesPage() {
   useEffect(() => {
     loadIssues();
   }, [loadIssues]);
-
-  // ── Filters ─────────────────────────────────
 
   const filteredIssues = useMemo(() => {
     let result = issues;
@@ -250,8 +178,6 @@ export default function TrackedIssuesPage() {
   }, [issues, stateFilter, priorityFilter, searchQuery]);
 
   const openCount = issues.filter((issue) => issue.state === "open").length;
-
-  // ── Handlers ────────────────────────────────
 
   async function handleAdd() {
     if (!addUrl.trim()) {
@@ -300,12 +226,12 @@ export default function TrackedIssuesPage() {
         prev.map((issue) =>
           issue.id === id
             ? {
-                ...issue,
-                ...updated,
-                last_synced_at:
-                  (updated.last_synced_at as string) ??
-                  new Date().toISOString(),
-              }
+              ...issue,
+              ...updated,
+              last_synced_at:
+                (updated.last_synced_at as string) ??
+                new Date().toISOString(),
+            }
             : issue,
         ),
       );
@@ -350,13 +276,11 @@ export default function TrackedIssuesPage() {
     }
   }
 
-  // ── Render ──────────────────────────────────
 
   return (
     <div className="flex-1 overflow-y-auto w-full bg-background font-geist">
       <section className="px-6 md:px-10 py-8 max-w-[1600px] mx-auto">
         <div className="space-y-6">
-          {/* Header */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <AlertCircleStrokeRounded className="h-8 w-8 text-foreground" />
@@ -378,7 +302,6 @@ export default function TrackedIssuesPage() {
             </Button>
           </div>
 
-          {/* Filters */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -421,7 +344,6 @@ export default function TrackedIssuesPage() {
             </Select>
           </div>
 
-          {/* Issue List */}
           <div className="flex flex-col pt-2">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
@@ -449,7 +371,6 @@ export default function TrackedIssuesPage() {
         </div>
       </section>
 
-      {/* Add Issue Dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
@@ -526,7 +447,6 @@ export default function TrackedIssuesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Issue Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
@@ -591,8 +511,6 @@ export default function TrackedIssuesPage() {
   );
 }
 
-// ─── Issue Card ───────────────────────────────────
-
 function IssueCard({
   issue,
   syncing,
@@ -632,7 +550,6 @@ function IssueCard({
           </div>
         </div>
 
-        {/* Badges */}
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
           <Badge
             variant={stateColor(issue.state)}
@@ -657,7 +574,6 @@ function IssueCard({
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-1 shrink-0 absolute right-4 top-3.5">
         <Button
           variant="ghost"

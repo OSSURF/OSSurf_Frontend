@@ -1,33 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useOutletContext } from "react-router-dom";
-import { z } from "zod";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
-import { apiUrl } from "@/lib/api";
-
-const DbRepoSchema = z.object({
-  id: z.number(),
-  github_id: z.number().optional().nullable(),
-  owner: z.string(),
-  repo_name: z.string(),
-  full_name: z.string(),
-  url: z.string(),
-  description: z.string().nullable().optional(),
-  language: z.string().nullable().optional(),
-  stargazers_count: z.number().optional(),
-  forks_count: z.number().optional(),
-  watchers_count: z.number().optional().nullable(),
-  open_issues_count: z.number().optional().nullable(),
-  avatar_url: z.string().nullable().optional(),
-  stars_earned: z.number().nullable().optional(),
-  created_at: z.string().optional().nullable(),
-  updated_at: z.string().optional().nullable(),
-  last_synced_at: z.string().optional().nullable(),
-  tags: z.array(z.string()).optional(),
-});
-
-const TrendingResponseSchema = z.object({
-  data: z.array(DbRepoSchema),
-});
+import { fetchTrendingRepos } from "@/api/repos";
 
 interface ReposContextType {
   language: string;
@@ -79,26 +53,9 @@ export default function TrendingReposPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const url = apiUrl(`/api/trending?period=${period}`);
-        const res = await fetch(url);
+        const result = await fetchTrendingRepos(period);
 
-        if (!res.ok) {
-          console.error("API Error:", res.status, res.statusText);
-          setRepos([]);
-          setLoading(false);
-          return;
-        }
-
-        const json = await res.json();
-        const result = TrendingResponseSchema.safeParse(json);
-
-        if (!result.success) {
-          console.error("Zod Validation Error:", result.error.issues);
-          setRepos([]);
-          return;
-        }
-
-        const mappedRepos: RepoData[] = result.data.data.map((item) => ({
+        const mappedRepos: RepoData[] = result.data.map((item) => ({
           owner: item.owner,
           repo_name: item.repo_name,
           description: item.description ?? null,
@@ -120,7 +77,6 @@ export default function TrendingReposPage() {
             ),
         );
 
-        // Extract unique languages for filter
         const languages = new Set<string>();
         uniqueRepos.forEach((repo) => {
           if (repo.language) languages.add(repo.language);

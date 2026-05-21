@@ -31,31 +31,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-
-// ─── Types ────────────────────────────────────────
-
-interface TrackedPR {
-  id: number;
-  user_id: string;
-  repo_owner: string;
-  repo_name: string;
-  number: number;
-  html_url: string;
-  additions: number | null;
-  deletions: number | null;
-  changed_files: number | null;
-  title: string;
-  state: string;
-  author: string;
-  note: string | null;
-  priority: string | null;
-  opened_at: string;
-  merged_at: string | null;
-  closed_at: string | null;
-  merged_by: string | null;
-  created_at: string;
-  last_synced_at: string;
-}
+import {
+  fetchTrackedPRs,
+  addTrackedPR,
+  deleteTrackedPR,
+  syncTrackedPR,
+  updateTrackedPR,
+  type TrackedPR
+} from "@/api/trackPrs";
 
 type PrState = "all" | "open" | "closed" | "merged";
 type PrPriority = "all" | "critical" | "high" | "medium" | "low" | "none";
@@ -79,8 +62,6 @@ const PRIORITY_OPTIONS: { value: PrPriority; label: string }[] = [
 const PRIORITY_SELECT_OPTIONS = PRIORITY_OPTIONS.filter(
   (o) => o.value !== "all",
 );
-
-// ─── Helpers ──────────────────────────────────────
 
 function formatSyncDate(iso: string): string {
   const d = new Date(iso);
@@ -135,62 +116,6 @@ function StateIcon({ state }: { state: string }) {
   }
 }
 
-
-
-import { apiUrl } from "@/lib/api";
-
-const API_BASE = apiUrl("/api/track-prs");
-
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error || `Request failed (${res.status})`,
-    );
-  }
-  return res.json() as Promise<T>;
-}
-
-async function fetchTrackedPRs(): Promise<TrackedPR[]> {
-  return apiFetch<TrackedPR[]>("/");
-}
-
-async function addTrackedPR(payload: {
-  url: string;
-  notes: string;
-  priority: string;
-}): Promise<TrackedPR> {
-  return apiFetch<TrackedPR>("/", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-async function deleteTrackedPR(id: number): Promise<void> {
-  await apiFetch(`/${id}`, { method: "DELETE" });
-}
-
-async function syncTrackedPR(id: number): Promise<Partial<TrackedPR>> {
-  return apiFetch<Partial<TrackedPR>>(`/${id}/sync`, { method: "POST" });
-}
-
-async function updateTrackedPR(
-  id: number,
-  payload: { notes?: string; priority?: string },
-): Promise<TrackedPR> {
-  return apiFetch<TrackedPR>(`/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(payload),
-  });
-}
-
-// ─── Component ────────────────────────────────────
-
 export default function TrackedPRsPage() {
   const [prs, setPrs] = useState<TrackedPR[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,7 +123,6 @@ export default function TrackedPRsPage() {
   const [stateFilter, setStateFilter] = useState<PrState>("all");
   const [priorityFilter, setPriorityFilter] = useState<PrPriority>("all");
 
-  // Add PR dialog
   const [addOpen, setAddOpen] = useState(false);
   const [addUrl, setAddUrl] = useState("");
   const [addName, setAddName] = useState("");
@@ -206,14 +130,12 @@ export default function TrackedPRsPage() {
   const [addNotes, setAddNotes] = useState("");
   const [addLoading, setAddLoading] = useState(false);
 
-  // Edit PR dialog
   const [editOpen, setEditOpen] = useState(false);
   const [editPr, setEditPr] = useState<TrackedPR | null>(null);
   const [editNotes, setEditNotes] = useState("");
   const [editPriority, setEditPriority] = useState("none");
   const [editLoading, setEditLoading] = useState(false);
 
-  // Syncing state per PR
   const [syncingIds, setSyncingIds] = useState<Set<number>>(new Set());
 
   const loadPRs = useCallback(async () => {
@@ -233,8 +155,6 @@ export default function TrackedPRsPage() {
   useEffect(() => {
     loadPRs();
   }, [loadPRs]);
-
-  // ── Filters ─────────────────────────────────
 
   const filteredPRs = useMemo(() => {
     let result = prs;
@@ -264,8 +184,6 @@ export default function TrackedPRsPage() {
   }, [prs, stateFilter, priorityFilter, searchQuery]);
 
   const openCount = prs.filter((pr) => pr.state === "open").length;
-
-  // ── Handlers ────────────────────────────────
 
   async function handleAdd() {
     if (!addUrl.trim()) {
@@ -358,13 +276,10 @@ export default function TrackedPRsPage() {
     }
   }
 
-  // ── Render ──────────────────────────────────
-
   return (
     <div className="flex-1 overflow-y-auto w-full bg-background font-geist">
       <section className="px-6 md:px-10 py-8 max-w-[1600px] mx-auto">
         <div className="space-y-6">
-          {/* Header */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <GitPullRequestIcon className="h-8 w-8 text-foreground" />
@@ -386,7 +301,6 @@ export default function TrackedPRsPage() {
             </Button>
           </div>
 
-          {/* Filters */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -429,7 +343,6 @@ export default function TrackedPRsPage() {
             </Select>
           </div>
 
-          {/* PR List */}
           <div className="flex flex-col pt-2">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
@@ -457,7 +370,6 @@ export default function TrackedPRsPage() {
         </div>
       </section>
 
-      {/* Add PR Dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
@@ -534,7 +446,6 @@ export default function TrackedPRsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit PR Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
@@ -599,8 +510,6 @@ export default function TrackedPRsPage() {
   );
 }
 
-// ─── PR Card ──────────────────────────────────────
-
 function PRCard({
   pr,
   syncing,
@@ -644,7 +553,6 @@ function PRCard({
           </div>
         </div>
 
-        {/* Badges + stats */}
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
           <Badge variant={stateColor(pr.state)} className="text-[10px] px-1.5 py-0 rounded-sm capitalize h-5 font-normal leading-none">
             {pr.state}
@@ -679,7 +587,6 @@ function PRCard({
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-2 shrink-0 absolute right-4 top-3.5">
         <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-none" onClick={onSync} disabled={syncing} title="Sync PR">
           <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />

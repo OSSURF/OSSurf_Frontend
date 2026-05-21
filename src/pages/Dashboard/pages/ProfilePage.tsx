@@ -13,8 +13,13 @@ import {
   Check,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { apiUrl } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  fetchDashboard,
+  fetchProfile,
+  type ProfileResponse,
+  type DashboardResponse,
+} from "@/api/profile";
 import { GitHubContributionGraph } from "../components/github-contributions/graph";
 import { AreaChart, Area, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
@@ -210,8 +215,6 @@ function EditModal({
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function ProfilePage() {
   const { data: session, isPending } = authClient.useSession();
 
@@ -221,29 +224,24 @@ export default function ProfilePage() {
   const [links, setLinks] = useState<StoredLinks>(loadLinks);
   const [editOpen, setEditOpen] = useState(false);
 
-  const [profile, setProfile] = useState<any>(null);
-  const [dashboard, setDashboard] = useState<any>(null);
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     async function loadStats() {
       setLoadingStats(true);
       try {
-        const dashRes = await fetch(apiUrl("/api/dashboard/"), {
-          credentials: "include",
-        });
-        if (!dashRes.ok) return;
-        const dashData = await dashRes.json();
+        const dashData = await fetchDashboard();
         setDashboard(dashData);
 
-        const username = dashData.stats?.user?.username;
+        const username = dashData.stats.user.username;
         if (username) {
-          const profileRes = await fetch(
-            apiUrl(`/api/profile/${encodeURIComponent(username)}`),
-          );
-          if (profileRes.ok) {
-            const profileData = await profileRes.json();
+          try {
+            const profileData = await fetchProfile(username);
             setProfile(profileData);
+          } catch (profileErr) {
+            console.error("Profile fetch failed:", profileErr);
           }
         }
       } catch (err) {
@@ -423,7 +421,6 @@ export default function ProfilePage() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
         <div className="max-w-5xl mx-auto space-y-0">
 
-          {/* Skeleton Header */}
           <div className="px-6 sm:px-0 pt-6 pb-6 relative flex flex-col items-start w-full bg-transparent">
             <div className="md:size-[104px] size-24 shrink-0 border border-solid border-border bg-muted animate-pulse mb-4 z-10" />
             <div className="mt-3 flex w-full flex-col gap-2">
@@ -435,14 +432,12 @@ export default function ProfilePage() {
 
           <div className="w-full h-px bg-border max-w-5xl"></div>
 
-          {/* Skeleton Contribution Graph */}
           <div className="pt-6 pb-3 px-6 sm:px-0">
             <div className="w-full h-[180px] bg-card border border-solid border-border/80 p-4 overflow-hidden relative">
               <div className="absolute inset-0 bg-muted/20 animate-pulse" />
             </div>
           </div>
 
-          {/* Skeleton Stat Cards */}
           <div className="py-3 px-6 sm:px-0">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[0, 1, 2, 3].map((i) => (
@@ -454,7 +449,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Skeleton Pinned Repos */}
           <div className="py-3 px-6 sm:px-0">
             <div className="h-4 w-12 rounded bg-muted animate-pulse mb-4" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -484,9 +478,7 @@ export default function ProfilePage() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
         <div className="max-w-5xl space-y-0 mx-auto">
 
-          {/* ── Profile Header ─────────────────────────────────────────────── */}
           <div className="px-6 sm:px-0 pt-6 pb-6 relative flex flex-col items-start w-full bg-transparent">
-            {/* Avatar */}
             <div className="relative flex items-center md:size-[104px] size-24 shrink-0 rounded-none border border-solid border-border bg-background shadow-none z-10 box-content mb-4">
               {user?.image ? (
                 <img
@@ -501,7 +493,6 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* Edit Action Absolute */}
             <div className="absolute right-6 sm:right-0 top-6 flex shrink-0 items-center justify-end">
               <button
                 id="edit-profile-btn"
@@ -512,7 +503,6 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            {/* Info */}
             <div
               className="mt-3 flex w-full flex-col animate-fade-in-blur"
               style={{ animationDelay: "0.1s", animationFillMode: "both" }}
@@ -538,7 +528,6 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* Followers / Following */}
               <div className="flex items-center gap-3 mt-4 text-[14px] text-muted-foreground">
                 {profile?.user ? (
                   <>
@@ -573,7 +562,6 @@ export default function ProfilePage() {
 
           <div className="w-full h-px bg-border max-w-5xl"></div>
 
-          {/* ── Github Contributions ─────────────────────────────────────────────── */}
           {calendarData.length > 0 && (
             <div className="pt-6 pb-3 px-6 sm:px-0">
               <div className="flex items-center bg-card border border-solid border-border/80 rounded-none shadow-none p-4 w-full overflow-x-auto">
@@ -584,7 +572,6 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* ────── Stats ────── */}
           <div className="py-3 px-6 sm:px-0">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {statCards.map((card) => (
@@ -603,7 +590,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* ── Pinned Repos ─────────────────────────────────────────────── */}
           <div className={cn("py-3", calendarData.length === 0 && "mt-4")}>
             <div className="px-6 sm:px-0 mb-4">
               <span className="text-[14px] font-medium text-foreground">Pinned</span>
@@ -648,7 +634,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* ────── Language Highlights + Monthly Activity ────── */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 px-6 sm:px-0 pt-3 pb-8">
             <LanguageBarChart
               data={displayLanguageData}
