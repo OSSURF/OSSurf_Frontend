@@ -34,6 +34,15 @@ export const TrackedIssueSchema = z.object({
   author: z.string(),
 });
 
+export const PinnedRepoSchema = z.object({
+  name: z.string(),
+  description: z.string().nullable(),
+  language: z.string().nullable(),
+  stars: z.number(),
+  forks: z.number(),
+  htmlUrl: z.string(),
+});
+
 export const ProfileResponseSchema = z.object({
   username: z.string(),
   user: z.object({
@@ -61,6 +70,7 @@ export const ProfileResponseSchema = z.object({
   }),
   recentPrs: z.array(TrackedPRSchema).optional(),
   recentIssues: z.array(TrackedPRSchema).optional(),
+  pinnedRepos: z.array(PinnedRepoSchema).optional(),
 });
 
 export const DashboardResponseSchema = z.object({

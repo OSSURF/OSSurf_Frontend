@@ -215,6 +215,26 @@ function EditModal({
   );
 }
 
+const LANGUAGE_COLORS: Record<string, string> = {
+  TypeScript: "#3178c6",
+  JavaScript: "#f1e05a",
+  Python: "#3572A5",
+  Rust: "#dea584",
+  Go: "#00ADD8",
+  Java: "#b07219",
+  "C++": "#f34b7d",
+  C: "#555555",
+  Ruby: "#701516",
+  PHP: "#4F5D95",
+  Swift: "#F05138",
+  Kotlin: "#A97BFF",
+  Dart: "#00B4AB",
+  Vue: "#41b883",
+  CSS: "#563d7c",
+  HTML: "#e34c26",
+  Shell: "#89e051",
+};
+
 export default function ProfilePage() {
   const { data: session, isPending } = authClient.useSession();
 
@@ -263,40 +283,57 @@ export default function ProfilePage() {
     return [];
   }, [dashboard, profile]);
 
-  const PINNED_REPOS = [
-    {
-      name: "Portfolio",
-      description: "A modern, responsive portfolio website built with Next.js 15, TypeScript, Tailwind CSS, and Shadcn UI.",
-      lang: "TypeScript",
-      langColor: "#3178c6",
-      stars: 2,
-      forks: 1,
-    },
-    {
-      name: "sourcesuf-backend",
-      description: "Backend API for SourceSurf - source discovery and curation platform",
-      lang: "TypeScript",
-      langColor: "#3178c6",
-      stars: 1,
-      forks: 0,
-    },
-    {
-      name: "oss-trends-scraper",
-      description: "A Dockerized Python microservice that scrapes GitHub Trending repositories daily and syncs metadata to the...",
-      lang: "Python",
-      langColor: "#3572A5",
-      stars: 0,
-      forks: 0,
-    },
-    {
-      name: "Quorum",
-      description: "A QA platform for developers",
-      lang: "TypeScript",
-      langColor: "#3178c6",
-      stars: 0,
-      forks: 0,
+  const displayedRepos = useMemo(() => {
+    if (profile?.pinnedRepos && profile.pinnedRepos.length > 0) {
+      return profile.pinnedRepos.map((repo) => ({
+        name: repo.name,
+        description: repo.description || "No description available",
+        lang: repo.language,
+        langColor: repo.language ? (LANGUAGE_COLORS[repo.language] || "#8b8b8b") : undefined,
+        stars: repo.stars,
+        forks: repo.forks,
+        htmlUrl: repo.htmlUrl,
+      }));
     }
-  ];
+    return [
+      {
+        name: "Portfolio",
+        description: "A modern, responsive portfolio website built with Next.js 15, TypeScript, Tailwind CSS, and Shadcn UI.",
+        lang: "TypeScript",
+        langColor: "#3178c6",
+        stars: 2,
+        forks: 1,
+        htmlUrl: "https://github.com/BeyondV0id/Portfolio",
+      },
+      {
+        name: "sourcesuf-backend",
+        description: "Backend API for SourceSurf - source discovery and curation platform",
+        lang: "TypeScript",
+        langColor: "#3178c6",
+        stars: 1,
+        forks: 0,
+        htmlUrl: "https://github.com/BeyondV0id/sourcesuf-backend",
+      },
+      {
+        name: "oss-trends-scraper",
+        description: "A Dockerized Python microservice that scrapes GitHub Trending repositories daily and syncs metadata to the...",
+        lang: "Python",
+        langColor: "#3572A5",
+        stars: 0,
+        forks: 0,
+        htmlUrl: "https://github.com/BeyondV0id/oss-trends-scraper",
+      },
+      {
+        name: "Quorum",
+        description: "A QA platform for developers",
+        lang: "TypeScript",
+        langColor: "#3178c6",
+        stars: 0,
+        forks: 0,
+        htmlUrl: "https://github.com/BeyondV0id/Quorum",
+      }
+    ];
+  }, [profile]);
 
   async function handleSave(name: string, newLinks: StoredLinks) {
     try {
@@ -517,7 +554,7 @@ export default function ProfilePage() {
               </p>
 
               <p className="mt-4 text-[14px] text-foreground font-geist">
-                I use vim btw
+                {profile?.user?.bio ?? "No bio available"}
               </p>
 
               {allLinks.length > 0 && (
@@ -595,10 +632,10 @@ export default function ProfilePage() {
               <span className="text-[14px] font-medium text-foreground">Pinned</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 sm:px-0">
-              {PINNED_REPOS.map((repo) => (
+              {displayedRepos.map((repo) => (
                 <div key={repo.name} className={cn(CARD, "justify-between p-4 hover:bg-muted/30 transition-colors border-border/80")}>
                   <div className="flex flex-col gap-2">
-                    <a href={`https://github.com/BeyondV0id/${repo.name}`} target="_blank" rel="noopener noreferrer" className="text-[14px] font-semibold text-foreground hover:underline">
+                    <a href={repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-[14px] font-semibold text-foreground hover:underline">
                       {repo.name}
                     </a>
                     <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-3">
