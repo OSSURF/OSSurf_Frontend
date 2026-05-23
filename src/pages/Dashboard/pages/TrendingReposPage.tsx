@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useOutletContext } from "react-router-dom";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
 import { fetchTrendingRepos } from "@/api/repos";
+import { API_BASE_URL } from "@/api/config";
 
 interface ReposContextType {
   language: string;
@@ -39,7 +40,7 @@ export default function TrendingReposPage() {
     }
 
     const sorted = [...filtered].sort((a, b) => {
-      if (sort === "stars") return b.stargazers_count - a.stargazers_count;
+      if (sort === "stars") return (b.stars_earned || 0) - (a.stars_earned || 0);
       if (sort === "forks") return b.forks_count - a.forks_count;
       if (sort === "issues")
         return (b.open_issue_count || 0) - (a.open_issue_count || 0);
@@ -53,7 +54,9 @@ export default function TrendingReposPage() {
     async function fetchData() {
       setLoading(true);
       try {
+        console.log("LOCAL DEV: Fetching trending from:", `${API_BASE_URL}/api/trending?period=${period}`);
         const result = await fetchTrendingRepos(period);
+        console.log("LOCAL DEV: Received data:", result);
 
         const mappedRepos: RepoData[] = result.data.map((item) => ({
           owner: item.owner,
