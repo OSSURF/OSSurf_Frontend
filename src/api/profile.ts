@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { API_BASE_URL } from "./config";
 
 export const MonthlyActivitySchema = z.object({
   month: z.string(),
@@ -101,7 +102,7 @@ export type TrackedPR = z.infer<typeof TrackedPRSchema>;
 export type TrackedIssue = z.infer<typeof TrackedIssueSchema>;
 
 export async function fetchDashboard(): Promise<DashboardResponse> {
-  const res = await fetch("/api/dashboard/", { credentials: "include" });
+  const res = await fetch(`${API_BASE_URL}/api/dashboard/`, { credentials: "include" });
   if (!res.ok) {
     throw new Error(`Failed to fetch dashboard: ${res.statusText}`);
   }
@@ -114,7 +115,7 @@ export async function fetchDashboard(): Promise<DashboardResponse> {
 }
 
 export async function fetchProfile(username: string): Promise<ProfileResponse> {
-  const res = await fetch(`/api/profile/${encodeURIComponent(username)}`);
+  const res = await fetch(`${API_BASE_URL}/api/profile/${encodeURIComponent(username)}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch profile for ${username}: ${res.statusText}`);
   }

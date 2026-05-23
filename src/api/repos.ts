@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { API_BASE_URL } from "./config";
 
 export const DbRepoSchema = z.object({
   id: z.number(),
@@ -57,7 +58,7 @@ export type GithubRepo = z.infer<typeof GithubRepoSchema>;
 export type DiscoverResponse = z.infer<typeof DiscoverResponseSchema>;
 
 export async function fetchTrendingRepos(period: string): Promise<TrendingResponse> {
-  const res = await fetch(`/api/trending?period=${period}`);
+  const res = await fetch(`${API_BASE_URL}/api/trending?period=${period}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch trending repos: ${res.statusText}`);
   }
@@ -83,7 +84,7 @@ export async function fetchDiscoverRepos(params: {
     urlParams.set("language", params.language);
   }
 
-  const res = await fetch(`/api/discover?${urlParams.toString()}`);
+  const res = await fetch(`${API_BASE_URL}/api/discover?${urlParams.toString()}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch discover repos: ${res.statusText}`);
   }

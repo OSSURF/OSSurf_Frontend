@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { API_BASE_URL } from "./config";
 
 export const YcCompanySchema = z.object({
   id: z.number(),
@@ -29,7 +30,7 @@ export type YcCompanyData = z.infer<typeof YcCompanySchema>;
 export type YcResponse = z.infer<typeof YcResponseSchema>;
 
 export async function fetchYcData(page: number = 1): Promise<YcResponse> {
-  const res = await fetch(`/api/yc?page=${page}`);
+  const res = await fetch(`${API_BASE_URL}/api/yc?page=${page}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch YC data: ${res.statusText}`);
   }

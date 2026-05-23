@@ -13,8 +13,9 @@ export interface TrackedIssue {
   created_at: string;
   last_synced_at: string;
 }
+import { API_BASE_URL } from "./config";
 
-const API_BASE = "/api/track-issues";
+const API_BASE = `${API_BASE_URL}/api/track-issues`;
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {

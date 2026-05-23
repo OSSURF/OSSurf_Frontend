@@ -1,9 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  baseURL: import.meta.env.PROD
-    ? "https://ossurf.vercel.app"
-    : "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_URL || "https://sourcesuf-backend.onrender.com",
   fetchOptions: {
     credentials: "include",
   },

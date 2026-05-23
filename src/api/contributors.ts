@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { API_BASE_URL } from "./config";
 
 export const ContributorRankingSchema = z.object({
   id: z.string(),
@@ -13,7 +14,7 @@ export const ContributorRankingSchema = z.object({
 export type ContributorRanking = z.infer<typeof ContributorRankingSchema>;
 
 export async function fetchContributorsRankings(): Promise<ContributorRanking[]> {
-  const res = await fetch("/api/contributors/rankings");
+  const res = await fetch(`${API_BASE_URL}/api/contributors/rankings`);
   if (!res.ok) {
     throw new Error(`Failed to fetch contributor rankings: ${res.statusText}`);
   }
