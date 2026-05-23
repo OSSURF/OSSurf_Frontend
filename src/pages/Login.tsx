@@ -43,9 +43,8 @@ const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
   const handleSocialLogin = (provider: "github" | "google") => {
-    const apiURL = import.meta.env.VITE_API_URL || "https://sourcesuf-backend.onrender.com";
     const callbackURL = encodeURIComponent(`${window.location.origin}/overview`);
-    window.location.href = `${apiURL}/api/auth/authorization/${provider}?callbackURL=${callbackURL}`;
+    window.location.href = `${authClient.options.baseURL}/api/auth/authorization/${provider}?callbackURL=${callbackURL}`;
   };
 
   return (

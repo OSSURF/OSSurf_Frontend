@@ -166,9 +166,8 @@ export default function OverviewPage() {
               </div>
               <button
                 onClick={() => {
-                  const apiURL = import.meta.env.VITE_API_URL || "https://sourcesuf-backend.onrender.com";
                   const callbackURL = encodeURIComponent(`${window.location.origin}/overview`);
-                  window.location.href = `${apiURL}/api/auth/authorization/github?callbackURL=${callbackURL}`;
+                  window.location.href = `${authClient.options.baseURL}/api/auth/authorization/github?callbackURL=${callbackURL}`;
                 }}
                 className="mt-2 inline-flex items-center gap-2 px-6 py-2.5 bg-foreground text-background font-medium text-sm hover:bg-foreground/90 transition-colors cursor-pointer"
               >
