@@ -43,8 +43,10 @@ const Logo = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
   const handleSocialLogin = (provider: "github" | "google") => {
-    const callbackURL = encodeURIComponent(`${window.location.origin}/overview`);
-    window.location.href = `${authClient.options.baseURL}/api/auth/authorization/${provider}?callbackURL=${callbackURL}`;
+    authClient.signIn.social({
+      provider,
+      callbackURL: `${window.location.origin}/overview`,
+    });
   };
 
   return (

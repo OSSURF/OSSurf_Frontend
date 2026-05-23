@@ -166,8 +166,10 @@ export default function OverviewPage() {
               </div>
               <button
                 onClick={() => {
-                  const callbackURL = encodeURIComponent(`${window.location.origin}/overview`);
-                  window.location.href = `${authClient.options.baseURL}/api/auth/authorization/github?callbackURL=${callbackURL}`;
+                  authClient.signIn.social({
+                    provider: "github",
+                    callbackURL: `${window.location.origin}/overview`,
+                  });
                 }}
                 className="mt-2 inline-flex items-center gap-2 px-6 py-2.5 bg-foreground text-background font-medium text-sm hover:bg-foreground/90 transition-colors cursor-pointer"
               >
