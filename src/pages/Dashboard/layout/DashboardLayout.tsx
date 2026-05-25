@@ -13,10 +13,9 @@ export default function DashboardLayout() {
     if (location.pathname === "/yc-oss") return "yc-repos";
     if (location.pathname === "/gsoc-orgs") return "gsoc-orgs";
     if (location.pathname === "/find-issues") return "issues";
-    if (location.pathname === "/overview") return "overview";
-    if (location.pathname === "/profile") return "profile";
-    if (location.pathname === "/pull-requests") return "pull-requests";
-    return "home";
+    if (location.pathname === "/home" || location.pathname === "/discover") return "home";
+    if (location.pathname === "/contributors") return "contributors";
+    return "none";
   };
 
   const handleSearch = (query: string) => {

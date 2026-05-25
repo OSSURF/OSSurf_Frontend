@@ -16,7 +16,7 @@ import TrackedPRsPage from "./pages/Dashboard/pages/TrackedPRsPage";
 import TrackedIssuesPage from "./pages/Dashboard/pages/TrackedIssuesPage";
 import "./index.css";
 
-import ContributorsPage from "./pages/ContributorsPage";
+import ContributorsPage from "./pages/Dashboard/pages/ContributorsPage";
 
 function App() {
   return (
@@ -26,13 +26,12 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Contributors Ranking Page */}
-          <Route path="/contributors" element={<ContributorsPage />} />
-
           {/* Dashboard layout for authenticated pages */}
           <Route element={<DashboardLayout />}>
+            <Route path="/contributors" element={<ContributorsPage />} />
             <Route path="/yc-oss" element={<YCPage />} />
             <Route path="/gsoc-orgs" element={<GsocPage />} />
+            <Route path="/profile/:username" element={<ProfilePage />} />
             <Route path="/discover" element={<Navigate to="/home" replace />} />
 
             {/* Repos with nested layout */}

@@ -18,7 +18,7 @@ export function HeroSection() {
 
   return (
     <Container>
-      <div className="relative border-b border-x border-border border-dashed py-12 sm:py-42 flex flex-col gap-8 lg:flex-row lg:items-center  overflow-hidden">
+      <div className="relative border-b border-x border-border border-dashed py-12 sm:py-42 flex flex-col gap-8 lg:flex-row lg:items-center overflow-hidden">
         {/* Light Mode Image */}
         <img
           src="/assets/Hero2.png"
@@ -62,9 +62,9 @@ export function HeroSection() {
               >
                 <span>Open Source</span>
                 {/* Light Mode Icon */}
-                <GitHubLight className="w-4 h-4 dark:hidden text-gray-900" />
+                <GitHubLight className="size-4 dark:hidden text-gray-900" />
                 {/* Dark Mode Icon */}
-                <GitHubDark className="w-4 h-4 hidden dark:block text-white" />
+                <GitHubDark className="size-4 hidden dark:block text-white" />
               </Button>
             </div>
           </div>

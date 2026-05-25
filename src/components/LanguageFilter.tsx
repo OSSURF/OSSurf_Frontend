@@ -60,7 +60,7 @@ export default function LanguageFilter({
       >
         <span className="truncate">{selected}</span>
         <ChevronDown
-          className="h-4 w-4 text-muted-foreground transition-transform"
+          className="size-4 text-muted-foreground transition-transform"
           style={{
             transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
           }}

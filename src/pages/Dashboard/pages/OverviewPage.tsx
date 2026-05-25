@@ -392,7 +392,7 @@ export function LanguageBarChart({
               >
                 <div className="flex items-center gap-2">
                   <div
-                    className="h-2 w-2 rounded-full shrink-0"
+                    className="size-2 rounded-full shrink-0"
                     style={{ backgroundColor: item.fill }}
                   />
                   <span className="text-sm text-muted-foreground">

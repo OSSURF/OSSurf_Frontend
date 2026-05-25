@@ -68,7 +68,7 @@ export function Hero() {
 
   return (
     <Container>
-      <div className="relative border-b border-x border-border border-dashed py-12 sm:py-42 flex flex-col gap-8 lg:flex-row lg:items-center  overflow-hidden">
+      <div className="relative border-b border-x border-border border-dashed py-12 sm:py-42 flex flex-col gap-8 lg:flex-row lg:items-center overflow-hidden">
         <img
           src={heroImages[theme]}
           alt="OSS dashboard"

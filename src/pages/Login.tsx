@@ -55,7 +55,7 @@ export default function LoginPage() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex items-center space-x-1.5">
             <Logo
-              className="h-7 w-7 text-foreground dark:text-foreground"
+              className="size-7 text-foreground dark:text-foreground"
               aria-hidden={true}
             />
             <p className="text-pretty font-medium text-lg text-foreground dark:text-foreground">

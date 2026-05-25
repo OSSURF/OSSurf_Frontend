@@ -9,6 +9,8 @@ export const ContributorRankingSchema = z.object({
   mergedPRs: z.number(),
   openPRs: z.number(),
   issues: z.number(),
+  username: z.string(),
+  bio: z.string().nullable().optional(),
 });
 
 export type ContributorRanking = z.infer<typeof ContributorRankingSchema>;

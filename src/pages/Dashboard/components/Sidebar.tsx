@@ -18,6 +18,7 @@ import AnalyticsUpIcon from "@/components/ui/svgs/analytics-up-stroke-rounded";
 import GitPullRequestIcon from "@/components/ui/svgs/git-pull-request-stroke-rounded";
 import DashboardSquare03Icon from "@/components/ui/svgs/dashboard-square-03-stroke-rounded";
 import AlertCircleStrokeRounded from "@/components/ui/svgs/AlertCircleStrokeRounded";
+import UsersIcon from "@/components/ui/svgs/users-stroke-rounded";
 
 interface NavItem {
   icon: React.ComponentType<any>;
@@ -35,6 +36,7 @@ const items: Item[] = [
   { icon: Home05Icon, label: "Home", href: "/home" },
   { icon: Airpod01Icon, label: "YC-OSS", href: "/yc-oss" },
   { icon: Book02Icon, label: "GSoC Orgs", href: "/gsoc-orgs" },
+  { icon: UsersIcon, label: "Contributors", href: "/contributors" },
   { type: "separator" },
   { icon: AnalyticsUpIcon, label: "Trending Repos", href: "/trending-repos" },
   { icon: AlertCircleStrokeRounded, label: "Find Issues", href: "/find-issues" },
@@ -77,8 +79,6 @@ interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
-
-// ─── Account Popover ──────────────────────────────────────────────────────────
 
 function AccountPopover({
   open,
@@ -172,9 +172,9 @@ function AccountPopover({
       {user && (
         <div className="flex items-center gap-3 px-4 py-3 border-t border-border">
           {user.image ? (
-            <img src={user.image} alt={displayName} className="w-9 h-9 rounded-full shrink-0 object-cover" />
+            <img src={user.image} alt={displayName} className="size-9 rounded-full shrink-0 object-cover" />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-sm font-semibold shrink-0">
+            <div className="size-9 rounded-full bg-muted flex items-center justify-center text-sm font-semibold shrink-0">
               {displayName.slice(0, 2).toUpperCase()}
             </div>
           )}
@@ -189,7 +189,7 @@ function AccountPopover({
   );
 }
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const [hovered, setHovered] = useState(false);
@@ -265,7 +265,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       />
                     )}
                     <div className={iconContainerVariants({ isActive })}>
-                      <Icon className="h-5 w-5 shrink-0" />
+                      <Icon className="size-5 shrink-0" />
                     </div>
                     <motion.div
                       className="absolute top-0 left-14 right-1 h-10 flex items-center pointer-events-none"
@@ -305,7 +305,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 />
               )}
               <div className={iconContainerVariants({ isActive: location.pathname === "/profile" })}>
-                <IconUserCircle className="h-5 w-5 shrink-0" stroke={1} />
+                <IconUserCircle className="size-5 shrink-0" stroke={1} />
               </div>
               <motion.div
                 className="absolute top-0 left-14 right-1 h-10 flex items-center pointer-events-none"

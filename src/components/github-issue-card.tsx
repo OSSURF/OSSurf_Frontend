@@ -116,17 +116,17 @@ export function GitHubIssueCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 flex-1">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background mt-1">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background mt-1">
             {issue.user.avatar_url && !avatarError ? (
               <img
                 src={issue.user.avatar_url}
                 alt={`${issue.user.login} avatar`}
-                className="h-10 w-10 rounded-full object-cover"
+                className="size-10 rounded-full object-cover"
                 loading="lazy"
                 onError={() => setAvatarError(true)}
               />
             ) : (
-              <Circle className="h-5 w-5" weight="fill" />
+              <Circle className="size-5" weight="fill" />
             )}
           </div>
           <div className="flex flex-col justify-start flex-1 min-w-0">
@@ -147,7 +147,7 @@ export function GitHubIssueCard({
           </div>
         </div>
         <ArrowUpRight
-          className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           weight="bold"
         />
       </div>
@@ -163,7 +163,7 @@ export function GitHubIssueCard({
               )}
               title={label.description || label.name}
             >
-              <Tag className="h-3.5 w-3.5" weight="regular" />
+              <Tag className="size-3.5" weight="regular" />
               {label.name}
             </span>
           ))}
@@ -181,16 +181,16 @@ export function GitHubIssueCard({
           title={isOpen ? "Open" : "Closed"}
         >
           {isOpen ? (
-            <Circle className="w-4 h-4 text-green-500" weight="fill" />
+            <Circle className="size-4 text-green-500" weight="fill" />
           ) : (
-            <XCircle className="w-4 h-4 text-red-500" weight="fill" />
+            <XCircle className="size-4 text-red-500" weight="fill" />
           )}
           {isOpen ? "Open" : "Closed"}
         </span>
 
         {issue.comments > 0 && (
           <span className="flex items-center gap-1" title="Comments">
-            <Chat className="w-4 h-4" weight="fill" />
+            <Chat className="size-4" weight="fill" />
             {issue.comments}
           </span>
         )}
@@ -199,7 +199,7 @@ export function GitHubIssueCard({
           className="flex items-center gap-1 text-muted-foreground ml-auto"
           title="Created"
         >
-          <CalendarBlank className="w-4 h-4" weight="fill" />
+          <CalendarBlank className="size-4" weight="fill" />
           {formatDate(issue.created_at)}
         </span>
       </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   Pencil,
@@ -135,7 +136,7 @@ function EditModal({
       <div className={cn("relative z-10 w-full max-w-md mx-4 shadow-2xl", CARD)}>
         <div className={cn("flex items-center justify-between px-5 py-4", DASH_DIVIDER)}>
           <span className="text-sm font-medium font-geist">Edit Profile</span>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -181,7 +182,7 @@ function EditModal({
                     placeholder="https://..."
                     className="flex-1 bg-background border border-solid border-border px-2 py-2 text-sm focus:outline-none font-geist"
                   />
-                  <button onClick={() => setCustom((p) => p.filter((_, i) => i !== idx))} className="text-muted-foreground hover:text-destructive transition-colors p-1">
+                  <button type="button" onClick={() => setCustom((p) => p.filter((_, i) => i !== idx))} className="text-muted-foreground hover:text-destructive transition-colors p-1">
                     <Trash2 size={13} />
                   </button>
                 </div>
@@ -190,6 +191,7 @@ function EditModal({
           )}
 
           <button
+            type="button"
             onClick={() => setCustom((p) => [...p, { label: "", url: "" }])}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-geist"
           >
@@ -199,10 +201,11 @@ function EditModal({
         </div>
 
         <div className={cn("flex items-center justify-end gap-2 px-5 py-3 border-t border-solid border-border")}>
-          <button onClick={onClose} className="px-3 py-1.5 text-sm border border-solid border-border hover:bg-muted transition-colors font-geist">
+          <button type="button" onClick={onClose} className="px-3 py-1.5 text-sm border border-solid border-border hover:bg-muted transition-colors font-geist">
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleSave}
             disabled={saving}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background hover:opacity-80 transition-opacity disabled:opacity-50 font-geist"
@@ -236,33 +239,42 @@ const LANGUAGE_COLORS: Record<string, string> = {
 };
 
 export default function ProfilePage() {
-  const { data: session, isPending } = authClient.useSession();
+  const { username: urlUsername } = useParams();
+  const isOwnProfile = !urlUsername;
 
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
-  const displayName = user?.name ?? user?.email?.split("@")[0] ?? "User";
 
   const [links, setLinks] = useState<StoredLinks>(loadLinks);
   const [editOpen, setEditOpen] = useState(false);
-
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
+
+  const displayName = isOwnProfile
+    ? (user?.name ?? user?.email?.split("@")[0] ?? "User")
+    : (profile?.user?.name ?? urlUsername ?? "User");
 
   useEffect(() => {
     async function loadStats() {
       setLoadingStats(true);
       try {
-        const dashData = await fetchDashboard();
-        setDashboard(dashData);
+        if (isOwnProfile) {
+          const dashData = await fetchDashboard();
+          setDashboard(dashData);
 
-        const username = dashData.stats.user.username;
-        if (username) {
-          try {
-            const profileData = await fetchProfile(username);
-            setProfile(profileData);
-          } catch (profileErr) {
-            console.error("Profile fetch failed:", profileErr);
+          const username = dashData.stats.user.username;
+          if (username) {
+            try {
+              const profileData = await fetchProfile(username);
+              setProfile(profileData);
+            } catch (profileErr) {
+              console.error("Profile fetch failed:", profileErr);
+            }
           }
+        } else if (urlUsername) {
+          const profileData = await fetchProfile(urlUsername);
+          setProfile(profileData);
         }
       } catch (err) {
         console.error(err);
@@ -271,7 +283,7 @@ export default function ProfilePage() {
       }
     }
     loadStats();
-  }, []);
+  }, [urlUsername, isOwnProfile]);
 
   const calendarData = useMemo(() => {
     if (dashboard?.stats?.user?.contributionCalendar?.length) {
@@ -346,11 +358,18 @@ export default function ProfilePage() {
     }
   }
 
-  const allLinks: { icon: React.ReactNode; href: string; label: string }[] = [];
-  if (links.twitter) allLinks.push({ icon: <Twitter size={12} />, href: links.twitter, label: "Twitter" });
-  if (links.linkedin) allLinks.push({ icon: <Linkedin size={12} />, href: links.linkedin, label: "LinkedIn" });
-  if (links.website) allLinks.push({ icon: <Globe size={12} />, href: links.website, label: "Website" });
-  links.custom.forEach((c) => allLinks.push({ icon: <Link2 size={12} />, href: c.url, label: c.label }));
+  const allLinks = useMemo(() => {
+    const list: { icon: React.ReactNode; href: string; label: string }[] = [];
+    if (isOwnProfile) {
+      if (links.twitter) list.push({ icon: <Twitter size={12} />, href: links.twitter, label: "Twitter" });
+      if (links.linkedin) list.push({ icon: <Linkedin size={12} />, href: links.linkedin, label: "LinkedIn" });
+      if (links.website) list.push({ icon: <Globe size={12} />, href: links.website, label: "Website" });
+      links.custom.forEach((c) => list.push({ icon: <Link2 size={12} />, href: c.url, label: c.label }));
+    } else if (profile?.user?.htmlUrl) {
+      list.push({ icon: <Github size={12} />, href: profile.user.htmlUrl, label: "GitHub" });
+    }
+    return list;
+  }, [isOwnProfile, links, profile]);
 
   const activityHistory = profile?.graphs?.activityHistory ?? [];
   const monthlyActivityData = activityHistory.map((item: any) => ({
@@ -453,7 +472,9 @@ export default function ProfilePage() {
     },
   ];
 
-  if (isPending || loadingStats) {
+  const isPageLoading = isOwnProfile ? (isPending || loadingStats) : loadingStats;
+
+  if (isPageLoading) {
     return (
       <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
         <div className="max-w-5xl mx-auto space-y-0">
@@ -504,41 +525,60 @@ export default function ProfilePage() {
 
   return (
     <>
-      <EditModal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        displayName={displayName}
-        links={links}
-        onSave={handleSave}
-      />
+      {editOpen && (
+        <EditModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          displayName={displayName}
+          links={links}
+          onSave={handleSave}
+        />
+      )}
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
         <div className="max-w-5xl space-y-0 mx-auto">
 
           <div className="px-6 sm:px-0 pt-6 pb-6 relative flex flex-col items-start w-full bg-transparent">
             <div className="relative flex items-center md:size-[104px] size-24 shrink-0 rounded-none border border-solid border-border bg-background shadow-none z-10 box-content mb-4">
-              {user?.image ? (
-                <img
-                  src={user.image}
-                  alt={displayName}
-                  className="absolute inset-0 h-full w-full rounded-none object-cover"
-                />
+              {isOwnProfile ? (
+                user?.image ? (
+                  <img
+                    src={user.image}
+                    alt={displayName}
+                    className="absolute inset-0 h-full w-full rounded-none object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-none bg-muted text-3xl font-semibold text-muted-foreground select-none">
+                    {displayName.slice(0, 2).toUpperCase()}
+                  </div>
+                )
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center rounded-none bg-muted text-3xl font-semibold text-muted-foreground select-none">
-                  {displayName.slice(0, 2).toUpperCase()}
-                </div>
+                profile?.user?.avatarUrl ? (
+                  <img
+                    src={profile.user.avatarUrl}
+                    alt={displayName}
+                    className="absolute inset-0 h-full w-full rounded-none object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-none bg-muted text-3xl font-semibold text-muted-foreground select-none">
+                    {displayName.slice(0, 2).toUpperCase()}
+                  </div>
+                )
               )}
             </div>
 
-            <div className="absolute right-6 sm:right-0 top-6 flex shrink-0 items-center justify-end">
-              <button
-                id="edit-profile-btn"
-                onClick={() => setEditOpen(true)}
-                className="flex items-center justify-center size-[34px] rounded-none hover:bg-muted transition-colors text-muted-foreground hover:text-foreground border border-solid border-border"
-              >
-                <Pencil size={15} />
-              </button>
-            </div>
+            {isOwnProfile && (
+              <div className="absolute right-6 sm:right-0 top-6 flex shrink-0 items-center justify-end">
+                <button
+                  id="edit-profile-btn"
+                  type="button"
+                  onClick={() => setEditOpen(true)}
+                  className="flex items-center justify-center size-[34px] rounded-none hover:bg-muted transition-colors text-muted-foreground hover:text-foreground border border-solid border-border"
+                >
+                  <Pencil size={15} />
+                </button>
+              </div>
+            )}
 
             <div
               className="mt-3 flex w-full flex-col animate-fade-in-blur"
@@ -548,9 +588,13 @@ export default function ProfilePage() {
                 {displayName}
               </h1>
               <p className="text-[14px] text-muted-foreground mt-1.5 font-geist">
-                @{links.github ? links.github.split("/").pop() : dashboard?.stats?.user?.username || "username"}
+                @{isOwnProfile
+                  ? (links.github ? links.github.split("/").pop() : dashboard?.stats?.user?.username || "username")
+                  : (profile?.user?.login || urlUsername)}
                 {" · "}
-                Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "October 2023"}
+                {isOwnProfile && user?.createdAt
+                  ? `Joined ${new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`
+                  : "Contributor"}
               </p>
 
               <p className="mt-4 text-[14px] text-foreground font-geist">

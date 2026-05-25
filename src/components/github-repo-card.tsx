@@ -92,17 +92,17 @@ export function GitHubRepoCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-none border border-border/60 bg-background text-xs font-semibold text-muted-foreground">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-none border border-border/60 bg-background text-xs font-semibold text-muted-foreground">
             {avatarUrl && !avatarError ? (
               <img
                 src={avatarUrl}
                 alt={`${repo.owner} avatar`}
-                className="h-12 w-12 rounded-none object-cover"
+                className="size-12 rounded-none object-cover"
                 loading="lazy"
                 onError={() => setAvatarError(true)}
               />
             ) : (
-              <BookOpen className="h-6 w-6" weight="fill" />
+              <BookOpen className="size-6" weight="fill" />
             )}
           </div>
           <div className="flex flex-col justify-center">
@@ -115,7 +115,7 @@ export function GitHubRepoCard({
           </div>
         </div>
         <ArrowUpRight
-          className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           weight="bold"
         />
       </div>
@@ -149,7 +149,7 @@ export function GitHubRepoCard({
         {languageColor && (
           <span className="flex items-center gap-1.5">
             <span
-              className="w-3 h-3 rounded-full"
+              className="size-3 rounded-full"
               style={{ backgroundColor: languageColor }}
             />
             {repo.language}
@@ -157,12 +157,12 @@ export function GitHubRepoCard({
         )}
 
         <span className="flex items-center gap-1" title="Total Stars">
-          <Star className="w-4 h-4" weight="fill" />
+          <Star className="size-4" weight="fill" />
           {formatNumber(repo.stargazers_count)}
         </span>
 
         <span className="flex items-center gap-1" title="Forks">
-          <GitFork className="w-4 h-4" weight="fill" />
+          <GitFork className="size-4" weight="fill" />
           {formatNumber(repo.forks_count)}
         </span>
 
@@ -170,7 +170,7 @@ export function GitHubRepoCard({
           repo.open_issue_count !== null &&
           repo.open_issue_count > 0 && (
             <span className="flex items-center gap-1" title="Open Issues">
-              <WarningCircle className="w-4 h-4" weight="fill" />
+              <WarningCircle className="size-4" weight="fill" />
               {formatNumber(repo.open_issue_count)}
             </span>
           )}
@@ -186,7 +186,7 @@ export function GitHubRepoCard({
                   : "today"
             }`}
           >
-            <Star className="w-4 h-4" weight="fill" />
+            <Star className="size-4" weight="fill" />
             {formatNumber(repo.stars_earned)} stars{" "}
             {period === "weekly"
               ? "this week"
@@ -215,14 +215,14 @@ export function GitHubRepoCardSkeleton({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Skeleton className="h-12 w-12 rounded-none border border-border/60" />
+          <Skeleton className="size-12 rounded-none border border-border/60" />
           <div className="flex flex-col gap-2">
             <Skeleton className="h-4 w-40 rounded-none" />
             <Skeleton className="h-3 w-56 rounded-none" />
             <Skeleton className="h-3 w-44 rounded-none" />
           </div>
         </div>
-        <Skeleton className="h-5 w-5 rounded-none" />
+        <Skeleton className="size-5 rounded-none" />
       </div>
 
       <div className="flex h-5 w-full items-center gap-2">

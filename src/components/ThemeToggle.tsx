@@ -12,7 +12,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       variant="secondary"
       size="md"
       className={cn(
-        "rounded-full w-8 h-8 p-0 flex items-center justify-center relative border border-border",
+        "rounded-full size-8 p-0 flex items-center justify-center relative border border-border",
         className,
       )}
       onClick={toggleTheme}

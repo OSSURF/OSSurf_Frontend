@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { findIssues, type Issue } from "@/api/issues";
+import { findIssues, type Issue, type Label } from "@/api/issues";
 
 const LANGUAGE_OPTIONS = [
   { value: "all", label: "All Languages" },
@@ -31,15 +31,17 @@ const MAX_ISSUE_PAGES = 10;
 function parseRequestedLabels(labels: string): string[] {
   return labels
     .split(",")
-    .map((label) => label.trim().toLowerCase())
-    .filter(Boolean);
+    .flatMap((label) => {
+      const trimmed = label.trim().toLowerCase();
+      return trimmed ? [trimmed] : [];
+    });
 }
 
 function toCardIssue(
   issue: Issue,
   requestedLabels: string[],
 ): IssueData {
-  const sortedLabels = [...issue.labels].sort((left, right) => {
+  const sortedLabels = [...issue.labels].sort((left: Label, right: Label) => {
     const leftRequested = requestedLabels.includes(left.name.toLowerCase());
     const rightRequested = requestedLabels.includes(right.name.toLowerCase());
 
@@ -86,10 +88,12 @@ export default function IssuesPage() {
   const [total, setTotal] = useState(0);
   const [perPage, setPerPage] = useState(24);
   const [labelsInput, setLabelsInput] = useState(labels);
+  const [prevLabels, setPrevLabels] = useState(labels);
 
-  useEffect(() => {
+  if (labels !== prevLabels) {
     setLabelsInput(labels);
-  }, [labels]);
+    setPrevLabels(labels);
+  }
 
   useEffect(() => {
     async function fetchIssues() {

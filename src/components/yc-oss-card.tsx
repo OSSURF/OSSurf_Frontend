@@ -35,12 +35,12 @@ export function YcOssCard({ company }: { company: YcCompanyData }) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-none border border-border/60 bg-background">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-none border border-border/60 bg-background">
             {company.smallLogoThumbUrl ? (
               <img
                 src={company.smallLogoThumbUrl}
                 alt={company.name}
-                className="h-12 w-12 rounded-none object-cover"
+                className="size-12 rounded-none object-cover"
                 loading="lazy"
               />
             ) : (
@@ -59,7 +59,7 @@ export function YcOssCard({ company }: { company: YcCompanyData }) {
           </div>
         </div>
         <ArrowUpRight
-          className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           weight="bold"
         />
       </div>
@@ -73,7 +73,7 @@ export function YcOssCard({ company }: { company: YcCompanyData }) {
         </span>
         {company.isHiring && (
           <span className="flex h-5 items-center gap-1 rounded-none border border-green-500 bg-green-500 px-2 text-[11px] text-white font-medium">
-            <CheckCircle className="w-3 h-3" weight="fill" />
+            <CheckCircle className="size-3" weight="fill" />
             Hiring
           </span>
         )}
@@ -94,13 +94,13 @@ export function YcOssCard({ company }: { company: YcCompanyData }) {
 
       <div className="flex items-center gap-4 text-xs text-muted-foreground mt-auto pt-2">
         <span className="flex items-center gap-1" title="Team Size">
-          <Users className="w-4 h-4" weight="fill" />
+          <Users className="size-4" weight="fill" />
           {company.teamSize}
         </span>
 
         {company.regions.length > 0 && (
           <span className="flex items-center gap-1 ml-auto" title="Location">
-            <MapPin className="w-4 h-4" weight="fill" />
+            <MapPin className="size-4" weight="fill" />
             {company.regions[0]}
           </span>
         )}

@@ -106,13 +106,13 @@ function priorityColor(priority: string | null | undefined): string {
 function StateIcon({ state }: { state: string }) {
   switch (state) {
     case "open":
-      return <GitPullRequestDraft className="h-4 w-4 mt-0.5 text-green-500 shrink-0" />;
+      return <GitPullRequestDraft className="size-4 mt-0.5 text-green-500 shrink-0" />;
     case "merged":
-      return <GitMerge className="h-4 w-4 mt-0.5 text-purple-500 shrink-0" />;
+      return <GitMerge className="size-4 mt-0.5 text-purple-500 shrink-0" />;
     case "closed":
-      return <GitPullRequestClosed className="h-4 w-4 mt-0.5 text-red-500 shrink-0" />;
+      return <GitPullRequestClosed className="size-4 mt-0.5 text-red-500 shrink-0" />;
     default:
-      return <GitPullRequestDraft className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />;
+      return <GitPullRequestDraft className="size-4 mt-0.5 text-muted-foreground shrink-0" />;
   }
 }
 
@@ -282,7 +282,7 @@ export default function TrackedPRsPage() {
         <div className="space-y-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
-              <GitPullRequestIcon className="h-8 w-8 text-foreground" />
+              <GitPullRequestIcon className="size-8 text-foreground" />
               <div>
                 <h1 className="text-3xl tracking-tight font-serif-instrument">
                   Pull Requests
@@ -296,14 +296,14 @@ export default function TrackedPRsPage() {
               onClick={() => setAddOpen(true)}
               className="rounded-none bg-green-600 hover:bg-green-700 text-white gap-2"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="size-4" />
               Add PR
             </Button>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -374,7 +374,7 @@ export default function TrackedPRsPage() {
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GitPullRequestIcon className="h-5 w-5" />
+              <GitPullRequestIcon className="size-5" />
               Add Pull Request
             </DialogTitle>
             <DialogDescription className="sr-only">
@@ -450,7 +450,7 @@ export default function TrackedPRsPage() {
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Pencil className="h-4 w-4" />
+              <Pencil className="size-4" />
               Edit PR
             </DialogTitle>
             <DialogDescription className="sr-only">
@@ -547,7 +547,7 @@ function PRCard({
             <img
               src={`https://github.com/${pr.author}.png?size=24`}
               alt={pr.author}
-              className="w-4 h-4 rounded-full shrink-0"
+              className="size-4 rounded-full shrink-0"
             />
             <span className="truncate">{pr.author}</span>
           </div>
@@ -576,7 +576,7 @@ function PRCard({
 
           {changedFiles > 0 && (
             <span className="flex items-center gap-1 text-muted-foreground font-mono bg-muted/40 px-1 rounded-sm">
-              <FileDiff className="h-2.5 w-2.5" />
+              <FileDiff className="size-2.5" />
               {changedFiles} {changedFiles === 1 ? "file" : "files"}
             </span>
           )}
@@ -588,14 +588,14 @@ function PRCard({
       </div>
 
       <div className="flex items-center gap-2 shrink-0 absolute right-4 top-3.5">
-        <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-none" onClick={onSync} disabled={syncing} title="Sync PR">
-          <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
+        <button type="button" className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-none" onClick={onSync} disabled={syncing} title="Sync PR">
+          <RefreshCw className={`size-3.5 ${syncing ? "animate-spin" : ""}`} />
         </button>
-        <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-none" onClick={onEdit} title="Edit PR">
-          <Pencil className="h-3.5 w-3.5" />
+        <button type="button" className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-none" onClick={onEdit} title="Edit PR">
+          <Pencil className="size-3.5" />
         </button>
-        <button className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-none" onClick={onDelete} title="Delete PR">
-          <Trash2 className="h-3.5 w-3.5" />
+        <button type="button" className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-none" onClick={onDelete} title="Delete PR">
+          <Trash2 className="size-3.5" />
         </button>
       </div>
     </div>

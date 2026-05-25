@@ -102,11 +102,11 @@ function priorityColor(priority: string | null | undefined): string {
 function StateIcon({ state }: { state: string }) {
   switch (state) {
     case "open":
-      return <CircleDot className="h-4 w-4 mt-0.5 text-green-500 shrink-0" />;
+      return <CircleDot className="size-4 mt-0.5 text-green-500 shrink-0" />;
     case "closed":
-      return <CircleCheck className="h-4 w-4 mt-0.5 text-red-500 shrink-0" />;
+      return <CircleCheck className="size-4 mt-0.5 text-red-500 shrink-0" />;
     default:
-      return <CircleDot className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />;
+      return <CircleDot className="size-4 mt-0.5 text-muted-foreground shrink-0" />;
   }
 }
 
@@ -283,7 +283,7 @@ export default function TrackedIssuesPage() {
         <div className="space-y-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
-              <AlertCircleStrokeRounded className="h-8 w-8 text-foreground" />
+              <AlertCircleStrokeRounded className="size-8 text-foreground" />
               <div>
                 <h1 className="text-3xl tracking-tight font-serif-instrument">
                   Issues
@@ -297,14 +297,14 @@ export default function TrackedIssuesPage() {
               onClick={() => setAddOpen(true)}
               className="rounded-none bg-green-600 hover:bg-green-700 text-white gap-2"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="size-4" />
               Add Issue
             </Button>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -375,7 +375,7 @@ export default function TrackedIssuesPage() {
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertCircleStrokeRounded className="h-5 w-5" />
+              <AlertCircleStrokeRounded className="size-5" />
               Add Issue
             </DialogTitle>
             <DialogDescription className="sr-only">
@@ -451,7 +451,7 @@ export default function TrackedIssuesPage() {
         <DialogContent className="sm:max-w-[500px] rounded-none">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Pencil className="h-4 w-4" />
+              <Pencil className="size-4" />
               Edit Issue
             </DialogTitle>
             <DialogDescription className="sr-only">
@@ -544,7 +544,7 @@ function IssueCard({
             <img
               src={`https://github.com/${issue.author}.png?size=24`}
               alt={issue.author}
-              className="w-4 h-4 rounded-full shrink-0"
+              className="size-4 rounded-full shrink-0"
             />
             <span className="truncate">{issue.author}</span>
           </div>
@@ -577,28 +577,28 @@ function IssueCard({
       <div className="flex items-center gap-1 shrink-0 absolute right-4 top-3.5">
         <Button
           variant="ghost"
-          size="icon" className="h-7 w-7"
+          size="icon" className="size-7"
           onClick={onSync}
           disabled={syncing}
           title="Sync Issue"
         >
-          <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} />
+          <RefreshCw className={`size-3 ${syncing ? "animate-spin" : ""}`} />
         </Button>
         <Button
           variant="ghost"
-          size="icon" className="h-7 w-7"
+          size="icon" className="size-7"
           onClick={onEdit}
           title="Edit Issue"
         >
-          <Pencil className="h-3 w-3" />
+          <Pencil className="size-3" />
         </Button>
         <Button
           variant="ghost"
-          size="icon" className="h-7 w-7 hover:text-destructive"
+          size="icon" className="size-7 hover:text-destructive"
           onClick={onDelete}
           title="Delete Issue"
         >
-          <Trash2 className="h-3 w-3" />
+          <Trash2 className="size-3" />
         </Button>
       </div>
     </div>

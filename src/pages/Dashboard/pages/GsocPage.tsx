@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ArrowUpRight, CalendarBlank, Briefcase } from "@phosphor-icons/react";
 import { fetchGsocData, type GsocOrg } from "@/api/gsoc";
@@ -31,12 +31,12 @@ function GsocOrgCard({ org }: { org: GsocOrg }) {
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-none border border-border/60 bg-background">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-none border border-border/60 bg-background">
             {logoSrc ? (
               <img
                 src={logoSrc}
                 alt={title}
-                className="h-12 w-12 rounded-none object-cover"
+                className="size-12 rounded-none object-cover"
                 loading="lazy"
               />
             ) : (
@@ -57,18 +57,18 @@ function GsocOrgCard({ org }: { org: GsocOrg }) {
         </div>
 
         <ArrowUpRight
-          className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           weight="bold"
         />
       </div>
 
       <div className="flex items-center gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1" title="Years in GSoC">
-          <CalendarBlank className="w-4 h-4" weight="fill" />
+          <CalendarBlank className="size-4" weight="fill" />
           {yearsCount} years
         </span>
         <span className="flex items-center gap-1" title="Projects">
-          <Briefcase className="w-4 h-4" weight="fill" />
+          <Briefcase className="size-4" weight="fill" />
           {projectsCount} projects
         </span>
       </div>
@@ -127,30 +127,22 @@ function parseStringList(value: string | null): string[] {
     .filter(Boolean);
 }
 
-function arraysEqual<T>(a: T[], b: T[]): boolean {
-  if (a.length !== b.length) return false;
-  return a.every((item, index) => item === b[index]);
-}
+
 
 export default function GsocPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search")?.toLowerCase() ?? "";
   const [orgs, setOrgs] = useState<GsocOrg[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(
-    Math.max(1, Number(searchParams.get("page") || 1)),
-  );
   const [totalPages, setTotalPages] = useState(1);
   const perPage = 30;
-  const didInitRef = useRef(false);
   const [isYearsOpen, setIsYearsOpen] = useState(false);
   const [isTechOpen, setIsTechOpen] = useState(false);
-  const [selectedYears, setSelectedYears] = useState<number[]>(
-    parseNumberList(searchParams.get("years")),
-  );
-  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>(
-    parseStringList(searchParams.get("tech")),
-  );
+
+  // Derive parameters directly from URL Search Params
+  const page = useMemo(() => Math.max(1, Number(searchParams.get("page") || 1)), [searchParams]);
+  const selectedYears = useMemo(() => parseNumberList(searchParams.get("years")), [searchParams]);
+  const selectedTechnologies = useMemo(() => parseStringList(searchParams.get("tech")), [searchParams]);
 
   const allYears = useMemo(() => {
     const years = new Set<number>();
@@ -203,61 +195,21 @@ export default function GsocPage() {
     });
   }, [filteredOrgs, selectedYears, selectedTechnologies]);
 
-  useEffect(() => {
-    if (!didInitRef.current) {
-      didInitRef.current = true;
-      return;
-    }
-    setPage(1);
-  }, [search, selectedYears, selectedTechnologies]);
-
-  useEffect(() => {
-    const paramPage = Math.max(1, Number(searchParams.get("page") || 1));
-    const paramYears = parseNumberList(searchParams.get("years"));
-    const paramTech = parseStringList(searchParams.get("tech"));
-
-    if (paramPage !== page) {
-      setPage(paramPage);
-    }
-    if (!arraysEqual(paramYears, selectedYears)) {
-      setSelectedYears(paramYears);
-    }
-    if (!arraysEqual(paramTech, selectedTechnologies)) {
-      setSelectedTechnologies(paramTech);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
+  const updateUrlParams = (updates: Record<string, string | null>) => {
     const next = new URLSearchParams(searchParams);
-
-    if (page > 1) {
-      next.set("page", String(page));
-    } else {
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "") {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+    });
+    // Reset to page 1 on filter changes unless specifically changing page
+    if (!updates.hasOwnProperty("page")) {
       next.delete("page");
     }
-
-    if (selectedYears.length > 0) {
-      next.set("years", selectedYears.join(","));
-    } else {
-      next.delete("years");
-    }
-
-    if (selectedTechnologies.length > 0) {
-      next.set("tech", selectedTechnologies.join(","));
-    } else {
-      next.delete("tech");
-    }
-
-    if (next.toString() !== searchParams.toString()) {
-      setSearchParams(next, { replace: true });
-    }
-  }, [
-    page,
-    selectedYears,
-    selectedTechnologies,
-    searchParams,
-    setSearchParams,
-  ]);
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -319,11 +271,10 @@ export default function GsocPage() {
                           type="checkbox"
                           checked={selectedYears.includes(year)}
                           onChange={() => {
-                            setSelectedYears((prev) =>
-                              prev.includes(year)
-                                ? prev.filter((item) => item !== year)
-                                : [...prev, year],
-                            );
+                            const updated = selectedYears.includes(year)
+                              ? selectedYears.filter((item) => item !== year)
+                              : [...selectedYears, year];
+                            updateUrlParams({ years: updated.length ? updated.join(",") : null });
                           }}
                         />
                         {year}
@@ -356,11 +307,10 @@ export default function GsocPage() {
                           type="checkbox"
                           checked={selectedTechnologies.includes(tech)}
                           onChange={() => {
-                            setSelectedTechnologies((prev) =>
-                              prev.includes(tech)
-                                ? prev.filter((item) => item !== tech)
-                                : [...prev, tech],
-                            );
+                            const updated = selectedTechnologies.includes(tech)
+                              ? selectedTechnologies.filter((item) => item !== tech)
+                              : [...selectedTechnologies, tech];
+                            updateUrlParams({ tech: updated.length ? updated.join(",") : null });
                           }}
                         />
                         {tech}
@@ -394,7 +344,7 @@ export default function GsocPage() {
           <div className="flex items-center justify-between border-t border-border/60 pt-4">
             <button
               type="button"
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => updateUrlParams({ page: String(Math.max(page - 1, 1)) })}
               className="h-9 px-3 border border-border bg-card text-sm text-foreground disabled:opacity-50"
               disabled={page <= 1}
             >
@@ -407,7 +357,7 @@ export default function GsocPage() {
 
             <button
               type="button"
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() => updateUrlParams({ page: String(Math.min(page + 1, totalPages)) })}
               className="h-9 px-3 border border-border bg-card text-sm text-foreground disabled:opacity-50"
               disabled={page >= totalPages}
             >

@@ -74,9 +74,9 @@ let notifications = [
 notifications = Array.from({ length: 4 }, () => notifications).flat();
 
 const item = {
-  pull_request: <GitPullRequest className="h-4 w-4" />,
-  file_code: <FileCode className="h-4 w-4" />,
-  merge: <GitMerge className="h-4 w-4" />,
+  pull_request: <GitPullRequest className="size-4" />,
+  file_code: <FileCode className="size-4" />,
+  merge: <GitMerge className="size-4" />,
 };
 
 const Notification = ({ name, description, icon, color, time }: Item) => {
@@ -201,7 +201,7 @@ const bentoGridData: BentoCardProps[] = [
       "Discover open source software that is currently trending and gaining popularity among the developer community.",
     visual: (
       <div className="relative flex h-60 w-full items-center justify-center overflow-hidden">
-        <div className="relative h-56 w-56 z-10">
+        <div className="relative size-56 z-10">
           <OrbitingCircles radius={60} iconSize={30}>
             <ThemedIcon LightIcon={GitHubLight} DarkIcon={GitHubDark} />
             <ThemedIcon LightIcon={TurborepoLight} DarkIcon={TurborepoDark} />
@@ -242,7 +242,7 @@ const bentoGridData: BentoCardProps[] = [
     visual: (
       <div className="relative h-60 w-full overflow-hidden flex items-center justify-center">
         <AnimatedBeamMultipleOutputDemo />
-        <div className="absolute inset-0  pointer-events-none z-10" />
+        <div className="absolute inset-0 pointer-events-none z-10" />
       </div>
     ),
   },
