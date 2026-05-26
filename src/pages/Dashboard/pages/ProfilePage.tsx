@@ -307,44 +307,7 @@ export default function ProfilePage() {
         htmlUrl: repo.htmlUrl,
       }));
     }
-    return [
-      {
-        name: "Portfolio",
-        description: "A modern, responsive portfolio website built with Next.js 15, TypeScript, Tailwind CSS, and Shadcn UI.",
-        lang: "TypeScript",
-        langColor: "#3178c6",
-        stars: 2,
-        forks: 1,
-        htmlUrl: "https://github.com/BeyondV0id/Portfolio",
-      },
-      {
-        name: "sourcesuf-backend",
-        description: "Backend API for SourceSurf - source discovery and curation platform",
-        lang: "TypeScript",
-        langColor: "#3178c6",
-        stars: 1,
-        forks: 0,
-        htmlUrl: "https://github.com/BeyondV0id/sourcesuf-backend",
-      },
-      {
-        name: "oss-trends-scraper",
-        description: "A Dockerized Python microservice that scrapes GitHub Trending repositories daily and syncs metadata to the...",
-        lang: "Python",
-        langColor: "#3572A5",
-        stars: 0,
-        forks: 0,
-        htmlUrl: "https://github.com/BeyondV0id/oss-trends-scraper",
-      },
-      {
-        name: "Quorum",
-        description: "A QA platform for developers",
-        lang: "TypeScript",
-        langColor: "#3178c6",
-        stars: 0,
-        forks: 0,
-        htmlUrl: "https://github.com/BeyondV0id/Quorum",
-      }
-    ];
+    return [];
   }, [profile]);
 
   async function handleSave(name: string, newLinks: StoredLinks) {
@@ -379,30 +342,21 @@ export default function ProfilePage() {
     total: item.prs + item.issues,
   }));
 
-  const displayMonthlyActivityData = monthlyActivityData.some(
-    (item: any) => item.total > 0,
-  )
+  const displayMonthlyActivityData = monthlyActivityData.length > 0
     ? monthlyActivityData
-    : activityHistory.length
-      ? activityHistory.map((item: any, index: number) => ({
-        month: item.month,
-        prs: 2 + (index % 4),
-        issues: 1 + (index % 3),
-        total: 3 + (index % 4) + (index % 3),
-      }))
-      : [
-        { month: "Mar", prs: 3, issues: 2, total: 5 },
-        { month: "Apr", prs: 4, issues: 1, total: 5 },
-        { month: "May", prs: 5, issues: 2, total: 7 },
-        { month: "Jun", prs: 4, issues: 3, total: 7 },
-        { month: "Jul", prs: 3, issues: 2, total: 5 },
-        { month: "Aug", prs: 6, issues: 2, total: 8 },
-        { month: "Sep", prs: 5, issues: 1, total: 6 },
-        { month: "Oct", prs: 4, issues: 2, total: 6 },
-        { month: "Nov", prs: 5, issues: 2, total: 7 },
-        { month: "Dec", prs: 6, issues: 3, total: 9 },
-        { month: "Jan", prs: 4, issues: 2, total: 6 },
-        { month: "Feb", prs: 3, issues: 1, total: 4 },
+    : [
+        { month: "Jan", prs: 0, issues: 0, total: 0 },
+        { month: "Feb", prs: 0, issues: 0, total: 0 },
+        { month: "Mar", prs: 0, issues: 0, total: 0 },
+        { month: "Apr", prs: 0, issues: 0, total: 0 },
+        { month: "May", prs: 0, issues: 0, total: 0 },
+        { month: "Jun", prs: 0, issues: 0, total: 0 },
+        { month: "Jul", prs: 0, issues: 0, total: 0 },
+        { month: "Aug", prs: 0, issues: 0, total: 0 },
+        { month: "Sep", prs: 0, issues: 0, total: 0 },
+        { month: "Oct", prs: 0, issues: 0, total: 0 },
+        { month: "Nov", prs: 0, issues: 0, total: 0 },
+        { month: "Dec", prs: 0, issues: 0, total: 0 },
       ];
 
   const languageColors = [
@@ -417,15 +371,7 @@ export default function ProfilePage() {
     value: lang.value,
     fill: languageColors[idx % languageColors.length],
   }));
-  const displayLanguageData = languageData.length
-    ? languageData
-    : [
-      { name: "TypeScript", value: 42, fill: languageColors[0] },
-      { name: "Assembly", value: 18, fill: languageColors[1] },
-      { name: "Perl", value: 14, fill: languageColors[2] },
-      { name: "Python", value: 13, fill: languageColors[3] },
-      { name: "Lua", value: 13, fill: languageColors[4] },
-    ];
+  const displayLanguageData = languageData;
 
   const activityChartConfig: ChartConfig = {
     prs: { label: "Pull Requests", color: "var(--chart-1)" },
@@ -675,44 +621,52 @@ export default function ProfilePage() {
             <div className="px-6 sm:px-0 mb-4">
               <span className="text-[14px] font-medium text-foreground">Pinned</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 sm:px-0">
-              {displayedRepos.map((repo) => (
-                <div key={repo.name} className={cn(CARD, "justify-between p-4 hover:bg-muted/30 transition-colors border-border/80")}>
-                  <div className="flex flex-col gap-2">
-                    <a href={repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-[14px] font-semibold text-foreground hover:underline">
-                      {repo.name}
-                    </a>
-                    <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-3">
-                      {repo.description}
-                    </p>
+            {displayedRepos.length === 0 ? (
+              <div className="text-center py-10 border border-solid border-border p-8 bg-card/20 mx-6 sm:mx-0">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+                  No public repositories found
+                </span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 sm:px-0">
+                {displayedRepos.map((repo) => (
+                  <div key={repo.name} className={cn(CARD, "justify-between p-4 hover:bg-muted/30 transition-colors border-border/80")}>
+                    <div className="flex flex-col gap-2">
+                      <a href={repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-[14px] font-semibold text-foreground hover:underline">
+                        {repo.name}
+                      </a>
+                      <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-3">
+                        {repo.description}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 mt-5">
+                      {repo.lang && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="size-[10px] rounded-full" style={{ backgroundColor: repo.langColor }}></span>
+                          <span className="text-[12px] text-muted-foreground">{repo.lang}</span>
+                        </div>
+                      )}
+                      {(repo.stars || 0) > 0 && (
+                        <div className="flex items-center gap-1">
+                          <svg aria-label="star" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
+                            <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
+                          </svg>
+                          <span className="text-[12px] text-muted-foreground">{repo.stars}</span>
+                        </div>
+                      )}
+                      {(repo.forks || 0) > 0 && (
+                        <div className="flex items-center gap-1">
+                          <svg aria-label="fork" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
+                            <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
+                          </svg>
+                          <span className="text-[12px] text-muted-foreground">{repo.forks}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 mt-5">
-                    {repo.lang && (
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-[10px] rounded-full" style={{ backgroundColor: repo.langColor }}></span>
-                        <span className="text-[12px] text-muted-foreground">{repo.lang}</span>
-                      </div>
-                    )}
-                    {(repo.stars || 0) > 0 && (
-                      <div className="flex items-center gap-1">
-                        <svg aria-label="star" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
-                          <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
-                        </svg>
-                        <span className="text-[12px] text-muted-foreground">{repo.stars}</span>
-                      </div>
-                    )}
-                    {(repo.forks || 0) > 0 && (
-                      <div className="flex items-center gap-1">
-                        <svg aria-label="fork" role="img" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" className="text-muted-foreground fill-current">
-                          <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
-                        </svg>
-                        <span className="text-[12px] text-muted-foreground">{repo.forks}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 px-6 sm:px-0 pt-3 pb-8">
