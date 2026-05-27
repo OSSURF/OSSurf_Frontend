@@ -51,6 +51,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
+          navigateFallbackDenylist: [/^\/api/],
           mode: mode === "production" ? "production" : "development",
           runtimeCaching: [
             {
