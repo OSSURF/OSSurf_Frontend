@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { API_BASE_URL } from "./config";
+import { apiPath } from "./config";
 
 export const UserSchema = z.object({
   login: z.string(),
@@ -57,7 +57,7 @@ export async function findIssues(params: {
     urlParams.set("labels", params.labels.trim());
   }
 
-  const res = await fetch(`${API_BASE_URL}/api/find-issues?${urlParams.toString()}`);
+  const res = await fetch(apiPath(`/api/find-issues?${urlParams.toString()}`));
   if (!res.ok) {
     let serverMessage = "";
     try {

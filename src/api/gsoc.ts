@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { API_BASE_URL } from "./config";
+import { apiPath } from "./config";
 
 export const GsocOrgSchema = z
   .object({
@@ -32,7 +32,7 @@ export type GsocOrg = z.infer<typeof GsocOrgSchema>;
 export type GsocResponse = z.infer<typeof GsocResponseSchema>;
 
 export async function fetchGsocData(page: number, perPage: number): Promise<GsocResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/find-gsoc?page=${page}&perPage=${perPage}`);
+  const res = await fetch(apiPath(`/api/find-gsoc?page=${page}&perPage=${perPage}`));
   if (!res.ok) {
     throw new Error(`Failed to fetch GSOC data: ${res.statusText}`);
   }

@@ -20,16 +20,12 @@ export interface TrackedPR {
   created_at: string;
   last_synced_at: string;
 }
-import { API_BASE_URL } from "./config";
+import { authFetch } from "./config";
 
-const API_BASE = `${API_BASE_URL}/api/track-prs`;
+const API_BASE = `/api/track-prs`;
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
+  const res = await authFetch(`${API_BASE}${path}`, init);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(

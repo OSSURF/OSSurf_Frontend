@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { API_BASE_URL } from "./config";
+import { apiPath } from "./config";
 
 export const MonthlyActivitySchema = z.object({
   month: z.string(),
@@ -81,7 +81,7 @@ export type TrackedPR = z.infer<typeof TrackedPRSchema>;
 export type TrackedIssue = z.infer<typeof TrackedIssueSchema>;
 
 export async function fetchProfile(username: string): Promise<ProfileResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/profile/${encodeURIComponent(username)}`);
+  const res = await fetch(apiPath(`/api/profile/${encodeURIComponent(username)}`));
   if (!res.ok) {
     throw new Error(`Failed to fetch profile for ${username}: ${res.statusText}`);
   }

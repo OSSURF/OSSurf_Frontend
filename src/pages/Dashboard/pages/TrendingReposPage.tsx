@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useOutletContext } from "react-router-dom";
 import { GitHubRepoCard, type RepoData } from "@/components/github-repo-card";
 import { fetchTrendingRepos } from "@/api/repos";
-import { API_BASE_URL } from "@/api/config";
+import { apiPath } from "@/api/config";
 
 interface ReposContextType {
   language: string;
@@ -54,7 +54,7 @@ export default function TrendingReposPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        console.log("LOCAL DEV: Fetching trending from:", `${API_BASE_URL}/api/trending?period=${period}`);
+        console.log("LOCAL DEV: Fetching trending from:", apiPath(`/api/trending?period=${period}`));
         const result = await fetchTrendingRepos(period);
         console.log("LOCAL DEV: Received data:", result);
 

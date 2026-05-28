@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { API_BASE_URL } from "./config";
+import { authFetch } from "./config";
 import { CalendarActivitySchema, TrackedPRSchema, TrackedIssueSchema } from "./profile";
 
 export const OverviewResponseSchema = z.object({
@@ -25,7 +25,7 @@ export const OverviewResponseSchema = z.object({
 export type OverviewResponse = z.infer<typeof OverviewResponseSchema>;
 
 export async function fetchOverview(): Promise<OverviewResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/overview`, { credentials: "include" });
+  const res = await authFetch(`/api/overview`);
   if (!res.ok) {
     throw new Error(`Failed to fetch overview: ${res.statusText}`);
   }
