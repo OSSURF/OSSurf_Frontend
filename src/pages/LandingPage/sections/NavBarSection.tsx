@@ -1,7 +1,7 @@
 import { Container } from "../../../components/container.tsx";
+import { Link } from "react-router-dom";
 import { Button } from "../../../components/Button.tsx";
 import { ThemeToggle } from "../../../components/ThemeToggle";
-import { signInWithGitHub } from "../../Login";
 
 export function NavBarSection() {
   return (
@@ -13,9 +13,16 @@ export function NavBarSection() {
         </a>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Button variant="primary" size="md" onClick={signInWithGitHub}>
-            Sign in
-          </Button>
+          <Link to="/login">
+            <Button variant="secondary" size="md">
+              LOGIN
+            </Button>
+          </Link>
+          <Link to="/login">
+            <Button variant="primary" size="md">
+              SignUp
+            </Button>
+          </Link>
         </div>
       </div>
     </Container>
