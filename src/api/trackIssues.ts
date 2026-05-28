@@ -1,4 +1,4 @@
-import { authFetch } from "./config";
+import { apiPath } from "./config";
 
 export interface TrackedIssue {
   id: number;
@@ -17,7 +17,7 @@ export interface TrackedIssue {
 }
 
 export async function fetchTrackedIssues(): Promise<TrackedIssue[]> {
-  const res = await authFetch(`/api/track-issues/`);
+  const res = await fetch(apiPath(`/api/track-issues`), { credentials: "include" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
@@ -30,8 +30,9 @@ export async function addTrackedIssue(payload: {
   notes: string;
   priority: string;
 }): Promise<TrackedIssue> {
-  const res = await authFetch(`/api/track-issues/`, {
+  const res = await fetch(apiPath(`/api/track-issues`), {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
@@ -43,7 +44,10 @@ export async function addTrackedIssue(payload: {
 }
 
 export async function deleteTrackedIssue(id: number): Promise<void> {
-  const res = await authFetch(`/api/track-issues/${id}`, { method: "DELETE" });
+  const res = await fetch(apiPath(`/api/track-issues/${id}`), {
+    method: "DELETE",
+    credentials: "include",
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
@@ -51,7 +55,10 @@ export async function deleteTrackedIssue(id: number): Promise<void> {
 }
 
 export async function syncTrackedIssue(id: number): Promise<Partial<TrackedIssue>> {
-  const res = await authFetch(`/api/track-issues/${id}/sync`, { method: "POST" });
+  const res = await fetch(apiPath(`/api/track-issues/${id}/sync`), {
+    method: "POST",
+    credentials: "include",
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
@@ -63,8 +70,9 @@ export async function updateTrackedIssue(
   id: number,
   payload: { notes?: string; priority?: string },
 ): Promise<TrackedIssue> {
-  const res = await authFetch(`/api/track-issues/${id}`, {
+  const res = await fetch(apiPath(`/api/track-issues/${id}`), {
     method: "PATCH",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });

@@ -1,4 +1,4 @@
-import { authFetch } from "./config";
+import { apiPath } from "./config";
 
 export interface TrackedPR {
   id: number;
@@ -24,7 +24,7 @@ export interface TrackedPR {
 }
 
 export async function fetchTrackedPRs(): Promise<TrackedPR[]> {
-  const res = await authFetch(`/api/track-prs/`);
+  const res = await fetch(apiPath(`/api/track-prs`), { credentials: "include" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
@@ -37,8 +37,9 @@ export async function addTrackedPR(payload: {
   notes: string;
   priority: string;
 }): Promise<TrackedPR> {
-  const res = await authFetch(`/api/track-prs/`, {
+  const res = await fetch(apiPath(`/api/track-prs`), {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
@@ -50,7 +51,10 @@ export async function addTrackedPR(payload: {
 }
 
 export async function deleteTrackedPR(id: number): Promise<void> {
-  const res = await authFetch(`/api/track-prs/${id}`, { method: "DELETE" });
+  const res = await fetch(apiPath(`/api/track-prs/${id}`), {
+    method: "DELETE",
+    credentials: "include",
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
@@ -58,7 +62,10 @@ export async function deleteTrackedPR(id: number): Promise<void> {
 }
 
 export async function syncTrackedPR(id: number): Promise<Partial<TrackedPR>> {
-  const res = await authFetch(`/api/track-prs/${id}/sync`, { method: "POST" });
+  const res = await fetch(apiPath(`/api/track-prs/${id}/sync`), {
+    method: "POST",
+    credentials: "include",
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
@@ -70,8 +77,9 @@ export async function updateTrackedPR(
   id: number,
   payload: { notes?: string; priority?: string },
 ): Promise<TrackedPR> {
-  const res = await authFetch(`/api/track-prs/${id}`, {
+  const res = await fetch(apiPath(`/api/track-prs/${id}`), {
     method: "PATCH",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
