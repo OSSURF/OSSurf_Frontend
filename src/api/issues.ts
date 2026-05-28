@@ -57,7 +57,7 @@ export async function findIssues(params: {
     urlParams.set("labels", params.labels.trim());
   }
 
-  const res = await fetch(`${API_BASE_URL}/api/findIssues?${urlParams.toString()}`);
+  const res = await fetch(`${API_BASE_URL}/api/find-issues?${urlParams.toString()}`);
   if (!res.ok) {
     let serverMessage = "";
     try {

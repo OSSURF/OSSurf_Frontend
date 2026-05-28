@@ -102,7 +102,7 @@ export type TrackedPR = z.infer<typeof TrackedPRSchema>;
 export type TrackedIssue = z.infer<typeof TrackedIssueSchema>;
 
 export async function fetchDashboard(): Promise<DashboardResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/dashboard/`, { credentials: "include" });
+  const res = await fetch(`${API_BASE_URL}/api/dashboard`, { credentials: "include" });
   if (!res.ok) {
     throw new Error(`Failed to fetch dashboard: ${res.statusText}`);
   }

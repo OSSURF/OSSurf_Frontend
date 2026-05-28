@@ -1,7 +1,9 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  baseURL: import.meta.env.VITE_API_URL || "",
+  // Empty baseURL = relative URLs = goes through Vite proxy = same origin for cookies
+  // DO NOT set this to the backend URL directly (e.g. localhost:3000) — it breaks cookie auth
+  baseURL: "",
   fetchOptions: {
     credentials: "include",
     // Store token after successful auth
