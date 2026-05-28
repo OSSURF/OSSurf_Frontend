@@ -18,7 +18,11 @@ import { authFetch } from "./config";
 const API_BASE = `/api/track-issues`;
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await authFetch(`${API_BASE}${path}`, init);
+  const headers = new Headers(init?.headers);
+  if (init?.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  const res = await authFetch(`${API_BASE}${path}`, { ...init, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(

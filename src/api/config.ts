@@ -9,7 +9,6 @@ function resolveApiBase(): string {
   }
   try {
     if (new URL(raw).origin !== window.location.origin) {
-      // Never call Render (or any other host) directly from the browser in prod — ITP blocks cookies.
       return "";
     }
   } catch {
@@ -29,7 +28,6 @@ export function getBearerToken(): string {
   return localStorage.getItem("bearer_token") ?? "";
 }
 
-/** Protected routes: same-origin /api + session cookie + bearer token. */
 export async function authFetch(url: string, init: RequestInit = {}): Promise<Response> {
   const token = getBearerToken();
   const headers = new Headers(init.headers);

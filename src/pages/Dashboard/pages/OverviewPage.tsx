@@ -7,10 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { GitPullRequest, Plus, AlertCircle, Github } from "lucide-react";
+import { GitPullRequest, Plus, AlertCircle } from "lucide-react";
+import { GitHubConnectPrompt } from "../components/GitHubConnectPrompt";
 import { Panel, PanelContent } from "../components/panel";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { authClient } from "@/lib/auth-client";
 import { fetchOverview, type OverviewResponse } from "@/api/overview";
 import { fetchProfile, type ProfileResponse } from "@/api/profile";
 
@@ -146,37 +146,7 @@ export default function OverviewPage() {
     <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
       <div className="max-w-5xl space-y-0 mx-auto">
 
-        {!githubConnected && (
-          <div className="mx-6 sm:mx-0 mt-6 mb-6">
-            <div className="border border-border bg-card p-8 flex flex-col items-center text-center gap-4">
-              <div className="flex items-center justify-center size-14 rounded-full bg-muted/50">
-                <Github className="size-7 text-muted-foreground" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-foreground">
-                  Login with GitHub to see your total PRs and Issues
-                </h2>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  You can still view and manage manually tracked PRs and issues below.
-                  To see your full GitHub stats, please login with GitHub.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  authClient.signIn.social({
-                    provider: "github",
-                    callbackURL: `${window.location.origin}/overview`,
-                  });
-                }}
-                className="mt-2 inline-flex items-center gap-2 px-6 py-2.5 bg-foreground text-background font-medium text-sm hover:bg-foreground/90 transition-colors cursor-pointer"
-              >
-                <Github className="size-4" />
-                Login with GitHub
-                <span aria-hidden>→</span>
-              </button>
-            </div>
-          </div>
-        )}
+        {!githubConnected && <GitHubConnectPrompt callbackPath="/overview" />}
 
         {profile && githubConnected && (
           <div className="pt-6 pb-2 px-6 sm:px-0">

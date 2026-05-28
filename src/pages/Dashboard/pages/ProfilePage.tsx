@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { fetchOverview, type OverviewResponse } from "@/api/overview";
 import { fetchProfile, type ProfileResponse } from "@/api/profile";
 import { GitHubContributionGraph } from "../components/github-contributions/graph";
+import { GitHubConnectPrompt } from "../components/GitHubConnectPrompt";
 import { AreaChart, Area, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { LanguageBarChart } from "./OverviewPage";
@@ -414,6 +415,10 @@ export default function ProfilePage() {
     },
   ];
 
+  const githubConnected = isOwnProfile
+    ? !!overview?.stats?.user?.username
+    : !!profile?.user?.login;
+
   const isPageLoading = isOwnProfile ? (isPending || loadingStats) : loadingStats;
 
   if (isPageLoading) {
@@ -462,6 +467,83 @@ export default function ProfilePage() {
 
         </div>
       </div>
+    );
+  }
+
+  if (isOwnProfile && !githubConnected) {
+    const handle = user?.email?.split("@")[0] ?? "user";
+
+    return (
+      <>
+        {editOpen && (
+          <EditModal
+            open={editOpen}
+            onClose={() => setEditOpen(false)}
+            displayName={displayName}
+            links={links}
+            onSave={handleSave}
+          />
+        )}
+
+        <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">
+          <div className="max-w-5xl space-y-0 mx-auto">
+            <div className="px-6 sm:px-0 pt-6 pb-2 relative flex flex-col items-start w-full bg-transparent">
+              <div className="relative flex items-center md:size-[104px] size-24 shrink-0 rounded-none border border-solid border-border bg-background shadow-none z-10 box-content mb-4">
+                {user?.image ? (
+                  <img
+                    src={user.image}
+                    alt={displayName}
+                    className="absolute inset-0 h-full w-full rounded-none object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-none bg-muted text-3xl font-semibold text-muted-foreground select-none">
+                    {displayName.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              <div className="absolute right-6 sm:right-0 top-6 flex shrink-0 items-center justify-end">
+                <button
+                  id="edit-profile-btn"
+                  type="button"
+                  onClick={() => setEditOpen(true)}
+                  className="flex items-center justify-center size-[34px] rounded-none hover:bg-muted transition-colors text-muted-foreground hover:text-foreground border border-solid border-border"
+                >
+                  <Pencil size={15} />
+                </button>
+              </div>
+
+              <div className="mt-3 flex w-full flex-col">
+                <h1 className="font-semibold tracking-tight text-foreground sm:text-[22px] text-[20px] font-geist leading-none">
+                  {displayName}
+                </h1>
+                <p className="text-[14px] text-muted-foreground mt-1.5 font-geist">
+                  @{handle}
+                  {user?.createdAt && (
+                    <>
+                      {" · "}
+                      Joined{" "}
+                      {new Date(user.createdAt).toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </>
+                  )}
+                </p>
+                {allLinks.length > 0 && (
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-[14px]">
+                    {allLinks.map((l, i) => (
+                      <LinkPill key={i} {...l} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <GitHubConnectPrompt callbackPath="/profile" className="px-6 sm:px-0 mb-8" />
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -565,20 +647,7 @@ export default function ProfilePage() {
                       <span className="font-semibold text-foreground">{profile.user.following}</span> following
                     </span>
                   </>
-                ) : (
-                  <>
-                    <span className="flex items-center gap-1.5">
-                      <svg className="size-[15px] text-muted-foreground" aria-hidden="true" viewBox="0 0 16 16" version="1.1" fill="currentColor">
-                        <path d="M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.749.749 0 0 1-.885.954.752.752 0 0 1-.549-.514 3.507 3.507 0 0 0-2.522-2.372.75.75 0 0 1-.574-.73v-.352a.75.75 0 0 1 .416-.672A1.5 1.5 0 0 0 11 5.5.75.75 0 0 1 11 4Zm-5.5-.5a2 2 0 1 0-.001 3.999A2 2 0 0 0 5.5 3.5Z"></path>
-                      </svg>
-                      <span className="font-semibold text-foreground">12</span> followers
-                    </span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="font-semibold text-foreground">20</span> following
-                    </span>
-                  </>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
