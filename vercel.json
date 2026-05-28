@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://sourcesuf-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

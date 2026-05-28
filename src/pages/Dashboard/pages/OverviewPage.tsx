@@ -11,12 +11,9 @@ import { GitPullRequest, Plus, AlertCircle, Github } from "lucide-react";
 import { Panel, PanelContent } from "../components/panel";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { authClient } from "@/lib/auth-client";
-import {
-  fetchDashboard,
-  fetchProfile,
-  type ProfileResponse,
-  type DashboardResponse,
-} from "@/api/profile";
+import { fetchOverview, type OverviewResponse } from "@/api/overview";
+import { fetchProfile, type ProfileResponse } from "@/api/profile";
+
 
 const OVERVIEW_CARD_CLASS =
   "px-3 flex flex-col bg-card border border-solid rounded-none shadow-none";
@@ -25,11 +22,11 @@ const OVERVIEW_CARD_CLASS =
 
 export default function OverviewPage() {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
-  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
+  const [overview, setOverview] = useState<OverviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const githubConnected = !!dashboard?.stats?.user?.username;
+  const githubConnected = !!overview?.stats?.user?.username;
 
   useEffect(() => {
     async function load() {
@@ -37,10 +34,10 @@ export default function OverviewPage() {
       setError(null);
 
       try {
-        const dashData = await fetchDashboard();
-        setDashboard(dashData);
+        const overviewData = await fetchOverview();
+        setOverview(overviewData);
 
-        const username = dashData.stats.user.username;
+        const username = overviewData.stats.user.username;
         if (username) {
           try {
             const profileData = await fetchProfile(username);
@@ -142,8 +139,8 @@ export default function OverviewPage() {
   }
 
 
-  const recentPrs = profile?.recentPrs ?? dashboard?.recentPrs ?? [];
-  const recentIssues = profile?.recentIssues ?? dashboard?.recentIssues ?? [];
+  const recentPrs = profile?.recentPrs ?? overview?.recentPrs ?? [];
+  const recentIssues = profile?.recentIssues ?? overview?.recentIssues ?? [];
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden w-full bg-background font-geist">

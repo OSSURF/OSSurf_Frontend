@@ -74,45 +74,11 @@ export const ProfileResponseSchema = z.object({
   pinnedRepos: z.array(PinnedRepoSchema).optional(),
 });
 
-export const DashboardResponseSchema = z.object({
-  stats: z.object({
-    user: z.object({
-      username: z.string().nullable(),
-      totalPrsCreated: z.number(),
-      totalPrsMerged: z.number(),
-      totalIssuesCreated: z.number(),
-      contributionCalendar: z.array(CalendarActivitySchema),
-      contributionTotals: z.record(z.string(), z.number()),
-    }),
-    tracking: z.object({
-      activePrs: z.number(),
-      activeIssues: z.number(),
-      totalTracked: z.number(),
-    }),
-  }),
-  recentPrs: z.array(TrackedPRSchema),
-  recentIssues: z.array(TrackedIssueSchema),
-});
-
 export type MonthlyActivity = z.infer<typeof MonthlyActivitySchema>;
 export type CalendarActivity = z.infer<typeof CalendarActivitySchema>;
 export type ProfileResponse = z.infer<typeof ProfileResponseSchema>;
-export type DashboardResponse = z.infer<typeof DashboardResponseSchema>;
 export type TrackedPR = z.infer<typeof TrackedPRSchema>;
 export type TrackedIssue = z.infer<typeof TrackedIssueSchema>;
-
-export async function fetchDashboard(): Promise<DashboardResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/dashboard`, { credentials: "include" });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch dashboard: ${res.statusText}`);
-  }
-  const json = await res.json();
-  const parsed = DashboardResponseSchema.safeParse(json);
-  if (!parsed.success) {
-    throw new Error(`Validation failed for dashboard: ${parsed.error.message}`);
-  }
-  return parsed.data;
-}
 
 export async function fetchProfile(username: string): Promise<ProfileResponse> {
   const res = await fetch(`${API_BASE_URL}/api/profile/${encodeURIComponent(username)}`);

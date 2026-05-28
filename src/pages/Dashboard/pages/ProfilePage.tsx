@@ -15,12 +15,8 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import {
-  fetchDashboard,
-  fetchProfile,
-  type ProfileResponse,
-  type DashboardResponse,
-} from "@/api/profile";
+import { fetchOverview, type OverviewResponse } from "@/api/overview";
+import { fetchProfile, type ProfileResponse } from "@/api/profile";
 import { GitHubContributionGraph } from "../components/github-contributions/graph";
 import { AreaChart, Area, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
@@ -248,7 +244,7 @@ export default function ProfilePage() {
   const [links, setLinks] = useState<StoredLinks>(loadLinks);
   const [editOpen, setEditOpen] = useState(false);
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
-  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
+  const [overview, setOverview] = useState<OverviewResponse | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
 
   const displayName = isOwnProfile
@@ -260,10 +256,10 @@ export default function ProfilePage() {
       setLoadingStats(true);
       try {
         if (isOwnProfile) {
-          const dashData = await fetchDashboard();
-          setDashboard(dashData);
+          const overviewData = await fetchOverview();
+          setOverview(overviewData);
 
-          const username = dashData.stats.user.username;
+          const username = overviewData.stats.user.username;
           if (username) {
             try {
               const profileData = await fetchProfile(username);
@@ -286,14 +282,14 @@ export default function ProfilePage() {
   }, [urlUsername, isOwnProfile]);
 
   const calendarData = useMemo(() => {
-    if (dashboard?.stats?.user?.contributionCalendar?.length) {
-      return dashboard.stats.user.contributionCalendar;
+    if (overview?.stats?.user?.contributionCalendar?.length) {
+      return overview.stats.user.contributionCalendar;
     }
     if (profile?.graphs?.contributionCalendar?.length) {
       return profile.graphs.contributionCalendar;
     }
     return [];
-  }, [dashboard, profile]);
+  }, [overview, profile]);
 
   const displayedRepos = useMemo(() => {
     if (profile?.pinnedRepos && profile.pinnedRepos.length > 0) {
@@ -399,7 +395,7 @@ export default function ProfilePage() {
       label: "Total Issues",
       value:
         profile?.stats.totalIssues ??
-        dashboard?.stats.user.totalIssuesCreated ??
+        overview?.stats.user.totalIssuesCreated ??
         0,
       monthCount: latestMonthActivity?.issues ?? 0,
     },
@@ -407,7 +403,7 @@ export default function ProfilePage() {
       key: "totalPrs",
       label: "Total PRs",
       value:
-        profile?.stats.totalPrs ?? dashboard?.stats.user.totalPrsCreated ?? 0,
+        profile?.stats.totalPrs ?? overview?.stats.user.totalPrsCreated ?? 0,
       monthCount: latestMonthActivity?.prs ?? 0,
     },
     {
@@ -535,7 +531,7 @@ export default function ProfilePage() {
               </h1>
               <p className="text-[14px] text-muted-foreground mt-1.5 font-geist">
                 @{isOwnProfile
-                  ? (links.github ? links.github.split("/").pop() : dashboard?.stats?.user?.username || "username")
+                  ? (links.github ? links.github.split("/").pop() : overview?.stats?.user?.username || "username")
                   : (profile?.user?.login || urlUsername)}
                 {" · "}
                 {isOwnProfile && user?.createdAt
