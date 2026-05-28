@@ -1,3 +1,5 @@
+import { authFetch } from "./config";
+
 export interface TrackedPR {
   id: number;
   user_id: string;
@@ -20,27 +22,14 @@ export interface TrackedPR {
   created_at: string;
   last_synced_at: string;
 }
-import { authFetch } from "./config";
-
-const API_BASE = `/api/track-prs`;
-
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const headers = new Headers(init?.headers);
-  if (init?.body && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-  const res = await authFetch(`${API_BASE}${path}`, { ...init, headers });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error || `Request failed (${res.status})`,
-    );
-  }
-  return res.json() as Promise<T>;
-}
 
 export async function fetchTrackedPRs(): Promise<TrackedPR[]> {
-  return apiFetch<TrackedPR[]>("/");
+  const res = await authFetch(`/api/track-prs/`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }
 
 export async function addTrackedPR(payload: {
@@ -48,26 +37,47 @@ export async function addTrackedPR(payload: {
   notes: string;
   priority: string;
 }): Promise<TrackedPR> {
-  return apiFetch<TrackedPR>("/", {
+  const res = await authFetch(`/api/track-prs/`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }
 
 export async function deleteTrackedPR(id: number): Promise<void> {
-  await apiFetch<void>(`/${id}`, { method: "DELETE" });
+  const res = await authFetch(`/api/track-prs/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
 }
 
 export async function syncTrackedPR(id: number): Promise<Partial<TrackedPR>> {
-  return apiFetch<Partial<TrackedPR>>(`/${id}/sync`, { method: "POST" });
+  const res = await authFetch(`/api/track-prs/${id}/sync`, { method: "POST" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }
 
 export async function updateTrackedPR(
   id: number,
   payload: { notes?: string; priority?: string },
 ): Promise<TrackedPR> {
-  return apiFetch<TrackedPR>(`/${id}`, {
+  const res = await authFetch(`/api/track-prs/${id}`, {
     method: "PATCH",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }

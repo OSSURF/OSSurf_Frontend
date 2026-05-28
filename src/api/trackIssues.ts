@@ -1,3 +1,5 @@
+import { authFetch } from "./config";
+
 export interface TrackedIssue {
   id: number;
   user_id: string;
@@ -13,27 +15,14 @@ export interface TrackedIssue {
   created_at: string;
   last_synced_at: string;
 }
-import { authFetch } from "./config";
-
-const API_BASE = `/api/track-issues`;
-
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const headers = new Headers(init?.headers);
-  if (init?.body && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-  const res = await authFetch(`${API_BASE}${path}`, { ...init, headers });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error || `Request failed (${res.status})`,
-    );
-  }
-  return res.json() as Promise<T>;
-}
 
 export async function fetchTrackedIssues(): Promise<TrackedIssue[]> {
-  return apiFetch<TrackedIssue[]>("/");
+  const res = await authFetch(`/api/track-issues/`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }
 
 export async function addTrackedIssue(payload: {
@@ -41,26 +30,47 @@ export async function addTrackedIssue(payload: {
   notes: string;
   priority: string;
 }): Promise<TrackedIssue> {
-  return apiFetch<TrackedIssue>("/", {
+  const res = await authFetch(`/api/track-issues/`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }
 
 export async function deleteTrackedIssue(id: number): Promise<void> {
-  await apiFetch<void>(`/${id}`, { method: "DELETE" });
+  const res = await authFetch(`/api/track-issues/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
 }
 
 export async function syncTrackedIssue(id: number): Promise<Partial<TrackedIssue>> {
-  return apiFetch<Partial<TrackedIssue>>(`/${id}/sync`, { method: "POST" });
+  const res = await authFetch(`/api/track-issues/${id}/sync`, { method: "POST" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }
 
 export async function updateTrackedIssue(
   id: number,
   payload: { notes?: string; priority?: string },
 ): Promise<TrackedIssue> {
-  return apiFetch<TrackedIssue>(`/${id}`, {
+  const res = await authFetch(`/api/track-issues/${id}`, {
     method: "PATCH",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error || `Request failed (${res.status})`);
+  }
+  return res.json();
 }
