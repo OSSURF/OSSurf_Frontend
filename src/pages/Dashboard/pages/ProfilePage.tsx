@@ -655,9 +655,9 @@ export default function ProfilePage() {
           <div className="w-full h-px bg-border max-w-5xl"></div>
 
           {calendarData.length > 0 && (
-            <div className="pt-6 pb-3 px-6 sm:px-0">
-              <div className="flex items-center bg-card border border-solid border-border/80 rounded-none shadow-none p-4 w-full overflow-x-auto">
-                <div className="w-full flex justify-center min-w-[700px]">
+            <div className="pt-6 pb-3 px-4 sm:px-6 lg:px-0">
+              <div className="flex items-center bg-card border border-solid border-border/80 rounded-none shadow-none p-2 sm:p-4 w-full max-w-full overflow-hidden">
+                <div className="w-full max-w-full flex justify-center">
                   <GitHubContributionGraph data={calendarData} />
                 </div>
               </div>
@@ -695,11 +695,17 @@ export default function ProfilePage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 sm:px-0">
                 {displayedRepos.map((repo) => (
-                  <div key={repo.name} className={cn(CARD, "justify-between p-4 hover:bg-muted/30 transition-colors border-border/80")}>
+                  <a
+                    key={repo.name}
+                    href={repo.htmlUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(CARD, "justify-between p-4 hover:bg-muted/30 transition-colors border-border/80 cursor-pointer")}
+                  >
                     <div className="flex flex-col gap-2">
-                      <a href={repo.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-[14px] font-semibold text-foreground hover:underline">
+                      <span className="text-[14px] font-semibold text-foreground hover:underline">
                         {repo.name}
-                      </a>
+                      </span>
                       <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-3">
                         {repo.description}
                       </p>
@@ -728,7 +734,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                     </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             )}

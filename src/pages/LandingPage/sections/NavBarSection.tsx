@@ -14,13 +14,8 @@ export function NavBarSection() {
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <Link to="/login">
-            <Button variant="secondary" size="md">
-              LOGIN
-            </Button>
-          </Link>
-          <Link to="/login">
             <Button variant="primary" size="md">
-              SignUp
+              Login
             </Button>
           </Link>
         </div>

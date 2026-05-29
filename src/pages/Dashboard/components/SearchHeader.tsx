@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { IconSearch, IconBell, IconMenu2 } from "@tabler/icons-react";
+import { IconSearch, IconMenu2 } from "@tabler/icons-react";
 import { GitHubDark, GitHubLight } from "@ridemountainpig/svgl-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -91,9 +91,6 @@ export default function SearchHeader({
 
         <ThemeToggle className="rounded-full size-9" />
 
-        <button className="hover:bg-muted rounded-full border border-border bg-card transition-colors flex items-center justify-center size-9">
-          <IconBell className="size-4 text-foreground" />
-        </button>
       </div>
     </header>
   );

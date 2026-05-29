@@ -160,8 +160,9 @@ function AccountPopover({
           View Profile
         </Link>
         <button
+          type="button"
           onClick={handleSignOut}
-          className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm text-destructive bg-destructive/10 hover:bg-destructive/20 transition-colors font-medium"
+          className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium bg-black text-white hover:bg-black/85 transition-colors cursor-pointer"
         >
           <LogOut size={16} />
           Sign Out
@@ -295,7 +296,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             <button
               id="account-popover-btn"
               onClick={() => setPopoverOpen((p) => !p)}
-              className="block h-10 w-full relative focus:outline-none"
+              className="block h-10 w-full relative focus:outline-none cursor-pointer hover:bg-muted/30 transition-colors"
             >
               {location.pathname === "/profile" && (
                 <motion.div
