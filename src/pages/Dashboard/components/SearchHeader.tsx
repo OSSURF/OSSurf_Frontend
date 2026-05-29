@@ -49,7 +49,7 @@ export default function SearchHeader({
     none: "",
   };
   const handleGitHub = () => {
-    window.open("https://github.com", "_blank");
+    window.open("https://github.com/OSSURF", "_blank");
 
   };
   return (

@@ -13,7 +13,7 @@ export function HeroSection() {
   const handleOpenSource = () => {
     console.log("Open Source clicked");
     // Add your GitHub link or navigation here
-    window.open("https://github.com", "_blank");
+    window.open("https://github.com/OSSURF", "_blank");
   };
 
   return (
