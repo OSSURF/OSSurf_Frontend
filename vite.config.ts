@@ -34,8 +34,8 @@ export default defineConfig(({ mode }) => {
         registerType: "prompt",
         includeAssets: ["logo.svg", "assets/Hero.png"],
         manifest: {
-          name: "SourceSurf",
-          short_name: "SourceSurf",
+          name: "OSSurf",
+          short_name: "OSSurf",
           description:
             "Discover, track, and search the best open-source projects on GitHub in seconds.",
           theme_color: "#09090b",

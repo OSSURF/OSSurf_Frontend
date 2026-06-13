@@ -1,4 +1,6 @@
-export default function Logo() {
+import type { SVGProps } from "react";
+
+export default function Logo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       id="logo-64"
@@ -7,6 +9,7 @@ export default function Logo() {
       viewBox="0 0 50 50"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <path
         className="ccustom"

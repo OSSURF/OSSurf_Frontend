@@ -59,7 +59,7 @@ export default function LoginPage() {
               aria-hidden={true}
             />
             <p className="text-pretty font-medium text-lg text-foreground dark:text-foreground">
-              SourceSurf
+              OSSurf
             </p>
           </div>
           <h3 className="text-balance mt-6 text-lg font-semibold text-foreground dark:text-foreground">
